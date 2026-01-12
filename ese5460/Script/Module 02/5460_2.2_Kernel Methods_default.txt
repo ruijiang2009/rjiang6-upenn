@@ -1,0 +1,201 @@
+Dual representation of the perceptron Transcript (00:00)
+What we will talk about is something called as the dual representation of the perceptron. Let us write the equations again. Wt plus 1 is wt. I'll again set the learning rate to be exactly 1. And it is y omega t x omega t for all t. 
+
+Let us imagine that w0 is equal to 0. So we start from w that is 0, and then, we keep running SED. Is it clear to everyone that wt is a linear combination of all the mistakes that you have made? Even w0 is 0, then w1 is 0 plus the first mistake. 
+
+Then, w2 is w1 plus the second mistake. And even if in between you sample a few images where you are getting things right, in this way, the final w that you find is always a linear combination of all the mistakes that you have made. 
+
+So I can write it like this, yi xi is the ith samples output and the ith sample xi. Alpha i are the total number of mistakes that I made on the ith sample before I stop. This is a slightly complicated conjecture to think about. 
+
+I run the perceptron for, let's say, 1 million iterations. Let us say n is 100 samples. On the first sample, I make a mistake 50 times. On the second time, I make a mistake 73 times. On the third sample, I make a mistake 157 times. So alpha i's are all these numbers, 50, 73, 157, et cetera. 
+
+This expression is correct because I started off from 0. Every time I make a mistake, I add this particular number to it, yi xi, if that sample was i. And that is why I can just sum up-- I can just write the solution like this. Is this intuitive to people? 
+
+It is a very weird way of writing wts. Until now, we have been wts like this for one iteration. And suddenly, here, I wrote the entire answer. Of course, I have-- it is not as if I've done magic here. The numbers alpha i's, we don't really know. We know them only after training the perceptron, right? We don't know them a priori. 
+
+They are the mistakes that I made while training the perceptron. So after I run it for 1 million steps, I simply check how many mistakes I made on every sample. And then, those are my little real numbers-- actually, integers alpha i's. How many alpha i's are there? 
+
+Exactly equal to the number of samples. Some of them may be 0 because you may never have made a mistake on that sample. Some of them may be 0 because you may have never sampled that sample. But let us imagine that you run for a very, very long time and you sample every sample many, many times. And these are the final alpha i's that you converge to. 
+
+If your data set is linearly separable, if there exists a w that splits your data set cleanly into 0 error, then alpha i's will converge. Is that obvious to people? Because the perception stops updating its rates. So it stops making mistakes. So it stops incrementing alpha i's for all samples. 
+
+So this is one way to check when to stop. You record your alpha i's as a big vector. Let us say this is alpha. It takes values from 1 to-- or it has n different entries. For some, it is, let's say, 50. For some others, it is 73. For some others, it is some other number. As soon as this vector stops changing, you know that you have fed the perceptron and there is nothing more to do. 
+
+These variables alphas are called the dual representation of the perceptron. You can either store the weights on your hard disk or you can store the values alpha, one in the same thing. Weight is also a real value number. It has p different entries. 
+
+Alpha is a bunch of integers. It lies on a z and it has an integers. You can store whichever one you want. If you have a very large number of weights in which-- by that I mean, if you have a very high dimensional images, then you may want to store the alphas because the alphas might be smaller than the number of weights. 
+
+This is a kind of a moot point. But I just want to impress upon you the fact that the size of the weight vector and the size of the alpha vector are different things. 
+
+OK, cool. So let us just write it-- write things, again, clearly, like I said. We have our function f. F before was what? It was sign of a w transpose x. This was our perceptron. 
+
+But then, now, we said that my solution, w star, is exactly this expression. So I can substitute this expression for w star and write this expression. OK, I have done nothing. I have simply substituted the value that I claim to be the answer using the dual representation into our predictor f. And this is the expression. 
+
+Now, one thing to always remember in these kinds of formula is this very special term, xi transpose xi. It is the outer product of your-- sorry, it is the inner product of your images. Xi is a vector. Xi transpose xi is a real number. 
+
+Any time you see such an inner product of your inputs, you can do something very nice, and we'll see very soon what that nice thing is. But for now, let us remember that the weights are equal to this formula and let us say that we set this to 0 and just is the choice that we make. 
+
+And because of this, you can write down this entire expression using alphas. But then, like we said now, given any new image x, you have to calculate the entire summation every time you make a prediction. How many entries are there in the summation? N entries. 
+
+Each entry involves you doing an inner product of p-dimensional vectors or d-dimension vectors. So that is order n times p plus to calculate this function. If you are doing w transpose x, what would be the number of flops? 
+
+If x is a p-dimensional vector, then w also has to be a p-dimensional vector. So the number of flops is what? P. It is p numbers that's a p multiplications. So just like it was n times p here, it is p here. So obviously, at each inference time, you are spending a lot of energy calculating this objective. Calculating the predictions. 
+
+Non-linear classifiers Transcript (07:53)
+Does anyone know how to fit polynomial regression? You've done this in high school, probably. So I have y equal to some function of 1 x like this. How can I fit a quadratic polynomial to my data? I have inputs that are real value. I have outputs that are real valued. And I would like to fit a linear regression to this problem. Actually, I should correct myself-- I would like to fit a quadratic polynomial to this data. How can I fit a quadratic polynomial well? 
+
+I take my inputs x, and I convert them into this very peculiar vector 1, x, x squared. And now I have three parameters in my model. And my y is 8 times 1 plus b times x plus c times x squared. So it is a generic quadratic polynomial. But as you can see, I can fit this expression by treating this as w and treating this other vector as some unit vector z. So I had scalar value inputs, but I converted them into three dimensional inputs. Now I have three dimensional weight vector, and I can do linear regression. 
+
+All of you have done this before, right? In simple words, we can fit a polynomial by expanding the inputs to look like these monomial terms. And then we can fit a nonlinear function. This is a nonlinear function, no longer a linear regression. But we can still cheat by having these x squared and 1 as three different dimensions of a new fake input. This is how we fit polynomial regression. You can do this for any order of polynomials. 
+
+This is the oldest trick in the book, where we take stuff that looks complicated. And then we increase the dimensionality of the input space so that we can use a simpler model to fit upon it. In this case, we only knew how to fit linear regression. We wanted to fit a quadratic, but we can rewrite the quadratic as a linear model by pretending that these are the features. The features don't have to be independent of each other. Features are whatever you choose. 
+
+So this concept is general. In general, you can take your inputs x and then convert them into a feature space. And let us call these features phi of x. And then fit a model that is w transpose phi of x. Can you tell me now how I would fit this particular problem? So let's say I'm doing classification. You can do the same thing for the perceptron. Just like we did perceptron is sine of w transpose x, you can now do sine of w transverse phi of x-- no big difference. 
+
+Let us say our pluses were all near the origin. Our minuses were all at around the same distance away from the origin. There is no linear hyperplane that separates the two. What would you do? This is, let's say, two dimensional data. So you can do a Gaussian transformation or write these things in polar coordinates in terms of R and theta. And then when you look at the two-point clouds that are clearly different radius from the origin, right? So you will see a hyperplane that separates them in the first dimension of the polar coordinates. 
+
+So you will fit a circle. But in order to fit the circle using linear regression, you'll have to first transform the inputs in some way. The circle is a nonlinear function. The circle is x1 squared plus x2 squared equal to some constant c. This is clearly a nonlinear function of x1 and x2. But let us say that we only wanted to use linear regression to fit this, so you first have to convert x1 and x2's into some new coordinates frame and ensure that the circle looks like a plane in that coordinated frame. 
+
+And one example of such a coordinated frame is polar coordinates. The circle is a plane in polar coordinates, right? OK. So this is a very visual way to remember the kernel trick. Any time stuff, where you cannot fit a hyperplane, cannot fit a linear model to separate the two-point clouds, if you transform the inputs to look like they belong to some other coordinate frame, then you can fit a linear model in the new coordinate frame. 
+
+This is another pictorial example. These are our blue points. These are our red points. Clearly, there does not exist a hydroplane that separates the two. But if you imagine converting them into some other function space-- in this case, it is a more complicated function space than just quadratics or polar coordinates, it is some other function space. In this case, this function is a linear function in that space. 
+
+Let us look at some calculations. Just like we did for the quadratic polynomial, what we are really doing is we are creating a feature space for ourselves, phi of x, which is three-dimensional, 1 comma square root 2 x. The square root 2 is not very important. It is just for niceties when you multiply the two things together, and you get 2 instead of something else. And then it says x squared. So if x was a real valued input, then phi of x is a three-dimensional input. Now your w will also have to be three dimensional. But you can fit a linear model to this. 
+
+You can also do this for higher dimensional things. So if you have two dimensional input x, if x is itself two-dimensional, then phi of x, a quadratic feature, can be something like this. So these are all the different monomers that you get when you expand a plus b whole squared. 1, x1, x2, square root 2, x1, x2, x1 squared, x2 squared. As I said, you can transform the inputs into phi of x, and now, again, run perceptron. No worries at all. 
+
+Like before, there is also a dual representation for the perceptron with the features. The alphas are the same. Alphas are simply the mistakes. Now simply every time you see an x in your perceptron algorithm or SGD, you replace it with phi of x without any changes whatsoever. Again, we can write the predictor as the sine function applied to the summation of all these things. You, again, see the inner product, phi of xi, which are all your inputs, and phi of x, which is your test data. 
+
+So if x is your test data, instead of simply doing sine of w transpose x, now you can do this entire business. First, you take the test data. Use whatever function you used for phi, and create phi of x. Have all your training data and their respective phi of x size, and then calculate the summation. And this is how you make predictions. Until now, we have done nothing very complicated. We simply introduced the concept of this feature space and replaced everything that we saw in the linear model by phi of x. We don't know how to calculate phi of x. I give you a few examples, where you were able to use your intuition to calculate phi of x. But in general, you don't know how to calculate phi of x. 
+
+Introduction to kernels Transcript (16:33)
+Before we go on to how to calculate phi of x, let me tell you a little bit about kernels. This will be useful in understanding how convolutional kernels work. Convolutional kernels are a special kind of kernels. And these are the more general kind of kernels. 
+
+When we wrote down these expressions, we always saw this inner products. Phi transpose phi, or x transpose x. The concept of a kernel machine exactly exploits this inner product. 
+
+Any time you see an inner product, you will be able to write it down. You will be able to reduce the amount of lops necessary to calculate the summation by using a kernel machine. And here is how it looks. 
+
+So phi of x is, let's say, our quadratic 1 square root 2x, x squared. Phi of some other x prime. x prime has led to some other image in our data set. It is 1 square root 2x prime, x prime whole squared. When you take the inner product, phi of x transpose phi of x prime, you are really multiplying these two things together. And so you will get 1 plus 2 times x times x transpose plus xx transpose whole squared. Sorry, I shouldn't say transpose, x prime whole squared. All of these are real numbers. 
+
+If you think about this carefully, you will notice that this is equal to 1 plus x times x prime whole squared. This is a very important point. The inner product of these two feature vectors is a nice function, like this. 
+
+This function is what is called a kernel. It is called a kernel. And a simple intuitive way of remembering this is to say that this particular quantity is large if x and x prime are similar to each other. If x is plus 1 and x prime is minus 1, then this one will be 0. But if x is plus 1 and x prime is 2, then this number is something large. It is equal to 3 squared, which is 9. 
+
+Kernel functions are functions which intuitively measure the similarity between two inputs. You can cook up any function you want that measures the similarity between two inputs. In this case, this is mine. So kernels are simply a formalization of the idea. It is a function that takes in two inputs as the argument and returns a real number. 
+
+So x and x prime are two inputs for us. And what comes out is a real number, the similarity between x and x prime. So if you have some intuitive way of understanding when two inputs are the same, let us say both are images that are essentially orange, both are images that are essentially black. Then you can write down a kernel using simply a Python function that checks when two images are similar. 
+
+Any which intuitive understanding you have of what makes two things similar, you can write down, or write it down as a function. You no longer need to cook up a feature space. 
+
+In this expression, there is no phi of x. Phi of x is implicit. You can give me this function, and I will pretend as if I know what phi of x is. Yeah, cool. 
+
+So quadratics are always not the only kind of kernels. There are many other kinds of kernels. This is the vector version of the quadratic x transpose x prime plus c equals squared. Is this a real number? Let us say x is a vector in p dimensions. x transpose x prime is a real number. It is the inner product between two vectors. So this is a real number. 
+
+Kernels always are real numbers. There is no questions about it. They're taking as input anything, but they have to return a real number. This is another example of a kernel. e to the negative x minus x prime whole square. 
+
+If x and x prime are very different from each other, then what is this kernel return? Something that's very close to zero. It is e raised to negative of some very large number. 
+
+If x and x prime are very similar to each other, if, let us say, they are identical, then what does this one function return? One. So kernels are simply similarity functions, any way to measure the similarity. 
+
+Kernel perceptron Transcript (21:24)
+Now, we'll write down what is called a kernel perceptron. It is exactly identical to the perceptron with feature space. We will simply write it down in a different way. As before, we will initialize our dual variables to zero. Before you started training, you haven't made any mistake on any sample yet. So all the alpha i's are 0. 
+
+At each iteration, you sample an image and its corresponding label randomly from the data set. And let us say that this is our data set. And you call this particular sample x omega t and y omega t. How do we check if there is a mistake? Well, this entire expression has to be positive, right? Before we are doing y times w, transpose x has to be greater than 0. But now, our w is equal to alpha i, yi, xi, i goes from 1 to n. 
+
+This is our w at the tth iteration. Alpha i's keep changing after every iteration. But given the current value of alpha i's, this is the w that we are maintaining as our perceptron. So checking whether the perceptron makes a mistake is simply equivalent to calculating this summation. Is that clear to everyone? 
+
+We are not doing anything other than rewriting expressions. Simply substituting the value of w into this expression. And this is what you get except that I wrote down it-- wrote it down in terms of x's. Here, I have written it down in terms of phis. 
+
+OK, so this is what a mistake means. If there is a mistake, what do you do? You simply increment alpha, right? Incrementing alpha is like changing w. Just like we updated w, if there is a mistake in SGD, in the dual version of the perceptron, there is no w. There is only alphas. So you see a mistake, you improve it, you increment its alpha by one. 
+
+Next iteration you sample a new data point. You calculate this entire summation again. Again, if you see a mistake, you increment that alpha by one. And as you keep running this for many iterations, your alphas will increase for all samples. And at some point, they will stop increasing. That is when you fit at the perceptron. 
+
+Is this clear to everyone? This is a way of fitting the perceptron without actually having to remember what the weights are. You only remember what the dual variables are. 
+
+Back to this. This algorithm, not surprisingly, is called the kernel perceptron algorithm. It is perceptron because we're fitting a perceptron. It is kernel perceptron because we are using this function phi transpose of phi is-- you can write it down as a kernel, right? This is exactly what we said a kernel is. The kernel is something that is an inner product of the two feature vectors. 
+
+Instead of writing down what the feature vector is, you can write down what the kernel is. And this is one function you can code up. This function takes in two inputs and it returns a real number that measures the similarity between these two inputs. 
+
+So in order to implement the kernel perceptron, notice that you don't need the weights. That's because we are using the dual representation. But notice that you also need to know what phi is. You can only write down this function k, the kernel. And then, just run the kernel perceptron algorithm. 
+
+It is capturing whether omega t and i are similar to each other. Xi is the ith image in your training data set. X omega t is the one that you sampled in this iteration. So you are estimating the output of your newly sampled image as a function of how similar it is to all the other images in your training data set. 
+
+Think about this a little more slowly. For instance, if xi and x omega t are very similar to each other, if x1 and x omega t are very similar to each other, and x alpha 1 is very large. In that case, you will use y1 a lot when you make predictions on omega t. Is this easy to understand? 
+
+If one of the images in your training data set is very similar to your recently sampled image, and in the past you made lots and lots of mistakes on that image, then that you should use its output. You should weigh its output much more in this summation to get the correct output of omega t. We are representing the output that we predict for x omega t as the weighted sum of all images that are similar to omega t weighted by their mistakes. 
+
+Gram matrices Transcript (26:15)
+So now we know how to run the kernel perceptron. As I said a few times now, it is not terribly cheap to run the kernel perceptron because it will keep calculating this in our products all the time or calculating the kernel all the time. But remember that x omega t is one of the samples of your training data set, right? So if you could pre-calculate your kernel for all pairs of samples, then you wouldn't have to do it again and again. 
+
+So you can take your data set, recalculate all these terms. x1 of k of x1, x2, k of x2, x3 and all such pairs. Then, you can always just plug-in these things and write this entire business as a matrix vector multiplication. The vector is the vector of alphas. The matrix is a matrix of all the kernel entries. 
+
+This matrix has a name. It is called the gram matrix. So gram matrix is a matrix whose ijth entry is kernel applied to the ith input and the jth input together. So it is just a matrix with all the kernel values inside it. 
+
+And as I said, once you have calculated the gram matrix, they can write this entire summation as a matrix vector product where the matrix is g and the vector is alpha times y, in this case. Alpha keeps changing after every iteration. That is something important to remember. The number of mistakes you make keeps on changing after every iteration. 
+
+It is important to appreciate that gram matrices are not small objects. So if you have a million images, the number of entries in your gram matrix is 10 raise to 12, which is a very large number of entries. So even if this looks like some very simple model with linear functions and stuff, it is a pretty heavy thing to run. 
+
+In fact, until about 2010, 2012 or so, essentially, every machine learning algorithm in the industry would look something like kernel-based machines. So there have been lots and lots of techniques in how to reduce the amount of flops required to calculate these kinds of summations. 
+
+For instance, this is a matrix vector product. So you can write down this matrix as a lu decomposition or some other factorization and update this factorization in time and so on and so forth. These methods go under the name of Nystrom methods. And you can read a little more on Wikipedia or something about it. 
+
+Mercer's Theorem Transcript (29:04)
+The next thing that I want to talk about is what makes a kernel. So until now, we've been saying th kernel is something that measures the similarity between inputs but not all functions are kernels so if you write down in your code some Python function to estimate the similarity you would like to convince yourself that this function is a legitimate kernel. 
+
+So we'd like to understand what makes a function a kernel function as opposed to any other function. And this is what is called-- so Mercer's theorem is one way to understand it. It lets you say that so long as your kernel satisfies some regularity properties-- and the regularity properties are not terribly important. So long as your kernel satisfies these properties, then it can be written down as the inner product of some feature space. 
+
+In other words, if your kernel satisfies the conditions of Mercer's theorem, then you can be assured that if there is some feature vector whose inner product is the kernel, you may not know what the feature factor is because you only wrote down the current function. But you can check the current function for these conditions and convince yourself that you're not doing anything incorrect. 
+
+And here is what the condition means. So you remember that kernel is a function of two inputs, x and x prime. For any symmetric function k, kernels are always symmetric functions. If I replace x and x prime, if I interchange their order, then the similarity should be the same. So that is your condition number one. A kernel should be symmetric in its arguments. 
+
+For any symmetric function, if this kernel satisfies a condition like this. So this integral is true for all functions f, for any function f that you give me, if I integrate over the entire domain, capital X comma x prime, your kernel function, then I should get something that is larger than 0. 
+
+Intuitively, this is pretty similar to an outer product of a matrix. We say that the matrix is positive semidefinite if the outer product x transpose a times x is greater than 0 for all x. This is, basically, the same condition, except that everything is happening in space of functions. 
+
+You can think of f of x prime or f of x as a large vector for every possible value of x. It's an infinite dimensional vector. But it is conceptually the exact same condition that says a matrix is semidefinite if the expression x transpose x is greater than 0 for all x. 
+
+Here, for all functions f, this integral is exactly like our summation-- double summation in the cross-product-- in the quadratic product, right? So this is like some condition upon this function k. If our function k satisfies this condition, then k can be written down as a summation of inner products or feature vectors. And this is exactly what we are after. 
+
+So if you can somehow check this condition for your kernel, then you can be assured that there exists a feature vector whose inner products are the kernel. This feature vector is a little more complicated than just a phi of x. In general, it is an infinite summation of different feature vectors, lambda i times phi i times phi transpose. 
+
+And again, just like we write down x transpose x is greater than 0 and we can write down a in terms of its singular vectors or eigenvectors, these are the eigenvectors of the kernel. These are the eigenvalues of the kernel. 
+
+Just like a matrix can be decomposed into its-- you can do an eigendecomposition for a matrix, you can also do an eigendecomposition for a function so long as your function is like this. And these eigenvectors are exactly our features. 
+
+So you could have thought a lot to cook up these feature vectors yourself, but that is not easy. Coming up with a kernel function is much, much easier. Given two images, you can cook up many kernel functions. We just need now some way to check this particular condition. 
+
+Let us look at this one first. This integral goes over the entire domain. We have only m images in our data set that are from this domain. So in some sense, we only care about checking if the kernel is a valid kernel for our m images. We also hope that it is valid for the test images. But we only need to check this kind of a condition for our n images. 
+
+And that is one way to understand this calculation. So g is our gram matrix. So g gij is kernel of xi times xj. This is the increase. We can check if g is positive semidefinite. If g, the gram matrix, is positive semidefinite, then you can be assured that your kernel is a valid kernel. 
+
+Why is this true? A matrix is positive semidefinite if for all u-- all vectors u, you transpose gu is greater than or equal to 0. You can expand your transpose gu has this particular expression, ui times uj times gij summed up our i,j. 
+
+We know that gij is a phi of xi and phi of x-- I think there should be x superscript i next superscript j. So if our kernel was a legitimate kernel, then there exists some functions phi that-- whose inner product gives us the output of the kernel. So it can replace this gij by phi of xi and phi of xj. 
+
+And now you can just rewrite ui times phi i and uj times phi j separately as two summations. And because these are the exact same things, the only difference between the two brackets is the variable i over which we sum. 
+
+This is our expression. I can rewrite this expression as ui phi of xi. uj phi of xj. These quantities don't depend on i, so I can move the summation of over j inside. 
+
+OK, I can put brackets around it. And now, these are exactly our same-- these two brackets are identical because it is j goes from 1 to n here. I goes from 1 to n here. Ui goes from u1 to un. Uj goes from went to u1 to un. So this is equal to summation of u i phi of xi non-squared. 
+
+Because it is the non-squared of some quantity, it is always greater than 0. So what have we shown here? We've shown that for any u-- any vector u, u transpose gu is greater than or equal to 0 If g is a gram matrix. 
+
+So if you cook up a kernel function, you calculate this quantity. And you find that for some u, it is not greater than or equal to 0, then you know that your kernel is not valid. How can you check this? 
+
+I give you a gram matrix g. How can you check if u transpose gu is greater than 0 for all u's? So you want to calculate the eigendecomposition of the matrix if all the eigenvalues are greater than 0 or get an equal to 0, then you know that your kernel is valid. If you find some negative eigenvalues, then you know that your kernel is not invalid. 
+
+So this way you can check-- take your data set, take a kernel function, and run your kernel function for this data set and check if the kernel is correct or not. If your kernel is a valid kernel or not. What does it mean for a kernel to be valid? The kernel is valid if the output of a kernel can be written down as an inner product of some feature vectors. 
+
+You can do a orthogonal decomposition of these vectors phi i and write them in such a way that phi i transpose phi j integrates out to 0 so they can be orthogonal functions. In which case, you will be able to simply concatenate all of them and think of a large feature vector. Does that make sense? 
+
+So these functions I have written it down as an infinite sum. What I really wanted is some phi transpose phi x. I said that a kernel is written down as an inner product of two feature vectors. I have given you a sum of function, a sum of feature vectors, which give you the kernel. But I did not give you one feature vector that gives you the kernel. 
+
+You can go from here to here quite easily by, basically, doing a reduction of these functions phi. And then, cooking up the big function capital phi-- big feature vector capital phi. It is not that-- it's a little technical thing, but they both mean one and the same thing. 
+
+Let's say that I have a full rank matrix a and some vector x. I can write down x as a summation of the eigenvectors of the matrix. And let's say these are n eigenvectors. 
+
+Now, when we say these are the eigenvectors, we are implicitly saying that the inner product between two eigenvectors is 0. So these are orthogonal vectors. You can also think of orthogonal functions, in which case, the relevant condition is that phi of x and phi prime of x dx equal to 0. These are orthogonal functions. 
+
+So just like we do the inner product here, which is a summation of all the elements, it is the summation of all the entries in the domain. So to reduce this sum, which is our functions phi i, we need to modify these functions phi i to look like these orthogonal functions so that no phi i has an overlap with another phi i. 
+
+In which case, we can imagine an even larger function capital phi such that this entire business looks like some capital phi transpose x and capital phi transpose x prime. It's a capital phi times x prime. So this is what it means to change the functions. It is not very important. But take it from me that the kernel is a valid kernel if it can be written down as this infinite sum. 

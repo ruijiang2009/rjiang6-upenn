@@ -1,0 +1,5 @@
+[AUDIO LOGO] The second regularization technique is called dropout. This is somewhat mysterious. It involves setting a fraction of the activations of each layer to 0 every time we forward propagate an image through the network, a pretty weird thing to do. But dropout is very effective at training neural networks. We will try to understand why. 
+
+The third one is called batch normalization. This involves normalizing the activations of each layer to have 0 mean and unit standard deviation. This ensures that each layer gets inputs of roughly the same magnitude. This way, the weights of a layer do not need to take values that are too large or too small. And they can still continue to function. 
+
+Batch normalization is also a very mysterious operation. In fact, there was a mistake in the original paper that proposed it. But you cannot train neural networks easily without it. Batch normalization is both a blessing and a curse. And in the lectures, you will see me say that it is the hidden joker behind half the results that we see in deep learning today. 

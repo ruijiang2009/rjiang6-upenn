@@ -1,0 +1,145 @@
+Data augmentation Transcript (00:00)
+Let us look at the next concept, a very, very related concept. So we said that convolutions are useful because, well, we don't have to create this gigantic data set where we take the star and translate it at different locations, because there are many locations to translate, many objects to translate. You would rather not do it yourself if the network can do it itself. 
+
+Now, convolutions are just one operation that gives you translational equivariance. There are many, many other nuisances. Can you name two? Lighting, yes. Rotations, yes. Viewpoint, yes. Many, many others. The shapes of objects is also a nuisance. 
+
+We don't know operations like convolution for each of these nuisances. It would be nice if we did. Then we could all bake them inside the network like we do convolutions, and we get different kinds of equivariant layers for each of those nuisances. But for some of them, they don't even exist mathematically. And for the others, we don't even know. So roughly speaking, if a nuisance has what is called a group structure, a viewpoint is a nuisance like this. 
+
+So you can take an image of an object from one viewpoint, and you have another image of the same object from another viewpoint. You can calculate how much the camera moved in between. So you can invert the nuisance. If I move to the right by 5 meters or 5 feet, then I can also imagine how the scene looked if I was 5 feet to the left. This doesn't always work because there are occlusions in images. 
+
+So viewpoint is not a group if you think of occlusions. But imagine a world where there are no occlusions, where there is only one object and the entire world is empty around it. In that case, you will never be uploaded. Imagine just looking at a cube sitting on a table. There are no occlusions on this. 
+
+So for these cases, you're going to invert the group. And for such kinds of invert the group action, the viewpoint in this case-- and for such cases, you can build operations that are like convolutions. But, of course, images have occlusions, so it's not as if we can do this in practice, even if we can do it mathematically. It is not as if it is useful in practice. 
+
+So moral of the story is we need some other way of handling nuisances. Data augmentation is a very, very dumb way of handling nuisances. It's really the simplest possible thing you can do. Just like for translations, we imagine creating a data set that is huge with all the objects translated at different locations. Here we are going to talk about different nuisances and different ways of modifying the images for each of them. You don't need to know anything about the nuisance to do this because you're doing operations on the images. And it's easy. 
+
+So, mathematically, you can think of data augmentation as-- remember, we used to have a data set which has xi comma yi. xi are the images. yi are the labels. Let us think of T being one operation-- translation, rotation, lighting, brightness, saturation, contrast, anything-- T being some operation that you apply to all images. T could be a set of operations, five different kinds of operations. 
+
+And when you say, I augmented the data set, what you really mean is you created a new data set where the original images are there. And then these are all the augmented images. So just like our picture of a star, the original star locations are there, whatever we click pictures of. And you also have new locations, which you created by moving the star around yourself. 
+
+Now, how to move the star around is a question of image processing, not so much machine learning. And we'll not worry about it so much. We'll just say that we want to translate the star, and there is some function that translates the star. We are interested in understanding why we translate the star. 
+
+So let us denote it like this. This is the augmented data set. 
+
+Examples of image augmentations Transcript (04:22)
+Now, we want to understand what kinds of augmentations we should use. I'm using the web page of this library called fast.ai. Actually, let's go to the latest version, if they save so much. Then I'd like to find it again. Anyway, so fast.ai is a library that is basically a wrapper around PyTorch. It's a very nicely designed wrapper. I like it a lot. 
+
+You cannot use it for your homeworks because we force you to not use it. Or we force you to use PyTorch. But for your projects, it is a very good thing to do. You can do very nice projects, very large projects, if you teach yourself one of these libraries. 
+
+About four, five years ago, these libraries did not exist. So I had to-- let's say, when I was a student, I had to write everything in PyTorch. When I was a student, PyTorch did not exist. But now, these libraries do. You can take advantage of them and do much more fancy things for your projects, OK? 
+
+I wanted to show you this web page because they list down all different kinds of augmentations. So let's look at this one. These are all images of different cats, let's say, in the data set. Think of this one operation, zoom and crop. Zoom and crop does what it sounds like. It zooms into the image, and then crops the image to have the same size. 
+
+So depending on the original orientation of the object, you would zoom in. So in this case, let's look at it like this. So look at the first cat, the top left one. You zoom in at some arbitrary location inside the image. And then you crop the image. Now, what kind of invariance does this build? 
+
+A little bit of viewpoint, yes. So if your neural network was classifying a cat using the ears of the cat and the tail of the cat, then when you zoom and crop, you may not see the tail. And so if you still force the zoomed and the cropped image to have the same label, then the network is forced to use only the ears or learn the ears features better. Does this make sense? 
+
+If the network was using particular information about the scale of the object in the sense that if the eyes are five pixels plus five pixels, then it is a cat, if the eyes are two pixels across two pixels, then it is a tiny cat. If these are the kind of features that the network is learning, then, by augmenting the data set using a zoom, you would force the network to learn slightly different kinds of features-- a little more insensitive features to the actual viewpoint that you click the image from, OK? 
+
+So you see why augmentation is being done. It is done to force the network to use information from the image in a slightly different way and avoid it cheating out. Make sense? And there are many, many other things that you can do, just like this one operation. 
+
+So as you can see, look at the top right image-- actually, maybe, no, just look at this image. it. Is the same image but with different levels of zoom and crop. And they look very, very different from each other. If you label all of them as cats, then the network will be robust to such changes at test time. And this is really the key concept behind augmentation. 
+
+So imagine that if you took the top right image-- the first row, rightmost column image-- and zoomed in even further. You may not even see any eyes or ears. In that case, you would see just brown fur. At that zoom, the cat is indistinguishable from carpet, right? 
+
+If you still label this image as a cat, then you are fooling the network a little bit. You're telling it that, look, this is also a cat. And this is really a central issue when you do data augmentation. You are doing the augmentation. Or you are transforming the input images and forcing the network to call the transformed image as also a cat. 
+
+If you transform the image too little, then you're not making the network robust to changes, obviously. But if you transform the images too much, then you're showing it stuff that doesn't look like images. And so you are fooling the network actively. You have a bad data set, roughly speaking. And so it is never clear, in practice, where this line lies between too little augmentation and too much augmentation. And that is really the hard part. 
+
+ 
+
+Image augmentations: random crop, rotation, brightness, contrast? Transcript (09:26)
+There are many, many other operations that you can do. So we talked about zoom and crop. This is random resize and crop. So it simply resizes the image to a random size. So if you have [INAUDIBLE] image, it will resize it to, let's say, 128 plus 128, or 64 times 64, and then, again, crop it or rescale it so that it has the same size. 
+
+Why do we want like images to have the same size? Why do convolutional networks have to have the same size inputs? Convolutions work on an image. If the later layers are fully connected layers, if you are reshaping the image to become a vector, then the reshaped vector of a larger image will be larger than the reshaped vector of a smaller image, so you wouldn't be able to run the network. 
+
+But let's say that-- this is really one big reason why people like to use all convolutional layers and do pooling and stuff. That way, you can feed an image of any size to the network, and you always get 10 outputs irrespective of what the size of the image was. Mini batching becomes easier. 
+
+When you train a neural network, you don't usually-- so we haven't done this yet because when we did stochastic gradient descent, we said that we sample one input image randomly and then feed it to the network. But when you did your homework or when you did the recitations, you saw that you usually use a mini batch of images to feed the network and calculate the gradient. 
+
+If you have images of different size, then you cannot possibly build a mini batch. A mini batch is an array of three dimensions or four dimensions, if you are in images. And it would not be-- you cannot fill it up with images of different size. So that is kind of the more mundane, pragmatic reason why people do resizing them into the same size. 
+
+This is actually a huge deal, and people somehow don't realize this when you run networks in practice. If you take a very large image and then resize it to something very small, then identifying cats inside the larger image becomes harder because objects have natural scale. I am about 6 feet tall. 
+
+So most of you are 6 feet tall. Chairs are not as tall as us. Objects have a very well-defined natural scale in the physical world, and that shows up in the images. If you resize the images to arbitrary dimensions, the network will find it difficult to learn good features of all these objects. 
+
+It's important to understand what size to resize things at. Just because you want to reduce the number of computations doesn't mean that you resize the images to something very small. You may not be able to predict well at that small scale. But anyway. 
+
+So let's see. We will look at a different augmentation now. This is-- can you guess-- rotation. We're taking the same image and then either applying rotation to the image or not applying rotation to the image. 
+
+You can rotate by different degrees, and that will give you slightly different images. So instead of you being invariant or equivariant rotations, you can just augment the data and force your network to predict a rotated cat as also a cat. As you can appreciate, there are many, many possible rotations of the same image. So you will have to do many, many augmentations. 
+
+There are many transformations that people use in practice. These transformations are all derived from some natural understanding of how images look in the physical world. If you haven't switched on your light, you will get the image on the left-hand side. If you switch on the flash on your camera when you click a photograph, you might get an image on the right-hand side. 
+
+Contrast. These are all image processing applications, and it's not so important what they mean. What is important to understand-- that they capture variations that you are likely to see in the test data. 
+
+Cropping and padding. Padding is a very peculiar operation where you add a dark border of black pixels around your image. It is not very clear what it does. 
+
+Roughly speaking, it prevents the network from using information at the border, because if it tries to use information from the border, then, nearby to the border, there is dark pixels. So there is very different kinds of features which obviously look different from natural images. So adding padding like this will force the network to not use stuff that lies at the border. So you start from the interior. 
+
+It is very useful to think a little more intuitively about these networks. To some people in the class, these things will look like operations, and then you'll say, OK, this is an operation. I don't know why it works. 
+
+And most of us do not know [? with ?] these kinds of operations. But once you understand why the operation is being used or how the network can cheat out if you don't do the operation, then it helps you get a more intuitive understanding of why these operations are used in practice. 
+
+So always imagine the network as being this very lazy student who never wants to do anything but always wants to get full points. And so they will cheat in very, very creative ways. And our job as machine learning people is to prevent the network from doing this kind of-- from learning these bad features. It's not a very mathematical or rigorous way of thinking, but it is very, very useful in deep learning because we don't know so much about deep networks yet to make this understanding more precise. 
+
+This is the dihedral angle. You can apply an affine transformation. Mirror flips are a very popular augmentation tool, mostly because water reflections don't look like natural images. Can you appreciate this point? 
+
+So the same person-- if I do a mirror flip of an image of the same person-- on Zoom, you will see the option called mirror your video. You don't look very different when you switch on that option. But if there was another operation which took a water reflection, you would look upside down. This is how the old cameras used to click photographs, upside down, and those don't look like natural images. So you don't want to do upside-down augmentations, but you do want to do mirror flips. Is this appreciated? 
+
+So we don't want to do upside-down augmentations because, in the test data, we are unlikely to see an upside down human being or an upside down tree. But we are very likely to see a human being who is-- if they are wearing a cap on this side, it is very likely that you'll see other people wearing a cap on the other side. 
+
+There are many others. I will encourage you to go through this. This is one of the homework problems in the second homework-- to go through them and then draw these pictures yourselves. 
+
+How does augmentation help? Transcript (17:06)
+So augmentation somehow are increasingly becoming more and more important. Maybe like two, three years ago, we did not worry about them so much or definitely did not use very fancy ones like this. But these days, people have noticed that the more augmentations you use, the less the number of labeled data you need to get the same accuracy of the model. So without doing augmentations, let us say that in your mnist example, what is a good error that people got when you trained it with PyTorch, let's say? Accuracy. So anyone has something less than 5%? 
+
+OK. Yeah. So if you do augmentations, you will shelve it by a factor of 2. You can do try to do mirror flips of digits. You can do cropping for mnist digits. And you will see that the error decreases. So the more augmentations you've done-- mnist is actually an easy example in the sense that they made this very simple, just white digits on black backgrounds. For RGB images, such operations matter a lot, especially transformations of color or transformations of saturation. 
+
+And you can really see augmentations saving you 100x samples. So if you wanted to get 95% accuracy on some data set and you needed 100,000 samples, if you do lots of augmentations and do it correctly, then you will need 1,000 samples, which is a huge improvement because it is 100 times less samples. 100 is a rough ballpark number. OK. 
+
+So moral of the story. Augmentations are very useful. Augmentations are useful because we would like to be invariant to nuisances. Augmentations are useful because this invariance to nuisances buys us the ability to train the network with fewer labeled data points. Training with fewer labeled data points is useful because each data point costs money. OK. When you say I want a data set, you download it from the internet. But someone created this data set and put it on the internet. And people pay money to create data sets. 
+
+To give you a rough number, you have all seen stuff or read stuff about autonomous driving. An autonomous car will have a few cameras on it, a few laser sensors on it. To annotate about one second of data from an autonomous car, it requires about $1,000. So it is insanely expensive to get labeled data. 
+
+One second of driving data cost about $1,000 more. $1,000 is a lower bar. So it is very, very expensive to get data. And anything you can do to reduce the number of samples you need to train is gold. Augmentations are a very, very cheap way of doing it. 
+
+ 
+
+What kind of augmentation to use when Transcript (20:17)
+I think this, we have seen said a few times now. Augmentation can help. Augmentation can also hurt, OK? So if you are classifying images of this kind, cows on grass, then you expect the network to learn some features of both how cows look-- four legs, big volume, et cetera-- and maybe some features of how grass looks, that grass typically co-occurs with cows, right? 
+
+It wouldn't be able to classify images like this, where cows are on beaches. It wouldn't be able to classify images like this, where cows are in cities. So it depends on how the test data will look like. You have to guess how it looked like, how it will look like, and then augment with the right set. 
+
+So if you knew that you wanted to build a classifier for this kind of an environment, then you have two choices. You can go and collect data of cows in cities, or you can take this data set of cows on grass and then somehow paste the background to look like a city. It's a little easier to do in this case, instead of the city. So you can paste the background to look like a beach and put a cow in it. 
+
+So this is another way of thinking of augmentation. Until now, we have been looking at transformations of images. But you can mix and match images in different ways. 
+
+If you are curious, there is a data set called Flying Chairs. So for people in computer vision, they are interested in something called optical flow, where they're interested in understanding, how much did a pixel move when I moved my camera? Or if my camera is static, a person moves, you can measure how much every pixel inside your image move. And this is the local velocity of the pixels in this image. 
+
+Now you can take a lot of data of people moving around. Or you can take one chair, and then move it around yourself in an arbitrary fashion. And you will still be able to get optical flow because the image intensities change. 
+
+Augmentations are a very creative business. If you come up with good ones, you can really nail your problem. We talked about this. You do not augment your images to look as water reflections, because these are not the test images that you will get. OK? 
+
+This is really the most important thing to appreciate. So you want to augment as much as you can because that buys you invariance to these [? new ?] senses. But you never know when to stop. Because you can always augment too much, and then you're forcing the network to make predictions on objects that it doesn't need to see at this time. 
+
+The cat, when augmented too much, looks like a carpet. If the cows that you are going to make predictions on will never be on a beach-- so if you build a classifier and trained it in Switzerland, then you are fine, even if you don't augment the cows to look like they are on a beach, right? Because you will never run the classifier test time there. 
+
+It is very important to understand that augmentation, it depends. What the right augmentation is depends on what the test distribution will look like. You cannot do it arbitrarily. 
+
+ 
+
+Variable importance Transcript (23:59)
+There is something called variable importance, which is a very useful thing to know. But you will only see it in a statistics class typically. So let's say that we have two variables-- x 1, x 2-- and we are predicting a model for y. We are going to build a model which is x 1, x 2 parameterized by some weights that we hope is close to y. I would like-- now like to understand whether x 1 is useful to me or x 2 is more useful to predicting y. What should I do? 
+
+I want to order x 1 and x 2 depending on how much they are useful for predicting y relatively. So I can take I can build a new model, which is x 1, parameterized by some weights and get y. I could also get another model, let's call this [INAUDIBLE], and that takes in x 2 and predict y. 
+
+Let's say that I get a mean squared error of 0.5, what error should I expect for g 1? Slightly worse, right? So I should expect 0.6. Let's say that I get 0.65 [INAUDIBLE]. So the variable importance of x 1 is defined to be the drop in the accuracy or the increase in the error when you remove x 1. So in this particular model we removed x 2 from our model [INAUDIBLE] and the error went up by 0.1. In this case, we removed x 1 and the error went up by 0.15. So x 1 is more important than x 2. Because if I don't have x 2, then I only lose 0.1. If I don't have x 1, then I lose 0.15. 
+
+There are many-- I am giving you the first paragraph of Wikipedia version of this. There is-- this is an entire field and there are many more sophisticated ways of doing this, but the concept is very useful. If you want to know whether one of your features is useful or not useful. You can just ignore that feature and build a model and check its accuracy. Can you do this for images? How? 
+
+I can just put a dark patch on the ears of a cat. Every cat that I have-- suppose someone told me where its ears are, I can put a dark patch there and see how much the accuracy of a network drops. So there are data sets where people annotate, not just the cat, but also all the pixels of the cat. So you can use those data sets to put-- to darken the pixels that correspond to the ears and stuff. This is a fair point, but what I would like to convey now is that variable importance is not just something that you can do for real valued features, you can also kind of do a hacky version of it for images. 
+
+It is not very useful for images because typically what happens is the network uses information from all parts of the image and you will see that it is not as if the network is using the cat eyes and the ears only, it may be using them a little more than the other parts of the image, but it is using all parts of the image. So variable importance for images technically can be done but practically it is not very useful. It is much more useful for these other problems with real [? valued ?] features. 
+
+People were very interested in doing these kinds of analysis when neural networks began working well, so 2014 2015. Everyone was interested in asking the question. If the network detects a car, is it because there is a [INAUDIBLE] in front of it or is it because there is a door of the car that is open? What is it exactly that the network is using to make these predictions? And they would try these kinds of experiments and the moral of that entire line of work is that the network uses everything. So there is no one thing that you can say that is being used prominently. 

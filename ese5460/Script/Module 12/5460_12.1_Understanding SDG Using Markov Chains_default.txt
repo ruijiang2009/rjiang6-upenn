@@ -1,0 +1,323 @@
+Gradient flow Transcript (00:00)
+Next, we are going to look at a very different kind of analysis of SGD. We are going to look at SGD not in terms of how fast it converges but where it converges. This is a very difficult problem for nonconvex functions. For convex functions, there is no mystery, right? It only converges to one point. So the only question left is to understand how quickly things converge. 
+
+For nonconvex functions, there can be many places where you can converge. And we would like to understand where you do. We are no longer interested in understanding how quickly you converge. So this kind of analysis is very different from the ones that we have done in the past few lectures. And we will not be analyzing SGD itself, but we will be analyzing a model for SGD. 
+
+Before we get to this model, let us think of gradient flow. Gradient flow is the continuous time version of gradient descent. Just like when we did a model for Nesterov's method, we said, look, I have a discrete sequence of weights, and I can think of it as a continuous curve, you can do the same business for gradient descent. 
+
+For gradient descent, it is quite straightforward. So you know that this corresponds to Euler integration of some ordinary differential equation. What is the differential equation? The differential equation is simply W dot equal to negative gradient of the loss at W. And you initialize it at some location. The time here is exactly-- is equivalent to the step size. Step size is small, you're integrating this only in tiny, tiny time steps. Step size is larger, you're integration with large time steps. 
+
+But this is the ordinary differential equation that corresponds to gradient descent. You don't know-- just knowing this much is not very useful because to solve an ordinary differential equation, you need to know what the loss is. The loss that we are interested in in deep learning is not convex. And it is also very complicated function of the weights. So you can write down what the loss is analytically. 
+
+So writing the gradient flow like this doesn't help us very much other than the fact that you can write it. Now, the important thing to realize is that gradient flow is one trajectory. So this is a continuous curve that starts at W0. And then it reaches some location, W tau. 
+
+How is SGD-- if you wanted to just intuitively extrapolate this, how would you think of a trajectory of SGD? So it will be-- there will be fluctuations, but these fluctuations are also small. So each gradient is-- let's say that time is the same as the learning grade. So you're taking a step not-- you're taking a step not in this direction. So the tangent to the curve is a little bit off if you do SGD. But you will be doing stuff like this. 
+
+Once you go away from the main gradients trajectory, you are using very different gradients. So there is no reason why the red line and the black line have to be the same. There is also no reason why if you run from the exact same weights, another training run, because you are sampling different mini batches, you can get a totally different kind of trajectory. 
+
+So let us call this W SGD, 1. And then W2 SGD. So what we are interested in understanding in this next few sections is where do these trajectories end up? 
+
+For a function like this, where will they end up? If you start from here, then you will descend up to here, and then maybe you will bounce around here forever. If you start here, you will descend here. You will bounce around here forever. So there will be two kinds of trajectories, ones that reach the left minimum, and the ones that reach the right minimum. 
+
+If you start here, can you show up at this location? So if you choose a large learning rate-- if you choose a large learning rate, you can pick-- if you're at this location, you can bounce out of this hill, right? If you're at this location, even if the full gradient points down, there could be one parabola that pushes you to the right. If you choose a large learning rate, you can kind of tunnel through this hill and show up on the other side. 
+
+So if you start from here, there is a large probability that you end up in this part. But there is also some probability that you end up in this part. If you start from here, there is a large probability that you end up at this part mostly. There is also a small probability that you end up in the other part. 
+
+So in general, if you start from a uniformly chosen initial conditions-- let's say that the initial condition is W0 that we choose are uniform on the weight space, we can ask ourselves, what is the probability that you reach this location? 
+
+If I run SGD a million times, every time I start from a different initial condition, every time I sample totally different mini batches, I can ask myself, out of this 1 million runs, how many showed up in this Valley, and how many showed up in this valley? Makes sense? So this is exactly what we want to do next. It doesn't tell us how quickly it is there, but it does tell us where you are more likely to reach. 
+
+Markov chains Transcript (6:07)
+For people who have seen Markov chains, there is nothing very special that we will talk about in this particular, specific section. If you haven't seen a Markov chain, here it is. 
+
+So think of-- so there's a game called Whac-A-Mole, where we imagine that there is a board with holes. And there's a mole that shows up from one of the holes up. And you have a hammer, and you whack it back into the hole. OK, so think of it as a toy. The mole shows up in one hole. You whack it, and it goes down. But you don't really know where the next hole-- which hole the next mole will show up. 
+
+And so you can think of it as X, being x1, x2, x3, being three holes. And given that the mole was here, you whacked it down. What is the probability that the mole will show up in the next hole in the next instant? 
+
+And so when people draw pictures like this, what they really mean is if the mole was in x1, then in the next iteration, there's a 0.4 probability that it'll show up in x2. And there is a 0.5 probability that will show up in X3. And there's a 0.1 probability that it will show up again at the same hole. So a Markov chain is a little ball that goes around on this graph, where the probability of going from x1 to x2 is given by the number written on the edge. 
+
+We will talk about this like a transition matrix. The transition matrix is simply all these probabilities arranged as a matrix. The probability of going from x1 to x1 is 0.1. The probability of going from x1 to x2 is 0.4, and 0.5, et cetera. Because these are all probabilities, they all have to add up to 1. If you are at x1, you have to either show up at x1 or x2 or x3 in the next iteration. So all the rows of this matrix will sum up to 1. This is called a transition matrix. 
+
+Mathematically, it looks a little bit like this. Given that you are at w0-- sorry, given that you are at wi-- let us give our holes different names now so that we can write it for SGD directly. Let's say that you are at a state wi at time 0. You can ask yourself, after t time steps, what is the probability that you are at some other location, wj? 
+
+So for the mole, this would be t different time steps where it shows up, where it runs. And so given that it is at x1 at time 0, what is the probability that it reaches x3 after t equal to 10 time steps? That is this quantity. This is something called as the probability of one trajectory of SGD starting here and ending up here. 
+
+There are many ways to start here and end up here. And this is the total probability of each of those ways. How many ways are there of going between two states? Really very many, right? An exponential number of possible options. 
+
+These trajectories need not even make progress in the same direction. They could also meander around and show up here. So there is really very, very large number of trajectories. If there is three possible states, like the mole, then if we are running it for t possible time steps, then there is 3 raised to t possible trajectories. 
+
+Steady state distribution of a Markov chain Transcript (09:46)
+The concept that we are going to use to calculate this object P of wt as t goes to infinity, which is when I begin SGD with many different initial conditions, I train all of them for infinite time. And I'm looking at the histogram of the weights. To calculate this object, it is very similar to the statistic distribution of a Markov chain. Most of you have seen Markov chains in some shape or form. 
+
+The one key result that we will be using is if I denote the probability distribution of the weights at time t as pi. For a finite Markov chain, our Markov chain in this example of the Whac-A-Mole, it had three states. So pi is a probability distribution on three states. 
+
+And there is a certain probability that if you begin uniformly randomly on x1, x2, x3, after t iterations, there is so and so probability of you being at x1, x2, x3. What is the probability of you being in those states after t plus 1 iterations? That's an easy application of the law of total probability. 
+
+The probability of you being at some state at t plus 1 iteration is the probability of you being at some other state wj at the t'th iteration and the probability of you transitioning from j to i, summed up over all possible j's. You could have been anywhere out of the three states. You are here now. So sum up the different probabilities of you reaching here in one time step from wherever you were in the previous time step. 
+
+And so this is how the probabilities evolve. The vector of these guys is pi. This is the transition matrix that tells us how likely you are to reach wi if you are at wj in the previous time step. So you can write this law of total probability as a matrix vector identity, where pi t is the probability distribution of the weights or the states at time t. Pi t plus 1 is the probability distribution at time t plus 1. And the transition matrix P multiplies them. 
+
+Now, under certain conditions, for the matrix P and in the world of Markov chains, it will be-- if the Markov chain has only one unique [INAUDIBLE] class [INAUDIBLE] or if the Markov chain is irreducible, then these are specific conditions that people like to analyze for this matrix P. 
+
+What happens is if you begin at so-and-so distribution at the first step, as time goes to infinity, you will converge to some distribution. It is quite intuitive. You begin at some state. You run many, many, many times. And then after you run for so many iterations, you've forgotten where you came from. And this is the limiting distribution of the states of the Markov chain. 
+
+We will give it a name. We'll call it pi infinity. Pi infinity is a unique object because once you are at pi infinity, things don't change. If you are at pi infinity now, you take one extra step. You will also be at pi infinity because pi infinity is the distribution that you would reach after many iterations. So there is no difference in how you move in one time step. 
+
+So this is why it is called the steady-state distribution or invariant distribution. This word "invariant" has nothing to do with the invariance and equivariance that we talked about before for CNNs. It is just the fact that pi doesn't change when you run the Markov chain for one time step. 
+
+Our goal is to calculate pi infinity for SGD. How many states do we have in the Markov chain corresponding to SGD? Infinite. Why? The weight space is a continuous real-valued space. You can be anywhere in that space. 
+
+This is a finite-state Markov chain. There's three possible things-- three possible states that you could be at. For the network's weights, there is an infinitely large number of values that you can take. So we'll write down a Markov chain not in finite dimensions but in infinite dimensions. And you will see that it is actually pretty natural. It is not that complicated. But fundamentally, we are solving for this object for SGD. 
+
+What is this object for SGD? What is the transition function for SGD? If you are at weight wj, you would like to calculate, what is the probability of you going to some other state. The only operation that it usually does is that it takes the gradient and uses that to modify the weights. 
+
+So we need to write down this quantity for SGD as to how the gradient allows you to move from one weight, wj, to one another weight, vector wi. And once we have that, we'll be able to calculate pi infinity easily. This is the goal of this lecture. 
+
+Markov chain for SGD Transcript (15:43)
+We know these are the iterations of [INAUDIBLE]. W-t plus 1 minus w-t is negative learning rate times the mini-batch gradient. We would like to calculate what is the probability of w-t plus 1, given w-t. This is exactly the transition matrix for our Markov chain. What is the probability of reaching w-i or some state x2, given that you are at state x1. 
+
+Do we know what this is on average? OK, on average, this is w-t plus 1 minus w-t, given w-t. Expected value over which mini-batch you chose to update your weights at iteration t. This is equal to the expected value of the gradient that you use. I think this should be B here. 
+
+What is this? This is exactly equal to the learning rate, negative learning rate, times the full gradient. This was an assumption that we used for even studying SGD, that the average of the mini-batch gradients averaged over many possible mini-batches is equal to the gradient of the average loss, which is the gradient descended. So this shouldn't be surprising. On average, SGD moves weights exactly like gradient descent. 
+
+Let's now make an assumption. In general, this could be a very complicated distribution. We are going to say that this distribution is a Gaussian. The nice thing about Gaussians is that using the first two moments, you can answer basically any question that you have about the distribution. The first two moments are sufficient statistics of a Gaussian. And this time, I use the word [INAUDIBLE] in exactly the same context that we used when you studied [INAUDIBLE]. 
+
+Any function of the Gaussian random variable, you can calculate if the mean and the standard deviation. That is why everyone likes Gaussians. That is why everyone uses Gaussians. So we know the expected value of the Gaussian. 
+
+We are going to now calculate the variance of the Gaussian. Let me actually go here. The variance of the Gaussian is the variance of the increment in weights, so the change in the weights, again, conditioned on w-t. This is, again, the gradient. There is a eta times the gradient. And because this is the variance, eta squared comes out. It is negative eta times the gradient, the negative gets multiplied by itself to become plus 1. 
+
+So the name of the game now is to calculate the variance of the mini-batch gradients, given the weights. The gradient is a vector. How big is the vector? Number of weights. So this is a big matrix of size number of weights times number of weights. And we are calculating the variance of the gradient of mini-batches. 
+
+What is the variance of the gradient? The variance of the gradient is the gradient of the mini-batch minus the average gradient, which is the gradient of gradient descent, actually, that we use in gradient descent, times the entire thing transpose. I have forgotten to write the conditioning over w-t. But it is not understood, at this point. So this is the quantity that we would like to calculate. Make sense so far? 
+
+Now, you can simplify this quantity. And we will not actually do the simplification. It's a short calculation that I had done some time ago. But what we'll see is the result of this calculation. The thing that helps you do the calculation, if you want to do it yourself, is the gradient of the-- the average gradient over the mini-batch of samples is a sum of the samples that you chose in that mini-batch. 
+
+We know one thing about the two gradients. The two gradients are calculated on two independent samples from the probability distribution. So they are uncorrelated. The gradient of the model on sample omega 1 is independent of the gradient of the sample computed on a sample gradient of the loss computed on a sample omega 2. 
+
+So when you write this down as a big sum over all the samples you chose and you expand out this expectation, you will use this condition to-- this condition basically means that the covariance of the gradients of the per-sample gradients on two different samples, omega 1 and omega 2, is 0. This is not surprising. It is simply because the samples are [INAUDIBLE]. 
+
+Once you use this, you will get an expression for this particular quantity. And turns out, the expression for this quantity is the variance of the weights is equal to learning rate squared, which is simply floating over from the variance part, divided by batch size, times the variance of the per-sample gradient. 
+
+OK. Now, this is a useful expression to remember. What we are saying is the variance of the change in weights, where, if you use a mini-batch of size B, is inversely proportional to the size of the mini-batch. This particular thing is dependent on only the problem and the weights that you're evaluating it at. It is not a function of your batch size. It is the variance of the per-sample gradients. Make sense? It is not different from our term, sigma 0. How is sigma 0 related to this variance? 
+
+OK, something to think about later. But this is the diversity of the per-sample gradients, how they point to different directions. It is some matrix, again, whose size is number of weights times number of weights. But the one thing that you do know now is that the change in the weights is inversely proportional to the batch size and directly proportional to the learning rate squared. 
+
+If you have a very large batch size, then SGD is not that different from gradient descent. So when you do the average-- v of which mini batch you choose, the change in the weights is similar. That is why this variance is small. If you choose a large learning rate, but you fix the batch size, you're choosing to inexact gradients, and you're moving a large distance across them. So the change in the weights is large. This is why it scales as learning rate squared. Make sense so far? 
+
+So what have we done here? We said that we wanted to calculate w-t plus 1 given w-t We know what the mean of this distribution is. We know what the variance of this distribution is. And we are going to say, look, we will assume that this distribution is a Gaussian with so and so mean and so and so variance. 
+
+So we are going to write down SGD as gradient descent plus some Gaussian noise. Why is it gradient descent plus Gaussian noise? Because on average, it is like gradient descent. And then there is the variance that doesn't quite make it exactly gradient descent. And that variance we are saying is Gaussian. But that [INAUDIBLE]. 
+
+So we are going to write down W-t plus 1, which is now a model for how SGD behaves. This is not exactly SGD. This is our way of writing down SGD just so that we can understand where it reaches at the end, OK? 
+
+So W-t plus 1 is equal to [INAUDIBLE] W-t plus some quantity. This quantity is a Gaussian random variable, with mean equal to the full gradient. So it is gradient descent, on average, plus variance, which is proportional to the step size square or inversely proportional to batch size, and then this funny matrix that is floating around for us. Make sense so far? 
+
+This is the same object as the transition matrix of a Markov chain. The Markov chain has three states. The transition matrix was 3 times 3. What is the size of the transition matrix of this Markov chain? Infinite. There's an infinite number of states because W-t it could be anything in the entire weight space. 
+
+But so long as I have given to you the probability of you moving between two states, I have defined a Markov chain for you. So this is called a Markov process or a continuous time Markov chain. But fundamentally, it is about saying which state are you more likely to move or what is the likelihood of you moving to so-and-so state, given that you are at this state at time t. 
+
+A simplified model of SGD Transcript (25:24)
+Analyzing this equation is a very, very nasty business. So this is my last paper in my PhD. And then my advisor was like, great job. Go take a thesis, and leave now. 
+
+It is difficult because we don't know very much about how to analyze Markov processes with where the noise of the Markov process depends on the weights also. This is a very complicated equation, when you think about it, even though it looks simple. It's gradient descent plus noise, where the noise depends on what weight you are at. At certain weights, the noise could be large. At certain other weights, the noise could be small. And there is really no way for you to model this in any nice way to answer this stuff. 
+
+So that's like a nice 30-, 40-page paper to do things properly. And for this, we will not do that. What we will do is make another very horrible assumption, where we will say that this thing is identity. So it's not the worst assumption in the world. But it is not true. Or it is not true when you calculate this. 
+
+Can you calculate this matrix? How? How can you calculate this matrix? You take a network. You create a data loader with a batch size of one. Save all the gradients, and calculate the covariance of those gradients. It's not that difficult to calculate this matrix. It's just very large, right? Actually, so just to write down an expression for it, it looks like this. 
+
+So this is a covariance matrix because it is the outer product of the per-sample gradients averaged over the entire data set minus the outer product of the full gradient of the entire data set. OK, so this is the mean term in the variance. And this is the correlation term of calculating the variance. But both of these are large matrices. 
+
+But so long as you calculate all these per-sample gradients and store them on your hard disk, all you have to do is take the outer product, and you have this matrix. So you can calculate this matrix, even for a small network, and see that it is not identity. But for the purpose of doing the mathematics, we will assume that it is identity. 
+
+So now we have a slightly simpler model for writing down SGD. SGD in this model looks like this-- W t plus 1 equal to the old weight Wt minus the learning rate times the gradient. This is so far exactly equal to gradient descent. Plus some noise. 
+
+This noise, I have written it just using an arithmetic manipulation, where the noise now is zero mean. So I removed the mean and put it as a separate term. And the covariance is identity. And I removed eta squared over B and put them here on the outside of xi. They come as eta divided by square root B on the outside because inside the variance, it is the square of this. So everyone understands this manipulation? 
+
+We are going to analyze how the trajectories of this equation look like. If I have a random variable x, which is normal zero comma sigma squared, what is the distribution of cx? But what is the distribution of cx, the others? 
+
+c squared times sigma squared. So if I have a random variable with this distribution, I can write it as c times x, where x has this distribution. So this is exactly what I've done. I had a random variable of so and so variance. I wrote it down as a random variable of zero mean by removing the mean out and removing all the constants out and taking the square root of those constants. 
+
+And I also set this to be identity on the way. This setting identity was an assumption. Everything else is just a manipulation. Cool. So now it should be obvious to you that this is not how you implement SGD on a computer. So this is just a model for SGD. 
+
+This is something called-- it has a name. It is called Langevin dynamics. So Paul Langevin was a physicist in France in the early 1900s, who worked on, basically, thermodynamics and stochastic processes. And so when people add such Gaussian noise to some dynamics, this is a particular kind of Langevin dynamics.  
+
+Gibbs distribution Transcript (31:16)
+We will not derive the probability distribution of w under these dynamics, but I'll give you the answer. Let us define rho infinity of w to be the probability of-- actually, let me write it like this-- to be the limit of t going to infinity of the probability of my weights belonging to w, equal to w. 
+
+So this is the probability that I am at some weight vector w after t iterations. What is the probability calculated over? The probability is calculated over all different initializations that you could have, or many, many different initializations of SGD that you could take and many, many different mini-batch sequences that you could use to train each of these initializations. So that is the random variable that gives this probability a meaning. 
+
+You do this for t iterations and do this for a very long number of t iterations, and you get some object. This is a probability distribution. It tells me what is the probability that I will find SGD at weight w after many, many iterations. So this is, in some sense, the definition of rho infinity. This is the same object as our pi infinity for finite Markov chains. 
+
+Just like pi infinity was equal to the transition matrix transpose pi infinity-- it was an invariant distribution-- rho infinity is also a probability distribution such that if you begin SGD at one sample from rho infinity and you run this many, many, many times, you will not notice any change in the distribution. It is the limiting object. 
+
+We know what this limiting object is for this equation, and that is the reason to simplify it and set stuff to identity here. It is very hard to know the limiting distribution for this object. We know now, but it's not easy. 
+
+But for this object, the limiting-- for this dynamics, the limiting distribution is pretty natural. It looks like this. Rho infinity of w is equal to e raised to minus some constant, beta, times l of w. l of w is the loss, is the average loss over the entire training data set, calculated at weight w divided by some constant that is called Z. 
+
+So let us try to draw a picture of how this looks like. We'll do a one-dimensional-width space, even if all these things are true in vector spaces also. And let us take our-- OK. 
+
+What is the loss at this location? It is much smaller than the loss at this location. So e raised to negative of a small number is much larger than an e raised to negative of a large number. So the probability that rho infinity puts at a region like this-- or this particular point-- is larger than the probability that it puts at this point. Make sense so far? OK. 
+
+So how does this look like? Let us try to-- this is just a constant that makes sure that rho infinity is a legitimate probability distribution. So Z is defined as the integral of the numerator over the entire weight space. And that simply makes sure that rho infinity is a probability density that sums up to 1, that integrates to 1. So we don't need to worry about Z when we plot things. 
+
+Let us try to plot e raised to negative beta times l. Beta is a constant, so you're really just plotting e raised to negative l. How would it look? 
+
+This is l. How would e raised to negative beta times l look? Let's say beta is 1. Anyone? 
+
+If l is small, rho infinity is large. If l is large, rho infinity is small. So it will basically be the reverse of the [? water ?] reflection of l, right? 
+
+It will look something like this. This is a slightly larger loss. So in this, it pays a little less probability to that region. This is a slightly smaller loss, so it pays a little more probability to that region. And this is, let's say, a rho infinity. 
+
+Understanding convergence of SGD using Gibbs distribution Transcript (37:00)
+What happens if I take beta to infinity? This is a very similar argument like we did for softmax. If beta goes to infinity, tiny discrepancies between l get amplified because I'm multiplying them by a huge constant. 
+
+So if beta goes to infinity, I will have a distribution that is like this, and still see a tiny peak at this valley because, locally, it is still a bit better than the others. So this is how you will see rho infinity of beta, with beta being much, much larger than 1. Makes sense? 
+
+What happens if beta goes to 0? So it will be more and more uniform. So it will have a tiny peak here, a tiny peak here. And it will be, essentially, uniform over the entire space. So this is our rho infinity of beta with beta that is less than less than 1. Makes sense so far? 
+
+So we have just plotted things. What is beta? Beta is the ratio of the batch size and the step size. So if you choose a step size that is very small, what happens to beta? Beta is very large. 
+
+If beta is very large, then you reach this location with a very high probability. This is the best location that you should be reaching. It is the better local minimum, right? So it is good that you reach that with high probability. 
+
+This is the slightly worse local minimum. So it is not good if you reach that with a high probability. But the probability of you reaching to the good one is quite large. Makes sense? If you choose batch size to be very large, it is-- the same thing happens. 
+
+Beta is, again, very large, so it is the good locations with a large probability. If you choose batch size to be very small or learning rate to be very large, which is a learning rate to be very small, then-- what happened? [INAUDIBLE] I am getting confused. 
+
+Learning rate should be large. 
+
+Learning rate should be large. And in that case, beta will be quite small. And then you will have an, essentially, uniform distribution over the entire weight space. Makes sense? Does this jive well with your intuition from what you know of SGD? 
+
+What happens when the learning rate is very large? The zone of confusion is huge. And that is why you roam around everywhere in the weight space, with no specific large probability of you being in some place. The probability of you being near here is large, but then the probability of you being everywhere is also quite large. 
+
+If you choose a learning rate that is quite small, this picture says that you reach the right location with a high probability. We have seen something like that before. If I choose learning rate to be very small, I don't even reach the minimum. So how can my probability of reaching the minimum be very large? 
+
+This experiment is running only some iterations, maybe 1,000 iterations. But the way we calculated this, we said we should run for an infinitely large number of iterations. When you run an infinitely large number of iterations, you will reach the minimum, even if you have a tiny, tiny, tiny step size. In this calculation, the step size is also something that we think of it as fixed. 
+
+So in this model, I'm going to say I don't decrease the step size with time. Because in that case, SGD stops, and that is not very meaningful when you want to run it for an infinite amount of time. So the step size will be some finite number. If the step size is very small, then you reach the nice place. But there is also a small probability of reaching the bad place, a bad minimum with a small step size. 
+
+The way to understand this is, across many different experiments, you have a higher probability of reaching locations like this versus locations like this. So SGD works. This is taken on average over many different initializations, and that is why you have a large probability of reaching here. 
+
+Even if you started at this location, one particular run of SGD, if you run it for an infinite amount of time, it will have this distribution. This is a very deep result, in the sense that I have always been saying run 1 million initializations of SGD for many, many time steps and calculate this distribution. That is how I explained it. 
+
+But it is true that if I take one run of SGD and run it for an infinite number of time steps, and calculate the histogram of the weight that I see at successive time steps, so I take wt plus 1, wt plus 2, wt plus 3, and all such things I record on my hard disk and plot the histogram, I will get the exact same distribution. So you can think of it as one run of SGD being run for many, many, many time steps and looking at the distribution of the weights that it explores. 
+
+ 
+
+Travelling between local minima Transcript (42:56)
+How come if I start at this location, I also have a small probability of reaching here? The stochasticity that we added here under our model also has a tiny probability of making it go up the hill. This is the force that lets us go down the hill. 
+
+This is the force that acts in all directions, so it has a tiny probability of making it go-- or it has an equal probability of making you go downhill and uphill. And there is an effectively small probability that the entire step can go uphill because of this noise. So this is a slightly counterintuitive point, that, even if you began one particle at the left-hand side minimum and ran it for a very large number of time steps, you might find yourself in this valley because of noise. 
+
+Is this natural to people? I have a ball that goes down the hill on average, but noise also moves the ball in many different directions. Is it likely that I will find the ball on the other side? 
+
+[INAUDIBLE] 
+
+How unlikely, then? OK, let's say that you have a huge speed, and then you fall down here now. Now, is there a probability of you going out? 
+
+Yes, because you're sloshing around here using-- because of the zone of confusion. And there is-- the noise has a tiny, tiny probability of going up. So in order to appreciate how tiny this tiny thing is, you can think of a game. 
+
+So every-- you go to a casino, after every time you play the game, you lose $1. There is a tiny probability that you gain, let's say, $0.05. Either the Casino takes $0.05 from you extra after you lose the $1 or gives you back $0.05. What is the probability that you will not go bankrupt? 
+
+Yes, it's very, very small. So the casino has to give you $0.05 so many times to beat the effective average of you losing $1 for all those iterations. Only then you will show up on the right-hand side of the hill. Only then will you climb the hill from the bottom. 
+
+So even if there is a mathematical probability of you reaching this place, given that you started at this place, it is, practically speaking, 0. The blue line is telling us that there is this probability. But it is-- you are never going to see it. 
+
+So one example that I give people is that, everyone of us in this room, we can start training a network and wait for it to climb up a hill like this. And we will all die before it climbs. And this is not-- this is a fact. I am not even exaggerating. It is incredibly, incredibly rare for noise to help you climb up a hill. 
+
+Another way of explaining this is, all of us have broken mugs before. The probability you can-- after you break a plate or after you break a mug, you can sit there and wait for a long time for the pieces of the broken mug to come back and become a mug again. But you will be waiting for a very long time. And this is that unlikely. 
+
+And this is, again, a fact. I'm not exaggerating. So these jumps across hills happen at the timescales of the life of the universe. So they are basically mathematical-- only mathematical objects. And practically, when you run SGD this place, you will always find it somewhere near the minimum or near the valley that it reached. 
+
+So let's say that this location and this location, let us call it delta l. The height of the Hill That you need to climb is delta l. The time steps that you need to climb a hill of that size is roughly equal to beta times delta l. 
+
+And this is a very large number. It is e to the plus beta times delta l. And delta l is large. It is exponentially large. This is something called SD. For people who have studied Markov chains, people often try to calculate, if I'm at state x, how many time steps will I need to go to some other state x2, the exit time of state x2? And this is an exit time from this valley. 
+
+Good. So another cute example, maybe, is that-- so on the internet sometimes, you will see that, churches in Europe, if you look at the windows of the churches in Europe, the glass windows, they are a little thick at the bottom of the window. These are these very large windows, and they are a little thick at the bottom of the window. 
+
+Now, glass is not a complete solid. Glass is a liquid that, technically, keeps flowing. But you and I don't see glass changing shape because glass changes shape at the timescales of the universe, of the life of the universe. So technically, glass is still in some-- in physics they call it glassy states. 
+
+These are not local minima. These are stuck somewhere at regions like this. And so glass is always trying to decrease its energy, decrease its loss, by jumping over-- it is at a bad local minimum, the glass that we build. And it is trying to climb this heel down to reach a good local minimum. 
+
+So glass flows, technically speaking. And so, on the internet, you will see some people saying incorrectly that the windows of the churches in Europe are thick at the bottom because glass flows. And so this is-- they built them in the 1400s or the 1600s, and now after 500 years, it has flown and become a little more fat at the bottom. 
+
+But what they don't realize is that this process happens so slowly that you will never ever see it in our lifetime's or in anyone's, any multi-generational lifetimes. The windows in the churches are thick at the bottom simply because they did not know how to make glass very well back then. So they made the glass, and they ended up making it a little thick at the bottom. 
+
+Escaping local minima Transcript (49:57)
+Can you make a particle that is stuck here reach here? How? Let's say you have a network, and I convince you that it is stuck at a bad loss. What can you do to make it to go here? 
+
+Increase the learning rate. 
+
+Increase the learning rate? 
+
+Yes. [INAUDIBLE] 
+
+OK, so if you increase the learning rate, what distribution will you-- what rho infinity will you get? It becomes a little more diffused, right? 
+
+If you increase the learning rate and run for many iterations, the probability of you climbing the hill increases because this decreases. The exponent decreases. And so you can increase the learning rate. And when you come back down again, you can again decrease the learning rate and stay there. 
+
+So one pattern for the learning rate could look something like this when you train a network. You decrease the learning rate, like our cosine annealing. You can increase it a little bit. You can decrease it. You can increase it a little bit and decrease it, and keep doing this forever. So increasing and decreasing the learning rate is a good tool to jump up hills more actively than letting noise do the work because you are increasing the magnitude of noise. 
+
+When a blacksmith builds a sword or a knife, this is what he's doing. He takes the carbon and the metal, and then he heats it up once, and then again cools it down, and hammers it, and heats it up again, cools it down. And this is exactly the process that he is doing to achieve a particular local minimum in the configuration of the atoms of the sword to give it a particular kind of hardness. 
+
+If you cool it quickly, a hot piece of metal, then you can reach a bad location like this, if you decrease learning rate quickly. So he will cool it, and then he'll again heat it up so that it jumps up a minimum, and then again cool it down. And this is what they do. 
+
+Historical context of the Gibbs distribution Transcript (52:27)
+I forgot to say, but this object is called the Gibbs distribution. And the softmax operation actually is inspired from this object. It is-- this probability distribution puts mass on places where the loss is small. Softmax puts more probability mass on places where the logic is large. So it is just without the negative sign. 
+
+But we call softmax softmax, or we defined or designed softmax inspired from this object. It's a very classical object in statistical mechanics. You will see it in many, many places. In high school, you may have seen that the energy of a molecule, which has 1 degree of freedom. 
+
+Let's say 3 degrees of freedom is a translation in XYZ. Every degree of freedom gives you this much energy for the molecule, where k is the Boltzmann constant. But it is-- all those things are coming from calculations of this kind. 
+
+This constant, beta inverse, is called temperature in physics. Again, for just logical reasons, larger temperature means that you jump around a lot more. Atoms vibrate more at high temperatures. And as you cool them down, they vibrate a little less. 
+
+So it is the temperature, in our case, of SGD, is like the learning rate divided by batch size. If you have large learning rate, then the weights of SGD move around a lot more. If you have a small batch size, they move around a lot more. 
+
+One way of using these kinds of calculations in practice is to realize that this distribution is only a function of beta and w. So when you train-- let's say that you wanted to use a large batch size. To keep this distribution the same, to get a similar kind of generalization or a similar kind of steady state distribution, you would be wise to let the learning rate be proportional to the batch size. Makes sense? 
+
+If you have a large GPU that can fit a large mini batch, that means that you can do more operations amortized, in terms of the linear algebra computational complexity. Then you should be using a large batch size. But this distribution is an object that defines generalization. 
+
+It defines where you reach depending on where you begin training. So if we want to reach the same kind of place as the model trained with the small batch size, then we should train with a larger learning rate, if we choose a large batch size. Makes sense? 
+
+So for large batch sizes, the learning rate should be proportional to the batch size. And this is actually quite true in practice, also. So people will choose the learning rate and the batch size to be a constant. 
+
+And effectively, what they're saying is, I'll let the temperature of SGD be a constant. And this is what you're going to do in the homework. You will train one model with so-and-so learning rate and so-and-so batch size. And then you'll double the batch size, and also double the learning rate, and see that it behaves-- it gives you similar generalization error. 
+
+If you don't double the learning rate, you will see that the generalization error is a bit worse. The reason it is worse is because you are getting a different steady state distribution. A steady state distribution doesn't necessarily mean that you get a good error. It just means that you get the error as the old statistical distribution of the old hyperparameters. 
+
+An (expensive) algorithm to reach the global minimum Transcript (56:31)
+So one question-- I can think of an algorithm that initializes my network at some w0, takes lots and lots of steps of SGD. It reaches some location, increases the learning rate, takes lots and lots of steps of SGD. While decreasing the learning rate, it reaches some location and then keeps doing this many, many times. Where will I reach at the end of this process? 
+
+It'll always reach the global minimum because as I increase the learning rate, I let SGD move around a little more. But then before it can actually move around-- come back out of the nice valley, I decrease the learning rate again. So now I'm effectively reducing the zone of confusion. And I keep digging down into the tinier and tinier valleys until I find the global minimum. 
+
+So we have done something pretty remarkable. We have developed an algorithm to find the global minimum of a nonconvex function, which is impossible. The catch is that we are also taking an infinitely large number of steps. 
+
+In fact, there is a theorem that says that even if you don't do this but if you simply set learning rate equal to 1 over logarithm of t, then you will reach the global minimum for a nonconvex function. For gradient descent, remember that we had logarithm of 1 over L. 
+
+So if the learning rate decreases very slowly, it is 1 over log t. Then you can reach the global minimum for nonconvex function. t is the number of iterations. In gradient descent, we could happily choose a learning rate or SGD. We could choose a learning rate that's something like 1/t. So this one is much, much slower. This one is much, much slower. 
+
+I said all this. I want to conclude by saying that the invariant distribution is a totally abstract concept. And you will never ever see it on a computer. It is something to only write down in equations. It happens after you train the network for an infinite number of time steps. In these dimensions, in these 1 million weight dimensions, you will never see anything that resembles this object ever. 
+
+So it is simply a way for us to think about things. It gives us some useful, practical tricks. And there are many others that it gives. But it is simply a way to think. 
+
+Rate of convergence to Gibbs distribution Transcript (59:40)
+I will not do this section. It is just a calculation to say that the steady state distribution-- so, I showed before to you how pi t plus 1 is p transpose pi t. And pi infinity is the limiting object. 
+
+Similarly, a rho of t is also a well-defined object. It is the probability distribution of the weights at time t. And you will can also write down an equation for rho of t is some function of-- rho of t plus 1 is some function of rho of t, very similar to finite state Markov chains, except that this is an infinite dimensional Markov chain. So this is a partial differential equation. Whereas, this is just a matrix vector multiplication. 
+
+Now, it is of interest to understand how quickly you converge. I keep saying that it is so damn slow. I say that because it is true. But you can ask yourself, OK, it is slow I understand, but how fast is it really? And so you can analyze these kinds of equations to study that. 
+
+One very cool result to keep in mind is that rho infinity, your rho t converges monotonically to rho infinity. And what does this mean? This means that KL divergence of rho t with respect to rho infinity, KL divergence is some notion of a distance between two probability distributions. We will do it in a few lectures. 
+
+But right now, just like in gradient descent, we had equations of the kind wt minus w star goes to 0 with the number of iterations t. It is a very similar result to that. rho t goes to rho infinity, which is this final solution, monotonically. 
+
+And this is a very, very miraculous thing. So if you have a convex function, the weights decrease the distance to the solution decreases monotonically. Even if you have a non-convex function, the distance to the true object to the distribution rho infinity, decreases monotonically. 
+
+OK, so if non-convex problems are convex if you live in this world of distributions. And all the concepts like acceleration, momentum, and all those things apply to equations like this. And this is quite similar to a gradient descent equation in just that it is all happening in the world of distributions. And this is the final solution, all of that. 
+
+So there is a legitimate way of thinking of a convex optimization problem corresponding to a non-convex optimization problem, except that the convex problem lives in this infinite dimensional space. The non-convex problem lives in this finite dimensional weight space, OK. 
+
+It is not very important for us in this course, but it basically tells you very powerful ways of both optimizing complicated non-convex functions doing Markov Chain, Monte Carlo in clever ways, et cetera, et cetera. That is what this section proves. This section proves that KL of pi t plus 1 with respect to pi infinity is smaller than or equal to pi t given pi infinity. So things decrease monotonically. It is very similar to the result that we had for gradient descent, where we said, wt plus 1 minus w star is less than or equal to wt minus w star, OK. 
+
+OK, so with that, we will conclude SGD. So in module 2, we try to ask ourselves, fundamentally, how many iterations of an algorithm should I run? How different or how to compare different kinds of algorithms? We came up with new algorithms using momentum. 
+
+We looked at SGD in a slightly weird way, where we looked at not one trajectory. But the distribution on the weight space that is induced by SGD. This distribution is useful to understand the kind of locations that SGD reaches if you are willing to wait for an infinite amount of time. 

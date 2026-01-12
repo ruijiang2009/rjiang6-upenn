@@ -1,0 +1,187 @@
+Navigating the course material Transcript (0:00)
+Today, we'll be talking about intelligence, a little introduction to how people began to think about intelligence at the beginning of deep learning or beginning of artificial intelligence. We'll go through some of the history, and I'll kind of lay out the context of the kind of things that we will discuss in the coming semester. The PDF notes for all these lectures will be available on Canvas. And you'll usually find the lesson uploaded before the lecture begins. 
+
+At the beginning of every lecture, I usually write down a few bullet points about reading materials. Some of this reading material is stuff from, quote, unquote, "textbooks" that you should read to supplement what we do in the lecture. Bishop's textbook or Goodfellow's textbook. Some other stuff will be some sections from research papers that you can read to know more about these topics. This is usually up to you. If you are curious about the kind of things we talk about, go ahead and read these and learn more. 
+
+And the goals of this course are twofold. So deep learning is a very new field in its modern instantiation. And there's a lot of things that are just weird. They feel wrong. They feel definitely something that are not very savory, but they are necessary. Somehow things don't work if you don't use these techniques. So our goal will be to understand the mathematics behind deep learning to understand what are the core ideas that make neural networks work, but also to appreciate why these tricks exist, and why these tricks could be working, and how we can build better tricks, understand these existing tricks, and make a good neural network. 
+
+So at the end of the course, I would like all of you to be good at understanding a network. You should be thinking a little more about how to build a network or how someone else builds their network. But I would also like you to be very good at deep learning. So you want to make sure that given a problem that involves you using a neural network, you need to be able to think of the ins and outs of this process. And at the end of the day, get good results. So these are the two goals of this course. And we'll be giving you a lot of tools in the remainder of the semester to put you on this course. 
+
+What is Intelligence Transcript (2:35)
+So what is intelligence? Well, intelligence is very hard to define, but it is very easy to see when something is intelligent or when something is not intelligent. All of us would agree that human beings are intelligent. You and I are intelligent. We can do many different things. We can drive a car. We can solve integrals. And we can speak and sing songs, et cetera. And these are all things that you would associate with intelligent behaviors. You would also agree that a dog is not as intelligent as you. But at the same time, you would also agree that a dog is intelligent.
+
+ 
+
+It knows that it should be fetching a Frisbee when you throw it. It knows when you are feeling a little bit sad. And at the end of the day, a dog can move around this world and do things that are different than what, let's say, computer does. Ants are also intelligent, probably not as intelligent as dogs. But they can do very many clever things many. Many ants can come together, and they can build structures. They live in colonies. And they have a social structure associated to these different individuals coming together and living together to perform certain kinds of tasks.
+
+ 
+
+They can adapt when the environment changes around them. And these are all things that we recognize today, or we would characterize today as motifs of intelligent behavior. Things that allow you to adapt, things that allow you to change how you do things if the environment changes around you. And this, in a nutshell, is what intelligence is about, the ability to change what you do with respect to how the world around you changes, the ability to adapt. Why do we do all these things? Well, there is one purpose. We do these things to survive.
+
+ 
+
+So the ultimate goal of an organism or a living organism is to survive. And everything that makes this difficult is stuff that needs to be adapted to. And to do this efficiently, to do this well, you need intelligence. If you believe in this definition, we can ask a second question-- are plants intelligent? The kind of intelligence, some of them show behaviors. You put a potted plant next to a window, it will move towards the window to gain more sunlight. And while it cannot move around and go to a different part of the room by itself without you moving it, it can definitely do this much. So they're clearly not as intelligent as moving animals, but they are kind of intelligent.
+
+ 
+
+Here is one funny example that I like to show. This is a plant called a tunicate. Tunicates are plants that live on the floor of the ocean. When they are born, they're animals. They have a nervous system. They have ganglion cells. And this plant, it wanders around on the floor. It finds a nice big fat rock to live on with moss that it can use to get nutrients from. And at that point of time, a tunicate digests its own ganglion cells and doesn't move anymore. It doesn't have any need for these cells because it has found this one source of nutrition that it can use for the rest of its life.
+
+ 
+
+This is often used as a metaphor for professors. They study very hard when they are students like you. And then they go to universities, and they digest their own brain and stop thinking afterwards. So this is not a very nice joke, but I can make this kind of jokes. A tunicate in order to protect itself, it develops a little thick coating around it called the tunic. And that is what it is called, a tunic. So plant that used to be mobile once, but it's not mobile anymore because it don't got a nervous system.
+
+ 
+
+I would like to impress upon you the salient properties of these examples that we have taken. All of these are organisms, living organisms to be specific. They can move around. They can do things that a machine cannot do. Machine displays a different kind of intelligence. And just to make it more clear, AlphaGo is a computer program that a company called DeepMind-- DeepMind is in the UK in London. They built a computer program to play a game called Go. Go is a game, very popular in East Asia, not that different from chess for the rest of the people who haven't seen it before.
+
+ 
+
+Basically a very hard game and widely considered to be one of the bastions of human intelligence. No computer had managed to beat a human being at Go before. So DeepMind took upon this challenge. They built a computer program to play Go. It was a very good program. So they decided to make it compete with this guy. His name is called Lee Sedol. He's a Korean champion, Korean Go champion and is widely regarded to be among the best Go players in the world at that time. So after three matches, DeepMind or AlphaGo had won all three matches against this person.
+
+ 
+
+And it was a little surprising, or it was very shocking for most players as to how can a computer ever beat a human being at this very difficult task? I don't want to sound trite, but I want to show you this one little quote that the person says, the person who's himself a Go champion in the US. He says if you want to defeat this machine, all you have to do is pull the plug. The machine cannot play anymore, and then you win by default. And of course, this is a joke, but it hits upon a very important thing. When I come at you to hit you, you will run away. If you don't run away, then that is not a very intelligent behavior.
+
+ 
+
+If you do the same thing to a machine, machines don't get to run away. Machines have a very, very narrow definition of what they can do. And you can affect them in any which way via outside this definition, and the machine has no way to respond. So AlphaGo is very good, the best thing at Go. But it is very good at this one narrow task. So when we talk about intelligence, we are necessarily interested in displaying different kinds of behaviors-- behaviors that allow us to adapt from many, many different things. There are examples of very narrow intelligence that are still useful. And that is what computers are, but they're different things.
+
+ 
+
+And this is just my opinion. So I was brought up as a roboticist. And so this is how I think about intelligence. Some of you may be more computer scientists, and you would think of intelligence as a slightly more narrow definition of a computer being good at one specific task. And that's totally consistent with everything and appropriate also. But next time you see a machine, ask yourself, what are the properties of this machine that make you want to call it intelligent or not?
+
+ 
+
+Machines that only respond to stimuli that are coming at them in a passive sense have a limited notion of intelligence. If I drop my keys at the back of this classroom, there is no way I will be able to find them no matter how many images you give me from this vantage point. I have to actually go there and search for them. We are interested in designing machines that can have these behaviors.
+
+Components of intelligence Transcript (10:43)
+Here are three components of intelligence. The first one, people call perception. Perception is the ability to see things, to understand things. The next one is called action. Action is the ability to affect things, to walk, to fly for birds, to change your location if something is coming at you. And what glues them together is something that people will call cognition. Cognition is what your brain does. Your brain takes in stimuli from your senses, eyes, ears, nose, skin, and then does something, computes something using the stimuli to tell you where you should walk or go to next, how you should move your hands and feet next. 
+
+And of course, you don't do these things in isolation. It is not just a matter of you looking at some stimuli and taking some actions. If I were to go around searching for the keys that I lost, I necessarily imagine how the world would look like. If I go to so-and-so part of the room. The reason I go to the part of the room to search for keys is because I imagine I must have lost them there. So this ability to take an action that is likely to give you a certain kind of observation, a certain kind of stimulus is also necessary to display interesting behaviors. And these three concepts together form intelligence. 
+
+Now this class is not going to look at all three of them. I wanted to lay down the context. And now we are going to choose which one of them we are going to focus on. And there are different classes at Penn in particular, and different universities also that talk about these three different aspects. So typically, computer vision would talk about perception, the ability to see. That is one of our most powerful senses. Classes that talk about action would be in mechanical engineering or in control theory or in motion planning. 
+
+And they will tell you how to act. And they usually assume that you know very much about what you are seeing. You have already understood what is it you're seeing, whereas courses in perception will tell you how to perform operations on stuff that you see or stuff that you sense. In this class, we're going to talk about the one in the middle, cognition. We are going to assume that someone has given us some stimuli. We are going to assume that we know what actions to take, or we know what to do using the stimuli. But we are worried about how to do this process efficiently. And this is in a very specific part of an intelligent organism, not the entirety of it-- a particular part of it. So this class will focus on learning, and you can think of it as cognition. 
+
+Goal of cognition Transcript (13:46)
+The second thing that I want to emphasize is the goal of cognition or the goal of learning. And to convince you of this, let me give you an example. So imagine that you are a supreme agent. A supreme agent is something that is infinitely fast and infinitely clever and has zero limitations on its performance. And you are driving a car. 
+
+Now, in order to understand how to drive a car, you necessarily need to know what other cars in your vicinity will do. The supreme agent doesn't really find this task difficult. Because for every little thing that other cars could do, the supreme agent can simulate very quickly in its head about what they will do and take the necessary action. 
+
+If there's a car that is going to cut in front of you while you're driving in a lane, the supreme agent knows exactly what is going to happen. Because it has sensed it infinitely quickly. And it knows exactly that it should be braking a tiny bit harder, OK? 
+
+So if you had no limits on the kind of computations that you can do, if you have no limits on the kind of stimuli or kind of perception that you have, then you wouldn't need any learning. Because you could directly use your stimuli and take the actions without ever having to summarize the stimuli or without ever having to use past knowledge. 
+
+So the reason we use learning is because we would like to make this process more efficient. We want to understand when current observations are similar to past observations and then basically regurgitate those actions that we took in the past. Because we cannot simulate things as quickly as the supreme agent, or we cannot compute things as efficient as supreme agent. 
+
+So learning, at the end of the day, is a process of summarization of past experiences and using this summarization to take current actions. It is necessarily a prior on the kind of action that you take. Just because a car cut you off yesterday doesn't mean that the car will cut you off today. And that is why you shouldn't be braking today. You should be braking based on the observations that you receive right now. 
+
+Learning is a prior that makes it likely that people who drive Mustangs typically cut other people off. And those are the kind of priors that we will be learning from past data and past experiences. So a machine learning algorithm is not something that gives you the outputs directly. It gives you a prior on the outputs. 
+
+The actual output the actual action that you take depends on what your current observation is, OK? This is very different from a chess playing program, where the chess playing program has a very clear notion of the state. And it doesn't have to rely too much on this inference of what action it should take, given the state of the action is pretty clear. 
+
+Intelligence: the beginning (1942-1950) Transcript (16:50)
+Let us think about how people started to think of intelligence. Let us discuss how people start to think of intelligence. This is not the first time people are talking about intelligence. People have been trying to do this stuff since the early '40s. And roughly speaking, most people would agree that our modern notions of artificial intelligence began somewhere in the early '40s. So this gentleman to the left-hand side is Warren McCulloch. He was a professor of neuroscience in Chicago. And the one on the right is this guy called Walter Pitts, who was a mathematician logician in Chicago and then later at MIT. 
+
+And they, together, built the first model of a neuron. The way they were thinking is we have a brain. A brain has many neurons. The fact that your brain has many different kinds of neurons was known roughly from the early 1900s. And what these two were interested in doing was taking these biological neurons and then abstracting it out into some mathematical object that they could understand a bit better. Biological neurons are complicated things. For instance, your brain has about 10 raised to 14 new connections between in roughly 10 raised to 9 neurons or 10 raised to 10 neurons. 
+
+And these are large crucibles of chemistry. So there is many reactions that take place. There is electrical impulses that travel between one neuron and another neuron across the body of the neuron. And if you take a class on neuroscience, you will spend roughly half of the class simply studying the little reactions that happen to transmit messages across these. Now we don't want to necessarily always model this complexity in order to build intelligent computers, intelligent machines. So what McCulloch and Pitts did is that they said, let a neuron be this simple thing. 
+
+It is a box that takes in n inputs, x1, x2 till xn and produces one output. It is not very close to a biological neuron, but it's a very coarse abstraction for it. A biological neuron takes in many different inputs from many different neurons. And at the end of the neuron, it produces an impulse. The neuron fires, or it does not fire. And this is kind of like the output of this mathematical neuron. How does it choose whether to fire or not fire? Well, there is a function that you can choose. And this function, neuroscientists will tell you what the function is. 
+
+In machine learning, or in learning, we are interested in cooking up functions that allow us to create specific kinds of outputs. And there's a little lesson to be learned here. So we know human biological brains can do intelligent things. Instead of directly replicating what the biological brain does, you abstract it out into a very simplistic object. This one looks nothing like the biological neuron, but now you get to play with this object. And roughly speaking, the neurons that we use today are pretty damn similar to these kinds of neurons. We kind of change the function a little bit. We changed the output a little bit. But fundamentally, they're not that different. 
+
+The paper where they talked about this is an assigned reading for this lecture. And another thing that I forgot to mention was Walter Pitts was a logician. And he was interested in capturing the biology using principles of logic. And that is why this model is kind of simplistic. It's a Boolean that is output by this neuron. Around the same time in England after the war, Alan Turing had developed the theory of computation slightly before the war. And he was kind of getting more interested in how biological computation happens in biological brains. 
+
+And what he created is a way of thinking about intelligence that is quite popular right now. For instance, if you see the second assigned reading for this chapter, it is a paper that is called "Computing Machinery and Intelligence" by Alan Turing. And the first section is called the Imitation Game. So this is where he said, I think a computer is something that can convince a human being that it is a human being if the human being were never to see the computer giving its answers. So if I can answer all the questions that you have without you knowing whether I'm a human or a computer, then I'm a human for all practical purposes. And that is what we have come to call a Turing test. 
+
+So this is the more philosophical part of what he did. The more tangible part of what he did was he created models for neurons. So he started to think about neurons as objects that have threshold nonlinearities that take in multiple inputs and create multiple outputs, and these kind of things. And roughly speaking, the neuron that Alan Turing built or conceived in England-- are not really built yet-- is not that different from McCulloch and Pitts' neuron. It is the same object, the same mathematical abstraction that people began to use to think as a way of building components of intelligence. 
+
+At the same time in Cambridge, Massachusetts-- Alan Turing was in the Cambridge UK-- a bunch of professors led by this guy called Norbert Wiener began to think of themselves as the Cybernetics Society. They wanted to imagine machines that can do things that humans do. And that is why they call themselves the Cybernetics Society. And so this is a picture of them meeting. So this is Norbert Wiener. This is McCulloch. This is Pitts. And this is Gray Walter, I think. Yeah. Actually, this is Gray Walter. This is Pitts. 
+
+And if you need any more incentive to take this class, I will show you the table of contents of the textbook on cybernetics that Norbert Wiener wrote in the '40s. It's a beautiful textbook to read even today. Remains evergreen. So it begins with a bunch of philosophical things like, what is time? Incidentally, that is also the first chapter of Newton's Principia. And then it talks about group theory, some physics, feedback as a notion of two interacting things coming together. So just like we do a loop between action and perception, there are feedback loops within the brain that allow you to do very different things. 
+
+If in one field or part of your field of view you see something that is repetitive and not very useful, your brain automatically shuts it off and allows your eyes to focus on the remainder of the scene so that you don't have to waste computational power to process these changing things. In modern machine learning today, we call this attention. More broadly, you would think of this as feedback. OK? 
+
+And then there is stuff about language, et cetera. So the concepts that Wiener thought were foundational in the pursuit of intelligence are also essentially verbatim the concepts that we will do in this class. We'll look at information theory. We'll look at feedback. We'll look at representations of continuous signals, et cetera. So the way we think of intelligence has changed in its language across the last 80 years or so. But the central tenets haven't really changed much. 
+
+Representation learning Transcript (25:24)
+The next thing that I want to introduce to you is something called representation learning. Representation learning is just a word given to the notion of you using stimuli from sensors and then creating computable representations out of it, objects that have meaning. So I look at a bunch of pixels or a bunch of photons that are reflected from the chair in front of me. And I think of it as a chair. I can appreciate that one of you is wearing a checkered shirt by watching how different the pixels next to each other are. 
+
+These are discrete representations that I have created for signals that are necessarily continuous. The world evolves in a continuous way. To reason about it, to do something with it, we collapse it into a discrete representation, that is, objects. Everything that doesn't change too much in time is an object. And to further make the description of objects simpler, we have given them names. There's a red color and a blue color and a green color, et cetera. So representation learning is the question of, when should you stop? 
+
+I have a huge gamut of a continuous signal. I could be compressing it in essentially nothing. So I could say that everything in this room is an object. But of course, that doesn't help me talk to people. That doesn't help me move around too much. Or I could say that everything is a bunch of molecules. That is the other end of the spectrum where I, again, don't find it very useful to-- this description is not very useful for me to interact with the world. And depending on the kind of things you do, you will choose a certain granularity. 
+
+If you're talking to a friend and then telling them about rock music versus, I don't know, classical music, if the person is new, you would say that in a different way. But if you have an audiophile friend, you would explain the exact sleighing song to them in a very, very different language with much more nuances and very different vocabulary. So depending on the kind of tasks that machines should be doing, the language that we use to compress into the continuous signal is different. 
+
+Sometimes you want to compress a lot more. That means that we want to use very few symbols. Sometimes we want to compress a lot less. That means we want to use a lot of symbols for the exact same thing. And that is what representation learning means. And Claude Shannon is this person in the picture. He started this field called information theory in the late '40s to understand such things. So we'll be looking at some concepts from information theory to appreciate when you should compress and when you should not compress. This is roughly the first few years of intelligence, where there was a lot of talk and not much action, roughly speaking. Everyone was thinking very deeply, but no one was doing much. 
+
+Intelligence reloaded (1960-2000) Transcript (28:37)
+Around late '60s-- or mid-'60s more precisely, I guess-- people started to build things. So this is a picture of the first neural network ever built. This person here is named Frank Rosenblatt. He was a researcher in Cornell University and the Navy Research Center in Ithaca. 
+
+And this machine is exactly the same neuron that you saw in McCulloch and Pitts neuron. It takes in a bunch of inputs and it returns-- it outputs one Boolean, 0 or 1. It is called a perceptron, and this thing weighed five tons. So this was the first neural network-- the simplest possible neural network, one neuron, and that was the first time anyone ever engineered an artificial neural network. 
+
+In mathematics, this is how we would write it in the remainder of the course, of course. Think of x1, x till xt as the pixels in your image. This should be a W. Imagine that you have an image of an orange, and this would be the number of pixels in the image. 
+
+Typical images are quite large. So if you look at your phone, it takes images of anywhere from 10 megapixels to 50 megapixels. That is 10 million to 50 million numbers. Images are rather large. 
+
+And you multiply each of them with a different number-- W1, W2, all the way until WD is some vector that you choose that lets you decide whether this image is an orange or an apple. How do you decide this? 
+
+Well, you apply a sine function to it. If the thing inside the sine function is positive, it returns a plus 1. If the stuff is negative, it returns a minus 1. And so you will annotate that and say, if the output of this thing is positive, then I will call it an orange. If it is negative, we call it an apple. 
+
+And it will choose the values of W1 to Wt to make sure that all the images in some training data set that you have collected are classified correctly. Oranges are called oranges, apples are called apples by this machine. Once you've found these values of W, then you could run this same thing on a slightly new image, which was not a part of your training set, and you would be able to guess whether it was an apple or an orange. 
+
+I will repeat this in the next lecture a little more precisely, but in a nutshell, this is machine learning-- using patterns in the training data to guess values of your weights, W1 to Wt, and then using those weights to make inferences of new images that are not a part of your training data. 
+
+It's a matter of history, and a tragedy that these kinds of ideas-- these are called connectionist ideas in learning, where people were beginning from a little more ground up level, where you have neurons. Neurons come together. They create representations that create outputs. 
+
+In the late '60s, there's a very famous researcher called Marvin Minsky in MIT. He and Seymour Papert, he wrote a book where they said these kinds of functions can only solve simple problems, in the sense that if you have a bunch of points that are labeled plus 1 and a bunch of points that are labeled minus 1, then you can only split them using a linear function. 
+
+This is exactly what a perceptron does, and we'll see it in a bit in the next lecture. It cannot solve problems where there are a bunch of pluses here. There's a bunch of minuses here, and there's a bunch of pluses here, and a bunch of minuses here. 
+
+There is no straight line that splits the pluses and the minuses cleanly in such a case, and this is clearly a problem that such models cannot solve. And so Marvin said, oh, look, so the perceptron can solve some problems-- it cannot solve some other problems. 
+
+But everyone else understood it as him dissing on the perceptron. And he was a very famous guy at that time, so everyone thought, oh, no, perceptrons aren't any good. And basically, people began to-- stopped working on connectionist approaches. 
+
+And at the same time, some other things were getting popular, like planning, or logic, et cetera were very popular in the early '70s, and that is why this kind of learning lost steam. It became popular again roughly in the late '80s when people discovered that inside your retina-- or in the early parts of your visual processing, there is something called as convolutions. 
+
+So you are creating features that are edge-like or colors-like. And they began to imbibe artificial neural networks using these features. It was also led-- this entire second phase of learning was led by the rediscovery of something called as backpropagation, which is what we will see again in a few lectures. 
+
+It is an algorithm to train the weights, W1 to Wt. And remember, I said we have to find the weights that correctly classify apples and oranges? Backpropagation is an algorithm that allows us to find these weights. 
+
+That algorithm, although it was built a long time ago-- in the '60s itself-- by this professor we call Shun'ichi Amari. We will also look at some of his work a few lectures from now. It was written in a paper in Japanese and basically unknown in the rest of the world. 
+
+And so in the mid-'80s, Jeff Hinton and Rumelhart rediscovered this algorithm, and that is really when everyone began to appreciate this work. Backpropagation was thought to be a very nice way to train artificial neural networks-- combinations of neurons that we have seen. We've seen one neuron. You can put many of them together, and backpropagation can and find the weights for each of these neurons. 
+
+And around that time, people noticed that-- look, inside the brain, there is different parts of the brain. Some of them are in charge of addition, some of them are in charge of visual processing. Inside the visual processing part, there is different sub-parts-- the V1 cortex, which identifies edges and colors. The V2 cortex, which combines these features into combinations of edges and combinations of colors, all the way until V4, or the main cortex which identifies faces, and people, and language, et cetera. 
+
+So this progress in neuroscience basically led people to believe that you could build similar things in architectures-- in artificial architectures. And that is the birth of convolutional neural networks. So convolutional neural networks are nice neural networks-- or nice combinations of neurons-- of a specific kind of neurons that are particularly well-suited to handling images. 
+
+And so Yann LeCun is a professor in NYU, and he is also the head of Facebook research right now. He became famous because he was among the first few people to train a convolutional neural network to identify handwritten digits from each other. And so even today, of course-- but even in the late '90s, the US Postal system was using automated detection of zip codes on letters. 
+
+So it can bin the letters in different bins based on what zip code there is on the written on the letter. And because the zip codes were written by people, you need some robust way of discovering or guessing what digit is print is written. The next-- somehow, I want to say, technological progress in machine learning was done by Vapnik. 
+
+We'll talk about Vapnik a lot in a few lectures when we think about theoretical machine learning. And Corinna Cortez who was a professor at Columbia, I think. And they built these models called support vector machines, which is the subject of the first homework that you will see, homework 0. Support vector machines were very popular because they were particularly easy to use. 
+
+So all this stuff about neural networks-- rediscovery and then classifying digits and stuff-- it was widely dismissed by the broader population because neural networks were very difficult to use. Only the very experts could use them, and the ones who are not good at training neural networks could never get them to work, whereas SVMs were stuff that basically most people could get to work. 
+
+And so there is a tiny lesson to be learned here. The reason you and I can do deep learning well today has a lot to do with how much we understand neural networks and deep learning, but also because there is a lot of libraries and software and good code that people have written over the past 15-20 years that makes it really, really easy to use these things. 
+
+In your second homework, you will train a neural network that has a lot of bells and whistles-- basically, a pretty good neural network as far as things go, and you won't have to sweat too much while doing this. Whereas in the mid-'90s, the running joke was that only the experts in deep neural networks can get neural networks to work and no one else can. And this was roughly the case even up until 2013 or 2014 or so, and only after that, these libraries became prominent. 
+
+ 
+
+Intelligence revolutions (2006-) Transcript (38:45)
+So the next phase of what would be called deep learning, the beginning of this modern era of deep learning is, roughly speaking, around 2006 when Google began to build large neural networks that they were training within Google for identifying images. But the watershed moment was in 2012. So there's a data set called ImageNet. ImageNet is a bunch of images, about 1.3 million images collected from this very old website called Flickr that most of you are very young to recognize. 
+
+But people in Stanford, they downloaded a bunch of images from this website. And because most people typically also write down the name of the image below that, they also got some annotations for these images. They also annotated a few more using people. But these images consist of about 1,000 different categories, different breeds of dogs, different vehicles, different music instruments, lots of other things, both man-made and natural. And in the early Tens 2010's, there used to be a competition in the computer vision conferences, where you would fight to get good classification accuracy on this data set. 
+
+This is a very large data set. So it will take about 50 gigs to store it on your laptop. And from these one million images, you are supposed to classify as many as you can. In 2011, the best methods to do this got about 30% images incorrect. And between 2007 or 2008 when this competition started, in 2011, the error had dropped down from like 32%, 34% to 30%. In 2012, there was a couple of students in the University of Toronto, Alex Krizhevsky and Ilya Sutskever advised by Geoff Hinton, the same guy who invented backpropagation, they built a neural network that achieved 15% error. 
+
+So this was down from 25% error of the year before. And everyone was very shocked because until then, it was ridiculously hard to get down the error by even 1%. And then this little paper shows up. It reduces the error by a good 10% in one single year. And that is when everyone began to take notice and say, oh, maybe neural networks kind of work. They were still very, very complicated things to use. So Alex Krizhevsky is an excellent programmer. And the reason this network worked well has a lot to do with his prowess as a programmer. But the fact of the matter is these networks were back in limelight. 
+
+And since 2012, of course, many people have used these networks for many different kinds of problems. Right now, the error on ImageNet is less than 5%. And it has stopped becoming a competition. So no one really wants to dig down below 5%. If you train a human being to classify these images, you will also get an error of roughly 5%. And that's because to give you one example, there is lots and lots of different breeds of dogs in ImageNet. There's 118 different breeds of dogs. And it is quite difficult to distinguish one breed from the other often. 
+
+You will know your dog. You will know your friend's dog but not many more. So even humans are pretty bad at image classification. Machines are essentially as good as it right now, maybe even better. So the progress that we see today is the result of a lot of formal thinking that began all the way in the '40s. A lot of technological ideas that started in the '60s, and then kind of were refined in the late '90s. In the last 10 years, these ideas haven't changed much. So we are basically using the same kinds of ideas which were discovered in the early '90s. 
+
+But we have kind of put them on steroids, and then built a lot of very clever technology or very clever hacks around these ideas to make them work way better than what they did in the '90s. Computers are faster. We have a lot more data to train these things with. GPUs weren't invented in the '90s. So we can use them to reduce the time it takes to train these networks. And so the moral of the story is that we are studying the evolution of how we think about neural networks. We'll be studying a lot of technology around deep learning. 

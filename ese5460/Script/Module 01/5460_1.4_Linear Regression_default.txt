@@ -1,0 +1,256 @@
+The Origins of Data Transcript (00:00)
+How do you get data? All of you are at least ingenious. Maybe some of you are in the art school-- Arts and Sciences School. How do you get data? Some actual experiment-- if you're a physicist, you go and switch on a laser. And then now you record some photons bouncing off some material. That is your data set. If you're a computer vision person, you go around with your mobile phone, click pictures of objects. That is your data set. If you're an astronomer, you look at your telescope. You see pictures or you see EM radiation. That is your data set. 
+
+Data always comes from some physical processes. Now, many people have been kind to us, that they look at their physical processes, and then they recorded the data, and then gave it to you on some website to download from, right? Some person, in this case, this institute called NIST, National Institute of Standards and Technology, they created a data set of handwritten digits in the early '90s. And then they put that data set on the internet. You and I can download this data set now if you want to build a machine that can classify 110 digits. 
+
+The fact remains that these handwritten digits were created by people like you and I, our parents, roughly speaking. And this is a real physical experiment that someone did. So it is important to understand that we are in the business of making predictions from data. But data is always coming from some physical experiment. Whether it is a computer scientist's experiment which happens a little more of watching the world kind of stuff or whether it is an actual scientist's experiment, which happens when they study a particular phenomenon in biology, physics, chemistry, it's the same thing. 
+
+Now, in this class, we'll primarily be interested in looking at data and then having some notion of targets. Targets is any predictions that you wish to make upon the data. This could be the height of the people in this room, the number of objects in their image, the different kinds of dogs that exist in Philadelphia, anything that you think you can guess from the input. 
+
+It may happen. In the case of a scientist, when a biologist does an experiment, they are interested in some kind of targets. When they go and collect the data, they may not always know whether the data is predictive of the kind of targets that they want. So if you create a genomic sequencing data set and you want to say, does this particular gene cause cancer or is more likely to cause cancer, you don't know whether this is true or not. So this is your hypothesis. 
+
+You go collect data. And then the biologist sits and makes a model of x given y or a y given x. And if they can create a model like this, then say, aha, I have found a situation where the labels are coming from the data. Our job as machine learning folks is a lot easier than that. Someone created a data set. So presumably the data set has the signal already in there. It is much, much, much easier than what a person who collects data does. So we know that y is very likely predictable from x. Our job is simply to do it. 
+
+The Problem Setup for Machine Learning Transcript (03:17)
+Let's say that I gave you n samples. In our case, we'll always be interested in x1 comma y1. [? When x ?] superscript 1 is the first input image, let's say, [? our ?] y superscript 1 is the first category of that image-- cat, dog, plane, boat. 
+
+And let's say that I give you a data set of n samples. Our job is to make sure that, when I give you the next sample, xn plus 1, you can still correctly predict what yn plus 1 is. I don't show you yn plus 1. This is called the test data. 
+
+I give you some training data, which are these n samples. And do whatever you wish to this n samples, but when I will query you at this time, using a new image that was not a part of what I gave you, you have to be able to correctly predict its output. This is, in one sentence, what machine learning is all about. 
+
+Now, the way we typically formalize machine learning-- and it is simply a mathematical formulation-- is that these x's that I gave you, x1 to xn or xn plus 1, they have to have some shared property between them. Otherwise, it is meaningless to be able to predict what happens at xn plus 1, given the first n [? images. ?] That makes sense, right? 
+
+If I always gave you images of objects in the day, then you would not be able to predict what happens at night, because they would look very different. So there has to be some shared property among these samples. Otherwise, the problem of machine learning is not very well-defined. I can give you images of many, many different things that you haven't seen, of course, I shouldn't expect you to predict correctly. 
+
+So the way computer scientists typically think about this is that they say that every one of these n samples was drawn from some probability distribution. A probability distribution, in this case-- we will define it to be P-- is a joint distribution on x comma y. For every image x, it is so and so likely to be that of a cat. Let's think of the proportion of animals in the city, and then there are many cats, many dogs, fewer giraffes, even fewer lions. The probability of you observing a giraffe is small under this joint, and consequently, the number of images of lions or giraffes you will get from Philadelphia is also much smaller. 
+
+This is our formalization of what machine learning is, the probability distribution from which we get images. We will call this the training data set. It is the n samples that we have access to, that we collected from our data set. It is our training data [? set. ?] 
+
+Memorization vs. Generalization Transcript (06:12)
+What is our job in machine learning? We said that we want to predict on the n plus 1 sample, how easy or hard is it to predict on the n sample. Let's do a simple example. So I'm going to create a data set of oranges. This is one orange. This is another image. In this case, the orange is somewhere here. It is orange in color. Let's draw it for effect. And it may have many different kinds of backgrounds behind it. This is image number 1. It is x1. This is image number 2. This is x2. And for every one of these images, I have labels, right? So I have my 1 equal to 1. 
+
+There are some other images, where I don't have an orange. So let's say that I have an apple. And that is obviously in a red. And in this case, I have y3 equal to 0. It is not an orange. I am not talking very complicated things here. These are images of oranges and apples. Oranges are orange. Apples are red. Oranges are labeled plus 1. Apples are labeled 0. If I gave you n such images, let us say that half of them were oranges, half of them were apples, and I wanted to ask you, can you predict me what the image is off out of these 100 images? 
+
+So I promise you that I will never query you for images that are not a part of what I gave you or not outside the training data set. I only query you stuff from within the training data set. What will you do? So you'll build a table. You'll build a table that says x1, y1. So let's even do something much simpler. This is the index of the first image. And this is the label. y1 is 0. Index number 2, y1 is 1. Index number 3, that was an apple for us. y would be 0, right? Next time I give you an image, you will simply check which one of these rows it could be and then simply say what the right-hand side column is. 
+
+And the way he said it, he said that it is a hash function. Why do we want to use a hash function? Because I give you an image, right? You need to search my 100 images that I gave you as a part of the training set. And identify which image I gave you. That makes sense to everyone? So you first check which of the 100 images I gave you and simply output the label that I had given to you in the first place. There's nothing very complicated about this. You are simply storing all my data set into a big table and then indexing the table. Can you give me one example of something that is of a system like this that works remarkably well? 
+
+Searching? Google search works like this. Google goes on the internet. It finds what is written on every single website. Next time you search for something, it just gives you the website on which it was printed. If you do Google Photos, you can query for objects, and it will search your objects. What I want to impress upon you is that predicting well on the training data set is trivial. There is really nothing complicated about training on the data set. I give you a bunch of images. If I promise you to never ask you questions from outside this training data set, then all you need to do is store it in a hard disk. 
+
+Once you just store it on a hard disk and search it in various ways, you can either do a hash map or compare all the pixels of the image that I gave you with the pixels of the images that are stored. There are many, many ways of identifying the image that I gave you. Once you identify it, you simply predict and give me the label, and you are done. The hard part is to be able to do something like this on new images that I haven't given you. This entire business of using the hash map or a table like this, it wouldn't work if I give you new images. 
+
+So this is the problem in machine learning. I'm expecting you to give me answers of questions that you haven't seen before. So this is-- if you say it in words, it sounds a little trivial, but it's a very important point to appreciate when you start doing some machine learning. Predicting on the training data set is that trivial. You should never be happy about the fact that you got zero training image. You can be happy about the fact that you got zero test image. 
+
+Formalizing Generalization Transcript (11:05)
+Now let us talk about the next concept. So I give you training data. And as I said, I shouldn't expect you to be good at answering questions from outside the training data unless there is some shared property in the training and the test data. In machine learning, we talk about one particular kind of shared property, the fact that training and testing may just come from the same [? probability ?] distribution. 
+
+Your ability to do well on images that I did not show you before but come from the same distribution is what machine learning folks call generalization. Generalization is a name that is given to when a model can predict well on images that come from the same distribution. Morally speaking, we like to think of models as doing well on similar images. The similarity is modeled as them coming from the same distribution. 
+
+There is a world of animals out there. I sample this world uniformly to get my images. I give you some of them as a training data. I test you on some others and expect you to generalize well on this new [? test. ?] So typically, in addition to having access to a training data set, we will also have access to a test data set. 
+
+Of course, you don't know what the true labels of that data set are. I know them. So I give you the training data set. You build a classifier or a regressor or some model. And I then give you the images of the test data set. And you predict with the labels. I will go and check your answers against the true answers that I have for the test data set and give you a number. 
+
+With 0.7 probability you can predict correctly on the test data set. If you have two classes, if we are talking about apples and oranges, what is the probability that you would get things correct? For sure Let me rephrase the question. Let's say that you have apples and oranges. And we are sampling the set of apples and oranges uniformly. So in my test set, out of the 100 images, I have 50 images of apples and 50 images of oranges. Can you get 50% accuracy on this trivially? How? 
+
+Just by giving random outputs, right? So if you have two classes, you don't need to be very intelligent to predict the label with 50% accuracy. If you produce 95% accuracy, then you have some good model of what the image is. Similarly, if there are 10 classes, then 10% accuracy is easily gotten. More than that, you have to fight. 
+
+Now I want to ask you a particular kind of question. So let us go back to this table that we created. How many different kinds of tables are there? And I will talk about this in one specific way. There is an image. Then there is, let's say, all our images are of size 100 [? plus ?] 100 pixels. All our outputs can be, as we said, 1 for oranges, 0 for apples. How many different tables can you build for 100 images? 
+
+You have 100 training images. So the number of possible pixels is what? Each image has [? 10 ?] [? to ?] 4 pixels. It has 100 pixels wide, 100 pixels high. So [? we ?] extend this to 4 different values it can take, even if these are grayscale images. If these are RGB images, these are these many different values that every image can take. 
+
+My 100 images from the training data set are here. So this is the total number of different kinds of pixels I can give you as inputs. Out of this, you have two possible outputs for every image, right? This is the number of functions you can write down on your hard disk once I give you 100 images. 
+
+You can pick any one of these functions to check our training data set [? problem, ?] [? right? ?] When I give you a training image, you can pick whichever function you want to compare the pixels. It will be one of these functions. These are all the possible functions you could cook up of the pixels. Is this clear? 
+
+I have done this to four times, three different values for every image. I have 100 images. So I have 100 times the 30,000 different values that you could write down as the rows of your table. The columns are two possible values. So whichever table you write down, it is going to be one out of these many, many possible tables. 
+
+Some will be complicated. Some will be easy. So for some functions you could think of using all the pixels to check the similarity between images. For some other functions you could check-- I will only check the pixel that is 73 comma 157, 73 in width, 157 [? comma ?] in height. Let's see. It shouldn't say 157. Let's do 57. So you'll only check this pixel. 
+
+If this pixel is orange, you will classify it as an orange. If this pixel is red, you will classify it as [? red. ?] This is a bad classifier, obviously, but it is a classifier. This is one function you could use to compare images. There are many, many possible functions like this. But check these three pixels. 
+
+You could check all pixels. These are the total number of functions you could use. This is a very, very large set. Is that appreciable to people? 
+
+Does anyone know how big the images of your phone are? Pick your phone, like the latest iPhone 13 or 14 or whatever. How big are the images that it takes? Yes? 
+
+16 million bytes. 
+
+16 million bytes? 
+
+Yeah. 
+
+And what is the resolution? 
+
+[? 4K. ?] 
+
+4K. 4K is roughly 2,000 pixels times 1.6 thousand pixels. So you'll see, like, 2,600 plus [? 600 ?] being the resolution of monitor or something. This is an enormous number of pixels. It is about 4 million pixels. When you say 4K, it is about 4 million pixels. So if each of these pixels is RGB, it is 3 times 4 million different numbers. So this image that we cooked up of size 100 [? plus ?] 100 is a very, very tiny image. And even that image gives us access to-- or we could build these many different functions of that image and call them our classifiers. 
+
+For the image that is taken by his phone, we have many, many more classifiers. So what I want to impress upon you is that given a data set, there are many functions we can fit upon this data set to make predictions-- really huge number of functions. We want to choose one function out of these that helps us make predictions on new images. 
+
+Many functions from this set make accurate predictions on the training data set. Is that clear to people? There are many ways of comparing images on the training dataset. And many functions from this set make accurate predictions [? of ?] the training data set. [? On that test ?] data set, only some of them will make good predictions. 
+
+So the name of the game in machine learning is to take the data and fit the right function to it. We always have very complicated functions that are hash maps. Can you give me the opposite end of the spectrum, a very dumb function that is seemingly very simple? 
+
+The random classifier, right? It has zero parameters. You don't need to write down anything. Every time, I give an image, you toss a coin, and you predict an apple if it comes heads. You predict an orange if it comes tails. This is a trivial function. So it is a very simple function. 
+
+And then there are many complicated functions which require you to check the pixels. And there is everything in between. Functions have different complexity. 
+
+In machine learning, we need to be able to select one function out of this huge spectrum of functions and say that this is our [? classifier. ?] So this is the name of the game, find the right class of functions such that it is not too large. If it is too large, then it will look a little bit like the hash function. If it is too simple, then it will be a very dumb function. It will not be very accurate. And we'll see what it means for a class of functions to be too large or too small and et cetera in the coming lectures. But for now, it is enough to appreciate that there is a large class of functions and our job in machine learning is to select one out of them. 
+
+ 
+
+Introduction to Linear Regression Transcript (20:37)
+We will say that our images or our inputs, they are d, dimensional vectors. And our labels are no longer plus 1s or 0s, but they are simply real value. We'll talk about a regression problem. Regression problems are simply problems that I give you some inputs, and I expect you to regress the output, to find a real value number that is close to the true real value number that was given to you as a part of the training data set. 
+
+Now, you could build one particular function of x. Let's think of this function. I have a vector w. It is also a d dimensional vector. I have a scalar b. It is a real value scalar. So w transpose x plus b is a quantity that is a real number, right? Given the outputs in my training data set, I would imagine that I can find w and b that accurately match the values y for every input x in my training data set. 
+
+The function that we can think of using for such a problem is f. I just denote the left-hand side as x. So just think of it as a definition for x. It takes in an image x, or it takes an input x. It is parameterized by some parameters, in this case, w and b. And given these two parameters and x, it always outputs something that is a real number. And I hope that the real number that it outputs is close to the real number that was given to me as a part of the training data set. That is what our model is for. 
+
+So let's do a simple example. Think of a two-dimensional x. So this is d equal to 2. So I can plot things. This is x1. This is x2. All the red dots are my inputs and outputs. So the y-axis is the output. And you can think of some data set like this. 
+
+Let us say that the cost of rooms in Philadelphia is a function of the number of bathrooms it has and the-- I don't know-- which part of the city. it is in. So if it is West Philly versus Center City, then this is the x-axis. The number of bathrooms is the second dimension of your input. And y-axis is the cost of the apartment. This is a very classical regression data set. 
+
+And our job is to be able to say that there is some house that lies here. I would like a model that predicts this cost accurately. Some other person decided this cost. We don't know. But we have a data set of these variables and costs. 
+
+You can think of fitting a function to these red dots. As you can appreciate, these red dots do not lie on a linear function. This is a linear function. If I multiply x by 2, the output of the function increases by roughly 2, if b is 0. So it's an affine function of w times x plus b. If I multiply the w by 2, I also increase my output roughly 2 times if b is 0. 
+
+And these kinds of functions are linear functions. So obviously these red dots don't lie on a linear function. So what is the merit of fitting a linear model to this data? Why should we fit a linear model? 
+
+The real data could have many different kinds of structures. Just because we think of it as a linear one doesn't mean that a true structure is linear. Doesn't mean that when I give a point here, its cost is going to lie here, right? So the real data may or may not have a linear structure. But let's say out of the many possible functions that we could fit, we choose to fit the class of linear functions because already there are many, many possible linear functions that I could fit for different values of w and b. 
+
+And I'm going to say that, OK, let me just fit only linear functions for now and see how well do I do in predicting our new images. Linear regression, that you have all seen for sure before, would cut these points in a way that minimizes the distance of the points from the plane. How many people find this intuitive, and how many do not? A show of hands. 
+
+Is it trivial that the red dots should-- that when we fit linear regression, we are minimizing the size of these black bars? So let's say that our function f of x w, b is y hat of x. This is our predicted value. When you do linear regression, when you fit linear regression, what are you really minimizing? You're minimizing 1/2n i equal to one to n. These are our n training data set points. 
+
+y hat of xi minus yi all squared, right? yi are the true labels, the true costs of these apartments. y hat of xi is the cost of the apartment, i, that we predicted. And we are minimizing the gap between the two, so minimizing the distance on the y-axis for every input point. So the function that you would fit, the y hat or the f that you fit, which I have drawn here as a plane, is the one that minimizes the size of the black bars. 
+
+It's a very beautiful way of looking at linear regression. It finds a function that minimizes the size of the deviations of the data points from the function on the y-axis. If I were to solve something slightly different, if I were to write down a function that cleanly divides these red points, would it be the same as linear regression or would it be different? Let's do a slightly simpler example. 
+
+I have two-dimensional data that looks like this. I can think of this data as lying on this axis and having some spread along this axis. Do people remember principal component analysis? The first eigenvector of principal component analysis is the one on which you have the largest variation of inputs. The second eigenvector of PCA is the one where you have the second-largest variation of inputs. 
+
+If I took all these red points and fit PCA to this, what will it do? What should my first eigenvector be just visually? Something like this, right? My second eigenvector would be something like this. It is on the x-axis, remember, right? So if you were to fit PCA to x1 comma x2 comma y, we would split this point cloud cleanly in the sense that the projection of the red point onto the plane that I plot is minimized. The length of the projection is minimized. 
+
+PCA is the one that subdivides your data in such a way that the projection of these points on the first eigenvector is minimized. It is slightly different from regression. Regression only cares about the one particular axis, the output axis. Just a cute thing to remember, not very important once you see it once. 
+
+Linear Regression: Loss Function & Optimization Transcript (28:37)
+As we said, our job is to build these y hat I's, which are our predictions for every image i and build them in such a way that they are as close to the true targets yi as we can get them to be. Usually, you have a factor of half year so that when you take the derivative of the square, you don't have twos floating around. But that's really not important. 
+
+When we fit a machine learning problem, linear regression is, in some sense, the simplest machine learning problem you can think of. We like to think of something called as an objective function. An objective function is a function of the inputs and outputs, the training data set, and the parameters. The parameters are implicit. This is w and b. y hat is a function of w and b, right? So it's a function of three things-- the training data set, your parameters w, and your parameters b. 
+
+The objective is a function such that if you minimize the objective, then you have access to good parameters. So W's and B's that have a small value of the objective l are the ones that minimize the distance between your predictions and your groundtruth. They are, in some sense, good values of the parameters. So objectives is what we minimize when we try to solve a machine learning problem. 
+
+Remember that we are only talking with the training set right now. We have no way of saying what happens in the tests at all. This is only about the training because these are in training samples. 
+
+Sometimes you also give name to this particular quantity because you will see as we go further into the lectures that we'll try to use different kinds of things, not just the squared error. We can think of classification objectives, whether or not you get the apples to be zero and  oranges to be a plus 1. So this is called the loss function, whatever we plug in. In this case, the loss function is a quadratic. It is a quadratic between the true outputs and you predicted outputs. 
+
+But I can always imagine it to be some other function. Any suggestions for something else I could plug in here? OK. One now. Any others? I could use y hat of xi minus yi all squared. One norm would be y hat of x minus yi. These are all real values, scalars. So the one norm is the same as the absolute value. 
+
+I can think of some other function like this. So let's plot on the x-axis our objective, our loss. And on the y-axis, we will plot xi minus yi. How does this squared error look? It is a parabola, right? 
+
+The loss increases as you go beyond this. And that is why when you minimize the loss, you'll find something that matches your true outputs. How does the absolute value look? It's a like this. 
+
+I can think of many other functions. So sometimes people like to use what is called the Huber function. The Huber function is a quadratic in the middle. And then it becomes a linear outside, some threshold, typically, let's say, 1. So this is just a different function. You can use it. 
+
+Any ideas about which one I should do if I want to predict the price of housing in Philly? There are houses with, like, 7 bathrooms sometimes. Is the cost of that house 7 times more than in the cost of your house? No? So the cost of houses plateaus out sometime, right? So we would like functions that kind of are like this. They don't grow arbitrarily large as you keep increasing the number of bathrooms a lot. 
+
+And this is really where you use your understanding of the problem to pick a loss. You can always pick a quadratic loss. But you know that for this particular case, the quadratic loss may not be a reasonable choice. There could be slightly better choices. A priori you can first pick the quadratic loss. If you don't know anything about the problem, if you know something about the problem, then you can tweak it in a way that helps you make better predictions. 
+
+So far, many of what we write down is I have an objective. This is n of w comma b. So in this course, we'll always use l for the objective. We will not give a name for the loss function so much because we don't need it as much. l will be the objective. It is a function of two things, W's and B's. It is also a function of the training data set. I simply haven't written it down. 
+
+Fitting linear regression or fitting any objective involves you finding the best w and the best b that minimizes l. So it is the R minimum of W's that are already dimensional vectors because our inputs x are the dimensional vectors. And b, that is a real valued thing. And if we find this R min nicely, then the w star and the b star that we get is our model. 
+
+Once we have w star and b star, we can use this to predict the cost of housing. So in homework 0, like you saw, because this is linear regression, you can solve this problem in closed form. You'll know that the solution of linear regression is given by this expression, where y is a big vector of all the outputs. x is a matrix of all the inputs. All the d dimensional vectors are written down as a row. And the last row, the d plus 1th column, is corresponding to b. 
+
+So mathematically, you can think about this as instead of fitting a function, which is x w transpose x plus b, you can think of fitting a function which is w tilde and x times 1. These two are the same functions because you can simply take the last column of w at the last row of w and call it your b. This is a very classical trick for regression if you don't like to carry around biases when you run things. 
+
+Maximum Likelihood Estimation Transcript (35:56)
+Here is a slightly different and a more general way of looking at linear regression and is also a good opportunity to introduce maximum likelihood estimation. When we say that we would like our y hat of xy to be similar to y hat of yi, what are we really saying? We are saying that, look, my y hat is w transverse x plus b. 
+
+And I hope that your y, the one in the training data set, the ground truth label, is close to my y hat up to some discrepancy. This is our understanding that the person who said the cost of houses did not use a linear model. He or she could have used a different model. 
+
+We choose to fit a linear model. The discrepancy between our predictions or our model and their model is what we call this epsilon. You never know this epsilon. 
+
+Is that clear to everyone? The person who set the house, set the price of the housing, set that in their own way. Just because we fit a linear model doesn't mean that the true cost of houses is linear. 
+
+In some sense, this is the fundamental difference between classical questions and statistics and questions in machine learning. In statistics, people will usually say that they know the true model of the data, and the job of the statistician is to study how to fit the true model. In machine learning, we often do not know the true model, and our job is to guess something that is close to the true model and hope that this guess is correct. 
+
+OK, so how can we model epsilon. x are our images. w is just a vector. What should we think of epsilon? 
+
+The discrepancy between our model and the true model. Obviously, we don't know anything about the true model. So by extension, we don't know anything about the discrepancy between the two models also. 
+
+But you can assume that there is some random variable that gives you this discrepancy. And this random variable is distributed as a Gaussian. This is not the only assumption we can make-- we can make many other assumptions. For instance, if you're building a model for predicting the arrival time of the bus at the bus stop, what should epsilon be? 
+
+The arrival time of a bus at a bus stop is a Poisson random variable with so and so mean. Every 15 minutes, there is a bus. But then because there is traffic, because the bus driver got late today morning, the bus can be 17 minutes. 
+
+Sometimes, it is 14 minutes. Et cetera, et cetera. And this, the distribution of the deviation from the mean arrival time of 15 is very close to what is called a Poisson noise. 
+
+So if you are fitting a model for predicting the arrival time of a bus, then epsilon would be a Poisson random variable. Now, in this case, you know that some other person studied this distribution and found it to be Poisson. If they're measuring the number of photons emitted by a laser, that is also Poisson. The number of photons that hit your camera is Poisson. 
+
+So, there is a situation, the noise is Poisson. There are many, many, many, many other situations in which noise is much more complicated, and you may not know it always. But because of things like central limit theorem, you can hope that it is not too far away from a Gaussian. 
+
+And this is why let us say that the noise is Gaussian. We don't know anything about the noise. We hope that it is at least 0 mean in the sense that we haven't gotten the model terribly wrong. We have that at least the discrepancy is 0 on average. And this is standard deviation. 
+
+Now, the important thing to understand is that once you write down a model like this, once you write down something like y hat x plus b plus epsilon, this is a statistical model of the data. I gave you a training data set. You impose this model upon the data set. And now, you have a well-defined probability distribution for what the outputs are given any input. The outputs given any input according to your model are w transpose x plus b being the mean of this normal distribution and sigma squared being the standard deviation, being the variance of this normal distribution. 
+
+This is our model of what the data is. It is different from linear regression. Linear regression gives you one number for every input. This gives you a distribution over the outputs for every input. 
+
+This is a very important difference in the sense that linear regression gives you only one output every time you plug in an input. This one gives you a probability distribution, and you can use this product distribution for many things. The mean of this probability distribution, as you can appreciate, is the same as what linear regression would give you. 
+
+But there is also error. OK, this is our statistical model, and this is, again, a name. You don't need to worry about why it is called a statistical model, but let's just call it a statistical model. 
+
+Given the statistical model and my n samples in the training data set, I can talk about the likelihood of my training data set under this model. According to me, there is so-and-so probability that the cost of houses that you gave me is 0.75, right? That is simply the probability of you getting a value of, let's say, 2,700 given my particular input variables. 
+
+Our data set was drawn independently from the distribution of distribution p of nature. So it is identically distributed. Every input and output is identically distributed from the joint p of x comma y, and they are all also independent of each other. So when I ask you for the cost of your house, I don't ask your roommate because that would be just the same variable and correlated with the one. It is independent. 
+
+If it is independent, I can factor the probability of me getting a particular data set as a product of me getting every single sample from the data set, OK? So, this little object here is exactly what our statistical model gives you. Makes sense? 
+
+Now you can think of fitting a different kind of problem. In linear regression, we are minimizing the squared error between the predictions and the two levels. Here, we have an expression for the probability of you getting this particular data set. 
+
+And we can maximize the probability of me getting the training data set. You gave me a training data set, you claim that it is independent, identically distributed. The parameters that I can use to explain your training data set are the ones which maximize the probability of you giving me this data. 
+
+It is a very logical thing to do. If I were to pick some other parameters, then they wouldn't have as good likelihood of fitting this data. And by extension, they wouldn't be able to have good predictions on the true limits. 
+
+So, maximizing the likelihood, which is equivalent to minimizing the negative log likelihood, is what is called maximum likelihood estimation. In linear regression, we are minimizing the squared error between predictions and ground truth. Here, we are minimizing the negative log probability of the data set under our parameters. 
+
+So, this is a different optimization problem where the objective now is the negative log likelihood of the data set under our parameters. I have written it like this-- semicolon w comma b-- to express the fact that this is the likelihood of the data set under these parameters. OK? 
+
+Again, good parameters are the ones that minimize the negative log likelihood. OK, so it is called maximum likelihood estimation. And so you can write it down as max or arg max over w comma b of the log probability of the data set comma wb. Or you can write it as an admin of the negative log probability. They are one in the same thing. 
+
+MLE: Connecting the log-likelihood to linear regression Transcript (45:06)
+Let us write down this a little more explicitly. So what is this? It's just probability of yi given xi, wb. If I say that it is a Gaussian, it is equal to e to the negative. This is the mean of my Gaussian, right? So it is equal to yi minus w transpose xi minus b divided by 2 sigma epsilon squared. This is the numerator of my Gaussian. What is the denominator? 
+
+Square root [INDISCERNIBLE SPEECH]. 
+
+Square root 2 pi sigma e squared. This is the probability distribution of a Gaussian. So this is exactly what the probability of us observing a particular yi. The one that you have as a part of the training data set, you can calculate the likelihood of you receiving that observation by simply evaluating the right-hand side. Now, when you take the logarithm, let us write down this expression. This expression is exactly the product over all our samples. So we will see that the probability of D train w comma b is equal to the product of all our little expressions. 
+
+When you take the logarithm of this entire business, logarithms will spread over the summation. And it will become an addition. So if you take a log of this on this side-- OK? The denominator has a negative sign when you take the log, and then because we are doing-- actually, this is just a standard. Yes, that's correct. So we're simply taking the log of the product. So when we say that we would like to minimize the-- oops. 
+
+When we say that we want to minimize the negative log probability, you would like to minimize the negative of this entire business. So we would like to minimize this quadratic term. And now you should see something that looks similar to linear regression. This is exactly the object that we were using, linear regression. Let us write it out a little better. This is the negative log probability of the data set. This is the exponent of our terms. This stuff is coming from the denominator. 
+
+Now this is a constant. Given the number of samples n, this entire thing is fixed. This is the term that depends on w and b. This term does not depend on w and b. So like he was saying, if sigma were also parameter, then this would be also a parameter. But let us say that for us right now, sigma is not a parameter. I tell you that it is fixed to some value. And that is why this term is also-- not 0, sorry. But this term is also fixed to some so and so value. The only thing on the right-hand side that depends on w and b is the third term. 
+
+So minimizing the negative log probability is equivalent to minimizing the third term. So let's write it like this. Now, you can get the exact same objective as linear regression. We are, again, minimizing the squared error between the predictions and the labels. But something very nice has happened, right? By fitting maximum likelihood estimator instead of a linear regressor, we also have access to the probabilistic model. 
+
+Once we have our w star and b start, we can plug in it into this expression for the Gaussian and say that the cost of your house is 0.75 under my model. Or the probability of the cost of your house is 0.75 under my model. So I'm making much worse predictions for the cost of your house than nominal. The cost of my house, let's say, is 0.95 under my model. So my model gets the cost of my house more accurate. We couldn't do this for linear regression. We could only check the deviation of the predictions and the true labels. 
+
+Here, we get a number. We get a number within 0 to 1, which is the probability of the cost. And we say for these samples, I'm making good predictions. For these other samples, I'm not making good predictions. So we haven't really changed fundamentally the problem that we solve. But we have looked at the same problem in a slightly different way. Instead of building a deterministic predictor, we are building a probabilistic model, a statistical model. And now we get to say things like this event happens with so-and-so probability. This event happens with so-and-so other probability. 
+
+Obviously, the probability depends on what value of sigma you chose. So if you happen to pick a sigma that is very large, what will happen? So it will say that I predict with a relatively large probability the cost of everyone's house. But then, of course, the prediction will be quite wrong. So to give you a very visual example, let us look at this data set. Let us say that we have a one-dimensional problem now. This is the x-axis. And this is the y-axis. You have all these points. If you fit linear regression through this points, what will you get? 
+
+I have x. I am trying to break the y-axis. If I fit a linear model to these points, I'll get something that looks like the red line. The red line is a terrible model of the blue points. It is far away from every point. But I can always explain every blue point using the red line with a large enough standard deviation around the red line. So the mean of my model can be quite off, but I'm using the standard deviation to say, look, your values are off. My mean is so-and-so. Or I could fit a more complicated model, in this case a sinosoid, which is much more accurate up to the mean. In that case, I'll say, look, the standard deviation of my model around your data point is quite small. 
+
+So these are two different models. You choose the one that you fit. That is ways of selecting which one you want to pick. And that is really the goal in machine learning, right? We have these two candidate models. And we would like to ask ourselves, which one is more appropriate for making predictions on new data? 
+
+Is a linear model appropriate for images? Transcript (53:12)
+Is a linear model appropriate for making predictions on natural images? I have images of oranges and apples. Let's say that I'm counting-- I'm predicting the-- let's say these are images of giraffes and cats, and I'm predicting the weight. 
+
+I can always guess the weight of a giraffe by looking at this picture. Should I be using a linear model for this? So a linear model is clearly not appropriate, because there is also brown cats, just like there are brown giraffes. That's very [? nice. ?] 
+
+I'll give you a much more basic answer. I have my vector x. We said that x is a vector in d dimensions. I have my parameters w that multiply my vector. 
+
+I can scramble the pixels in x, and I can scramble w exactly the same way, and the output of my model doesn't change. The linear model, the output, is w transpose x plus [? b. ?] If I rotate the elements of x, or if I permute the elements of x, and I permute the elements of w appropriately, then the output remains the same. Make sense? 
+
+If I do the same thing to images, the permutation of the pixels of a giraffe looks nothing like a giraffe. So I would expect that whatever model that I fit to the images understands the fact that pixels cannot be permitted arbitrarily. Whether you call the first variable the number of bedrooms or the second variable the number of bedrooms doesn't really matter, as far as [? fitting ?] the linear model is concerned. But whether the nose of the giraffe is next to its neck or whether it is next to the tail does matter for you to call this object a [? image. ?] Otherwise, it will be a painting. 
+
+So there are certain properties in data that models that we fit upon the data should respect. For images, the typical properties that we like to think about are the fact that two pixels next to each other in an image are correlated with each other. If there is a red pixel on this chair, then the one near to it is also likely to be red. Objects have some shapes and sizes, and these are all properties that we will need when we model images. 
+
+If you model data that looks a little bit like the housing data, then you don't need to worry so much about these properties. Doesn't mean that you cannot model images using a linear model. It is just a bad model, because it is too complicated. It does not understand the fact that there is much nicer structure on these images. 

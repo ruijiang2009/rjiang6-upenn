@@ -1,0 +1,64 @@
+Translational equivariance Transcript (00:00)
+You have essentially understood convolutions. Now, let us understand why they work. We talked about translations as a nuisance. And we are going to talk about a concept called translational equivariance. And here is how it goes. 
+
+Let us take our original signal. Let's take a one-dimensional signal. And we are going to translate this signal by a value delta. So I have time. I have x of t. And this is something like this. The translated signal is what? It is something like this. And this value is delta. X prime is-- OK? 
+
+Now, if I had a convolutional kernel that could detect this feature, stuff that looks like a peak because it's neighboring pixels are smaller, then when I create an-- when I convolve the red signal with the same kernel, it would fire at a slightly different location because the signal has moved. 
+
+It's like taking the picture of a cat, or in this case, a star, I guess, a picture of a star. If I had a kernel that gives me a large value, any time it sees a star, if the star were at a slightly different location, the kernel would still give me a large value except that this large value will be somewhere here, not over here. 
+
+This property is called equivariance. Equivariance means that when I move the input in so and so way, the output of my operation doesn't have to be a convolution. But output of my operation also moves in the same way. So if I translated the star by five units, the output of the convolution of this image by the kernel will also be translated by five units. 
+
+Modulus stride and other such things, but let's say that there is no stride. The stride is one. So it will translate it by 5, OK? This property is called equivariance. So the precise way of saying this is that convolutions are something that give you translational equivariance. If the image moves, the output also moves. 
+
+Does a linear map give you a translational equivariance? OK, so let's take a matrix s transpose. This is our vector x. Let's say that x is non-zero everywhere except this part. If I move this part over here, will the output also move like this? 
+
+No. It depends on s, right? Convolutions are a special kind of s that has this property that if the input moves, the output also moves, OK? You can write down a short proof for this and it's really quite simple. Maybe I can go through it quickly. 
+
+So this is our new signal x prime convolved with our kernel w. The kth element of that signal, by definition, it is equal to x prime at location tau w of k minus tau, the flipped version, summed up from minus infinity to infinity. I know that x prime of tau equals x of t minus tau. That is how I created my x prime to begin with. X prime is a signal that is a little bit ahead of-- actually, behind x. 
+
+So x prime of a location tau is equal to my signal at time t minus tau. I made a mistake. I should have really said this. Oops. And this is my x of t. And this is my x prime of t plus delta. So x is a little bit behind x prime, OK? 
+
+Now, we can, again, do a change of variable for the integration or the summation. And you will see that x prime convolved with w at location k equals x convolved with w at location k minus delta. So if I change-- if I slide the signal x by delta units, the output has also slid by delta units exactly. This is called equivariance. You will not get this for linear maps in general. Convolutions will have this property. 
+
+OK, why is this useful? How would you use this. Now that you know this concept, let us say that you want to build a star classifier. I run it on each of your faces and then identify the stars and the not stars. Let us say that I have a kernel w that always gives me a large value when the patch below it is a star. 
+
+How it does this is immaterial. Let's say that I cooked up a kernel like this. How will you use this kernel to create a star classifier? So given an image, you will take my kernel, you will slide it everywhere. And if there is one location where my kernel gives a high value, then you know that there is a star, right? 
+
+How will you code this up in a neural network? You will need to write an if condition. If there is a pixel with large value, then I call it a star. If not, then it is not a star. How can you write this down in a neural network? Let us say that I gave you this kernel and I wrote down a function that computes the convolution of the kernel and an image and you get another image as an output. What do you do to this image? 
+
+You take the max, right? So this entire concept of taking the max is something called spooling. And that is what we are going to do next. 
+
+Pooling Transcript (06:54)
+Convolutions give you translation equivariance, but translation equivariance isn't good enough because the star has moved. Now we detected a star at a new location, but we still have to pluck out the correct Boolean, whether or not this is a star. In simple words, you can think of it like this. So this is our image x. These are our features h. And this is our kernel w. Now if my star was here, then I know that this particular output is large. If my star was somewhere here, then I know that this particular output is large. 
+
+But for my final layer, v, to be able to say that both of these two locations are a cat or a star, it needs to be built in a special way. Is this something that you can appreciate? The final linear layer is a linear object. It needs to predict a star if this element is large. It also needs to predict a star if this element is large. It also needs to predict a star if this element is large, et cetera, et cetera. It surely cannot do it for everything. 
+
+A linear layer is like a selector that selects whether if one part of the input is large, then the linear layer will give you a large output at some specific value. It cannot do it for every value. If we wrote our if condition or took the max, then we short circuit this problem. But we would like to implement an operation that looks like this max that you can use inside larger networks. So let us look at this kernel. This is a conventional kernel. It is called average pooling. It's a very dumb kernel. It just sums up all the pixels in the neighborhood and then gives you the output. 
+
+Does this suffer from the same problem? If I run a pooling operation here, let us say that I do average pooling on this layer, instead of my linear v, what will happen? All right, let's write down-- I have an x, and I would like to convolute with average pooling. What does the convolution with an average pooling kernel looks like? It will be a little more diffused, right? Because stuff will get averaged out, and it will be a little bit like this. 
+
+Now if I do this with a huge kernel size, then no matter where my input is large, it always gets something that is very diffused. And as you can appreciate, this is one way of taking the max by just everything the heck out of your input image. No matter where the star is, no matter which neuron is large after this convolution, if you do a broad enough average pooling, you will get a large value. 
+
+There's also a related operation it is called max pooling. Max pooling does what it sounds. Instead of involving by a bunch of 1's, it takes the maximum in a particular window. So if you have an input image that looks like this when you run a 2 cross 2 max pooling operation, typically max pooling is also run with a stride of 2. So you will put the kernel here. Now the maximum of all these elements is 6. So write down a 6 as the output. You do a stride of 2, so you will move your kernel here. And you will write down and 8 as the output, so on and so forth. 
+
+What has happened here because of max pooling? If our star detector was a 6, then even if the 6 was at this particular location, the output of my max pooling would be the same, right? If I do another max pooling operation here, I get an 8. So if my star detector was returning an 8, no matter where the 8 is inside this image, if I completely scrambled the image and moved the star around, I'll still get 8 as the output. Does this make sense? So I've taken this same idea of you calculating an if condition or taking the maximum of all your pixels and created some rudimentary operation that I can call max pooling. 
+
+Average pooling is kind of like max pooling except that it doesn't do things this dramatically. It just averages things. The more averaging you do, the more resilient you are to the changes in the location of the star. And that is how you get invariance. So the output of the convolution moving when the star moving is something called an equivariance. The fact that an 8 does not change no matter where the star is inside the image is called invariance. 
+
+For neural networks or for machine learning, we want invariance. We like equivariance because we want to find the star or the cat in different parts of the image. But once we have the equivariant output, the equivariant features, we want to somehow collapse them to be able to say that this is a stop. We want to make it invariant. So these are two different concepts. They are legitimate concepts in typically group theory. But we implement them in a very rudimentary fashion. Both of them are very important. If you did not have equivariance, then you would not be able to detect cats in different locations of the image. 
+
+If you did not have invariance, then you would need to cook up some other operation that still gives you one output number matter where the cat is. One more thing that I want to emphasize is that max pooling is kind of a very dramatic operation. We had a 4 cross 4 image as the input. And after two times of max pooling, we got one pixel 1 cross 1 image as the output. You lose a large amount of information when you do max pooling. It is also a very quick way to reduce the size of the image because it chops the image in half, or actually the number of pixels goes down by 4 times, right? Because both the width and the height get reduced by half. 
+
+So you lose a lot of information. Now future convolutions that are applied to these smaller images will be cheaper because the images are smaller. But you've also lost a lot of information. So max pooling is an operator that both destroys information and makes the network cheaper to calculate. But you want to be a little more judicious about using max pooling. If you have too much max pooling, then you are killing everything inside the image. And there is not enough signal to make predictions with. Usually, max pooling and stride, you can be strategic in how you use them. 
+
+Stride also reduces the size of the image. Max pooling also reduces the size of the image. So both of them reduce the amount of flops you need to do future convolutions. Stride is a little bit more soft because it skips pixels one by one, whereas max pooling is a little more drastic. So typically, in your next homework, you will get an MNIST image of size 32 cross 32. And you have to reduce the number of pixels in this image. This is where you will use a stride or max pooling or so and classify it. 
+
+Encoding other invariances Transcript (15:44)
+If I show you images like this, these are images taken by a fisheye lens. Let's say sitting on top of a robot. So these are-- I think this might be LA or something. Anyway. So these are palm trees. So they're looking up in the sky. When the robot moves forwards, what happens to the tree? 
+
+This tree, where does it go if the robot moves forward? It rotates. Right? So the cat translates when the robot moves. if the camera is looking at the cat from the front. If the camera is looking at the cat from the top like this lens is, the cat rotates. So images taken by a camera like this or a lens like this would have rotations not translations. 
+
+How can you create a network that is equivalent to rotations? We know how to create networks that are equivalent to translations and do pooling on them. What is the equivalent of a convolution for rotations? We have done this before. You can take a polar transform of the images. In the polar transform, this entire image looks like a long wide image. And stuff does translate in that image. Things that translate in Euclidean space rotate in polar transform. Things that rotate in Euclidean space translate in the polar transform. So I can take a polar transform of my image. If I knew the center of the image precisely, then I can just do standard convolutions on these polar transformed images. And I would get exactly rotational invariance after pooling let's say 
+
+OK. So using some clever pre-processing of your input, you can mix and match what you know for these neural networks and solve different problems. OK. You can spend a lot of time coming up with new operations here, or you can do this quick transform and then use the ones that you already know. 

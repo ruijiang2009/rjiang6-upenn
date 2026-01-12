@@ -1,0 +1,9 @@
+[AUDIO LOGO] We'll use ideas from information theory and, in particular what is called the evidence lower bound, to build such encoders and decoders. 
+
+Generative models that use deep networks today are extremely sophisticated. You will not be able to recognize the photograph of a person created by one of these models, even if it is a completely fake person. 
+
+There are also numerous applications of such generative models. For example, they can help create images from sketches, paragraphs from half-baked sentences, entire songs from just the melodies. 
+
+We will take a deeper look at variational auto-encoders, VAEs for short. These are specific kind of encoder-decoder architectures that can be trained by optimizing an objective called ELBO, evidence lower bound. 
+
+We will look at some of the mathematical details of these models and understand how to tune different parts of the model to make it work well. You will also train a small VAE in your homework to generate images of handwritten digits from 0 to 9. And you will see this model in its full-blown power. 

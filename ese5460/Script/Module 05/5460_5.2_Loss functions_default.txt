@@ -1,0 +1,289 @@
+Loss functions for regression Transcript (00:00)
+So let us look at a slightly different concept, loss functions. We have talked about last functions in and out, and let us finish them once and for all, at least for the purposes of classification. Most of us know regression. This is something that we talked in the first lecture. 
+
+In the first lecture, we wrote regression as y minus w transpose x [? pole ?] squared. You can also think of nonlinear regression where your neural network now predicts one output. Not a class, but just one scalar number as the output. How many people are in this image? And then it will predict 5. And so the ground truth is 5. 
+
+And so you can fit a regression loss between your ground truth level y and whatever your network predicts, which is f of x, comma, w. This is the mean square error loss. 
+
+One thing to remember is that typically, when you do regression, you will be doing regression in what is called tabular data where someone gave you the cost of all the houses in Philadelphia, number of bedrooms, number of bathrooms, which region it is in, et cetera, and these are all numbers. 
+
+These are numbers that come from very different kinds of units. Sometimes if you want to look at the cost of a car, you might see the miles per gallon as the fuel efficiency. You might see the number of years that the car has been used, the number of miles that has been driven. These are numbers that have very different units, numbers that have very different magnitudes. 
+
+When you do machine learning for such kinds of data, it always helps to normalize your data in nice ways so that all the features of your inputs lie at the same scale. 
+
+If you have one feature in your data set which takes values between 1 million and 5 million and another feature in your data set which takes values between 1 and 2, then the network has to create two weights that are tuned to each of these large values. And it will not be able to fuse information-- it will not be able to use those two weights together because one of them will dominate. 
+
+This exact same thing that we saw in back propagation. If one neuron creates a large output, then it consistently keeps on getting a large gradient back. So if the input of that neuron had a large output-- let's say, it was a feature with value 1 million, then the other neuron would never get enough gradient back. This is why it is useful to normalize data. And there are many ways of normalizing. So you should be cognizant of different ways. If you search around a little bit, you will find clever ways of normalizing. 
+
+This is usually the biggest problem when people apply machine learning, not just deep learning, to other problems. So we had a paper a couple of months ago where we were taking data of MRI images, and there are specific ways that people have invented for creating features out of these MRI images. And we noticed that if you don't do correct normalization, then you can get pretty bad accuracies. 
+
+But if you do correct normalization, then you can get better accuracies than like a nice 10, 15 years of literature on this problem. Just normalization. Nothing special, not even deep learning. So it is important to think about normalization when you have a new problem. For all problems you won't have to think because you have done it before, the thinking. 
+
+Huber loss is another loss that people like to use sometimes in problems when you have outliers. Let's look at it like this. So let's say that this is f of x, comma, w, and this is our loss, which is 1/2 f of x, comma, w minus y squared. If you have outliers in your data set, let's say there is one particular building in Philadelphia where it has five bedrooms in every house, then the cost of these houses will be much more than the cost of a average house in Philadelphia. 
+
+We could build a model that understands both these things, but if our goal is to use the model for you and I, then we really don't need to make predictions on those kinds of houses. We are happy to ignore them from our data set. 
+
+If you use the quadratic loss in our-- the mean squared error loss, then your model will try to make predictions for normal houses, let's say with two bedrooms, and it will make very bad predictions on the ones with five bedrooms. And it will force itself to get them correct because the loss is so large on them. 
+
+But you can do something else. You can say that I don't care about those kinds of houses, so I'm going to give you a slightly smaller penalty if you are very far away. So this red line is called the Huber loss. It is quadratic up to some threshold, usually 1. So it is like a quadratic up to a threshold of 1, and after that, it is linear. Whereas the quadratic elements are quadratic [INAUDIBLE]. 
+
+It is an outlier rejection loss. If there are samples in your data set that could come from noisy annotations or samples in the data set that you believe are not reflective of what happens nominally, then these kinds of losses will happen in regression. 
+
+Mean average error loss is something that is the norm of the gap between your predictions, not the squared error gap between predictions. The mean average error loss and the mean square error loss, they are both used for regression, but they are very different properties from each other. 
+
+This has to do with how the squared error looks like and the average error looks like. So how will the average error loss look like? It will be this way. So it has this sharp corner at 0 and is not differentiable at 0. 
+
+And the way the one-norm works-- so the average squared-- average error loss is the one-norm of the two quantities, the way the one-norm works, the solutions you get out of this-- and this is not important for you to understand for the sake of this course, but the solutions you get by minimizing the mean average error loss will always be sparser than the solutions that you get by minimizing the squared error loss. 
+
+When I say sparser, it means that if you have five features, the regression loss will use all these five features to make predictions. The average error loss will have set the coefficients of some of these features to 0 or near 0 if those coefficients are not very useful in making predictions. 
+
+So by watching the magnitude of the coefficients in the average error loss, you can understand which features are useful and which features are not useful. Let's say that proximity to the subway line is a feature in your housing data set. Proximity to subway line is not an important feature in Philadelphia to protect the cost of housing because no one uses the subway line. 
+
+And if you do mean average error on this data set, you will see that the coefficient reflecting for that particular feature will be small because that is not very predictive. If you do the same thing in Boston, Boston, everyone uses the subway line, and so you will see this non-zero. But maybe in Boston, some other feature is zero. 
+
+So mean average error loss allows you to understand which features of your data set are useful to making predictions and which ones are not. Regression loss also allows you to understand it to an extent where the mean average error losses are more principled way of making those kinds of claims. 
+
+People use this a lot in clinical sciences because they will have a data set of what is your genetic mutation? What is your hypertension? What is your diabetes, et cetera, and they want to make predictions of some other disorder, and that by looking at the coefficient, they would like to say, look, diabetes is not a good predictor of so-and-so outcome, or hypertension is a good predictor of so-and-so outcome. So they want to make these kinds of claims about the data and the model, not just make predictions. 
+
+In machine learning, typically we will not worry about understanding how the model makes predictions, which is what this kind of stuff is used for. We only worry about making accurate predictions so far. 
+
+Let's not worry about quantile loss. Quantile loss is a different way of doing regression. It is something that you may want to use in practice if you want to build not just a model for y. So until now, we've always been thinking of our model of x, comma-- f of x, comma, w as approximating y, but sometimes you may want to say that the temperature tomorrow will be 20 Celsius with a probability-- or will be below 20 Celsius with a probability of 90%. 
+
+You want to make these kinds of sentences. You don't want to say that the temperature will be 17, but you want to say that temperature tomorrow will be between 15 Celsius and 20 Celsius with a probability of 95%. It will be between 14 Celsius and 21 Celsius with a probability of 97%. So you want to make error predictions that are error bars, not just the value. 
+
+Quantile loss is used to make these kinds of predictions. And one very simple way of understanding how it works is that it makes one prediction for every particular probability. So when I said the temperature will be between 15 Celsius and 20 Celsius with probability 95, it will build one model for probability 95%, and that model will return 15 and 20. 
+
+It will build another model for probability 97%, and that model will return 14 and 21. So it will build multiple models for each of these error probabilities around the mean. In regression, we always get the mean of the outcome. Quantile loss is a regression loss. It fits multiple models, and it also gives the error bars around the mean. 
+
+This is obviously very useful because a model, when it makes predictions, it is much more useful to say your height is 5-feet-10 inches plus minus 2 as opposed to simply blurting out a number and having it be wrong. 
+
+Loss functions for classification Transcript (11:48)
+So let us come to the near-term useful loss, let's say the cross-entropy loss. We have talked about how we want to build classification machines using the network. Let us say that there are m different classes, so cars, cats, dogs, planes, m different classes that we are interested in predicting. 
+
+The network has m different outputs. Whether it is a convolution network or a filter network, it doesn't really matter. It has m different outputs. 
+
+The way we typically code data is we write down what is called a one-hot encoding of the output vector. So let's say that someone has created images, and this is images. This is image number 1. It is a cat. Image number 2, it is a dog, OK? This is our data set. 
+
+Now, we have m different outputs, OK? So a one-hot vector is simply a vector of m entries, and it has names. So let's say the first one is called a cat. The second one is called a dog. So in this case, the one-hot vector will have a 1 at the location of a cat and then 0 everywhere else. 
+
+And in this case, it will have a 0 at a cat and a 1 at-- OK? So the one-hot vector of this is what? 1,0,0,0. The one-hot vector of this is 0,1,0. 
+
+It is just a name that people have given to this quantity. You take the actual label of the image and then you write it down as the particular row of the identity matrix. If you think about this carefully, if I label cat as 1 and dog as 2, you can write down a large identity matrix with the 1 on the diagonal. So the one-hot vector corresponding to cat is the first row of that matrix. The one-hot vector corresponding to the second class dog is the second row of that matrix. 
+
+So every one of you will, when you do your homework, you will Google how to create a one-hot vector, and you will see 1,500 different answers, all of them weird. But it is one line to create a one-hot vector. Cool. 
+
+Now we said just like logistic regression, we want to predict the probability of an image being a cat, probability of an image of the image being that of a dog, et cetera, et cetera, right? As we said, our m outputs, we like to think of them as probabilities, but they are not really probabilities yet. The network predicts a vector. It can be positive and/or negative. 
+
+Probabilities, we know, have to be positive, at least, and we also know that all the probabilities have to sum up to 1. So if the network is saying this is one out of these m classes, the probability of each of those m classes better sum up to 1, just like the probability in logistic regression for the two classes sums up to 1. That is what we are going to do. 
+
+We will think of the output. Let us call this y hat k, this is the kth neuron, kth output neuron. We think of y hat k as the logarithm of the probability that the class is k given the input image x. 
+
+This is our model. When we say we fit a logistic regression, we say that the first output of the model is the probability of a cat. The second output of a model is the probability of a dog. Now, probabilities are positive numbers. A network predicts both positive and negative numbers, so we say that the network is the logarithm of the probability of a cat and the logarithm of the probability of a dog. 
+
+So this is really the most important thing to understand or realize. We imagine that the network predicts the logarithms of the probabilities. The network predicts whatever it predicts. The loss forces the networks to predict the logarithms or the probabilities. 
+
+Now, let us say that we think of yk. If we said yk is logarithm of pw of k given x, then for the output to be meaningful, these probabilities have to all sum up to 1, right? So for the summation over k of the probability of k given x to be equal to 1, we want the summation over k of e to the y hat k to be equal to 1, right? 
+
+If this is a legit probability, then it better sum up to 1. And that is really how the soft max loss is derived. 
+
+Logistic loss Transcript (17:10)
+Before going to the softmax loss, I want to show you the logistic loss, which you have seen before. But it will help to see it again. 
+
+Let us imagine that we have only two classes. If you have only two classes, then you don't need to have two outputs in your model. You can think of having only one output. And the other one is always 1 minus this output. 
+
+This is why logistic regression is called logistic regression, not logistic classification, because the second output is redundant. It all sums up to 1, anyway. 
+
+The output of logistic regression, y hat, equals w transpose x. We interpret, again, as the logarithm of the probability of the class being 1, divided by the probability of the class being z. 
+
+Just like we said that the output of the neural network is the logarithm of the probability of alpha being a cat. Here, the output of logistic regression is the log odds. So this left-hand side is called log odds of the probability. 
+
+You have seen this formula before. How many remember this from before? Maybe this will force people to think. 
+
+So let us now think of the likelihood of our data set and all the ground truth labels of our data set. This is the quantity that we are trying to maximize. The network, when we say that the network makes correct predictions, it predicts the output of the first image correctly. 
+
+So the output of the first image, the true output of the first image, is likely under the model that the network builds, or the logistic regression builds. So the probability of y1 given x1 as said by the network is large. This is what we really want when we say correct predictions. And we want this to be the case for all images. 
+
+As we said in the very first lecture, images are sampled independently from each other. So you can write down the joint probability of all the inputs and the ground truth outputs as the product over all your n images in the data set of the probability of you making the correct prediction on one image. 
+
+And this is the expression that I want you to focus on a little more carefully. If yi is 1, if the true label is 1, then we are maximizing the probability of 1 given xi. No kidding. If the true label is 1, we want the output predicted by the network, which is for class 1 to be large, the probability of predicting class 1 to be large. 
+
+This term is 0 or 1 if y is 1, because of the exponent here. Make sense? There are some images which are labeled yi equal to 0. For them, this particular term is 0. And we are maximizing the probability of a network detecting a class 0 for those images. 
+
+So this is a funny way of writing things. But it is the model that we are building. We are taking this joint probability distribution of inputs and ground truth outputs, and then writing it out as the product or the individual predictions of the model. And these are the probabilities that are picked up by our model. pw is what the model predicts. 
+
+All of you have seen this when you did logistic regression. If you take the negative logarithm of this and minimize it, that is what we mean when we say we fit logistic regression. The negative logarithm splits this product into a sum. And so you get an expression of this kind-- yi times pw of 1 given xi, plus 1 minus yi times pw of 0 given xi, for all images with plus 1. 
+
+Only the first term is non-zero. So you are minimizing the negative probability of you predicting a 1 for those images. So you are maximizing the probability of you predicting a 1 for those images. You're improving the network's accuracy on those images, and vice versa for this. 
+
+So this is the logistic loss that you've seen. Make sense? Any questions? If you appreciate this, then softmax is just one step away. 
+
+Has anyone seen this particular expression for the logistic loss? But have you seen it? Anyway, so I want you to go home and think a little bit about why this particular loss is the same as this particular loss. 
+
+Sometimes, if you go to Wikipedia, for instance, you will see both these kinds of losses written down as the loss for logistic regression. Both of them are correct. 
+
+I want you to think about why. They don't look anything like each other, right? It is logarithm of 1 plus e to the negative true labeled y times y hat. Here, you have 1 minus yi and all these kinds of weird terms. So convince yourself that both of these are logistic regression. 
+
+What I said was a very long-winded way of saying that logistic loss is simply maximum likelihood estimation for the model, except that the model in this case is slightly different. It was Gaussian for our regression in chapter 1. The model that we are fitting here is this. 
+
+The network predicts y hat. And we think of the predicted y hat as the log odds ratio. This is what it means to model something. 
+
+Softmax layer Transcript (23:34)
+Now let us think of a data set where we have one object in every image. Just like the logistic loss is over two classes, we would now like to write a loss over m classes. For the one-hot vector, only one element of this m dimensional vector is nonzero. It is either a cat or a dog or a giraffe or an elephant, et cetera. 
+
+So I can sum up the logarithm of the output probability, multiplied by the one-hot vector over all the m classes and write the loss like this. Only one term in this summation is nonzero for every image, because that is the true label of that class. And that is the probability that I'm maximizing. So this is simply a generalization of the logistic loss for multiple classes. 
+
+The one-hot vector business is simply a different way of writing this y and 1 minus y hat. This has a name. It is called Binary Cross-Entropy Loss. Now let's talk about how to create this particular quantity. In order to calculate this loss, we need to create pw of k given x. For the logistic regression, p1 of-- so what was p of 1 given x? Let us do this little calculation. 
+
+This is obvious, because the probabilities have to sum up to 1. So I can rewrite this expression as the probability of 1 given x, divided by 1 minus the probability of 1 given x and call it my y hat. And so implies a [INAUDIBLE] 1 given x is e to the-- And now from this you can show this particular expression. Or you can see when they differ. 
+
+So the thing that I'm trying to say is that we have chosen the output to correspond to this particular fraction. For m classes, we have to also now choose what we think of the output as. For logistic regression, this was the expression. What is the expression for m different classes? And that is what is called the softmax operator. 
+
+We would like to, as I said, think of the output as something like the log probability. In general we would like to think of the output as something that is proportional to the log probability, just because it allows us a little bit of freedom. If y hat k, which is the output of the k output, is proportional to logarithm of k given x, then the probability of k given x is e raised to y hat divided by all the e raise to y hat k primes. Does this make sense? 
+
+Let's do it for the regression case. So we said p1 given x is proportional to y1. So p1 given x is equal to e to the y1 hat divided by some constant. I'll just write it as a division by capital T. And you will see later why. For some T. 
+
+But then we want this to be a legitimate probability, so we want to normalize it. So I'll say p of 1 given x is equal to e raised to y hat 1 over T divided by e raised to y hat 1 over T, plus e raise to y hat 2 over T for our two classes in the logistic-- or actually, y hat 0 over T. So this would be the expression for the logistic. And it is exactly the equivalent expression for m classes. 
+
+So we think of the network as predicting y hat. We cook up a vector of probabilities out of it. And this is the expression for the probabilities that we have in the model. This is a valid probability distribution because it sums up to 1. The constant, T, is typically set to 1 in pytorch. It is called temperature. And the name comes from physics, but it is not relevant here. It is just one mechanism that we have for understanding or for modifying the kind of probabilities that we get. 
+
+So let me do an example. Let us say that our y hat vector is something like this. If this is your y hat, what will be p of k given x look like? P of k given x is e raised to this quantity divided by the sum of the exponent of all these quantities. So if one of the outputs is large, the corresponding p of k given x will also be large. Makes sense. 
+
+Let's do this for T equal to. How will it look like for T equal to 100? But the little ones also get very large. Yes, it looks a little smoother. Why? Yeah, so everyone has been expanded by a big-- or divided by a big number. So remember that we are doing yk divided by T. So the big one has become very small. And the small one has also become even smaller. But now the difference between them is not that large anymore. 
+
+So you will see something that looks like this. There will still be marginal differences between the big logit and the small logit. But they'll be small differences. Makes sense. If T is 0.01, what do you get? 
+
+Now the opposite happens. It just shoots up the big one. OK, so using this parameter called temperature, you can change how confidently the network is making the prediction. Remember that these are simply the predictions of the network. We'll impose a loss on these predictions for making incorrect predictions. But if you want to make-- if you want to force them to make very confident predictions, then you can use this kind of a loss. So if this is actually the incorrect output, then it gets a huge penalty. 
+
+If you don't care about the network making very confident predictions, if you are happy with the output being larger but spread around, then you use a temperature of-- a large temperature. In that case, you're penalizing the network a little less for making mistakes. But the network is also incorrect a lot of times. It is spreading its confidence across the different classes. 
+
+This is a very clever point. What he's saying is that the one-hot vector is one number. It is zero everywhere else, and it is one at some other entry. If we want this vector to match this vector, that is what we would like. That is what we are telling the network to do. We are forcing the network to make the to predict the correct class with probability 1 and predict all the incorrect classes with probability 0. 
+
+The true output that you are forcing the network to make is actually one at the correct class. If you want p of k given x to be 1 for some particular k, what does that particular y hat k have to be? 
+
+[INAUDIBLE] 
+
+Very large. Because no matter what the y hat k is, so long as the other guys are something, this one cannot be 1. Does this make sense? Because we are dividing by the exponent of all the other entries. So the true solution that we want after the network is a y hat where the correct logit is infinitely large and the incorrect logits are what? Infinitely small, right? The large negative numbers, the correct logit. 
+
+This is obviously a bad thing, because you're telling the network to have a very large value for the output for one neuron, and the other neurons have to have a very large negative value. So whoever creates the weight matrix, the last less weight matrix, it will need to have huge end values. We'll see how to fix this. But for now, understand that this is an issue. The true output of the network that we want is an infinitely large logit at the correct class. And it's very weird. 
+
+It's the same for logistic regression, actually. You just haven't thought about it yet like that. So this particular operation that we derived is called a softmax operation. It's a very bad name because it's not as if it takes the maximum in a different way. If someone named a quantity called softmax, then you would imagine that you have an array of numbers and you are calculating the maximum of the array of this numbers. And softmax maybe is a different way of calculating the maximum. 
+
+A softmax operation takes in a vector y hat k of m entries and returns another vector, vw of k given x of m entries. So it takes no max. It just performs this operation upon the vector. Makes sense. 
+
+You will also see sometimes people using softmax for this particular quantity, the logarithm of the sum of the exponents of all the logits. This is like our natural maximum operator of an array. Can you explain why? If T is very large, what happens? 
+
+It is roughly equal to 1, or some factor, some multiple of 1, or 1 some plus some constant. If T is very close to 0, what happens? All of these entries are blown up now. So the one that is the largest, y hat k, it completely dominates this sum. And we take the logarithm. You will get something that is approximately equal to the maximum of y hat k over k for a very small value of T. 
+
+So this particular expression is a more natural way to think of a softer version of a max operator. So this is what I would call softmax. But people often interchangeably call both these things softmax. And once you know then, once you know the two, then you won't be confused. But a priori, it is not a nice thing to. 
+
+The cross-entropy loss that we have, just like the logistic loss, doesn't change. It is the one-hot vector weighing every term of the log probability being summed up over the m classes. Only one of these terms, again, in the summation is non-zero, the true label of that particular image. And we are, again, penalizing only that particular probability. 
+
+It is important to realize that p of k given x depends on all the other case also, not just the true class. Because p of k given x depends on all the other k primes due to the denominator. So a loss like this, if you expand it out, you will get what? You will get-- there is a e to the y hat k divided by 3. So you get that particular term in the logarithm. And then you get the logarithm of the denominator of how we created p of T given x. 
+
+This particular loss, when you minimize it, it will send this term to negative infinity. So it will send the y hat k to positive infinity. That is the value that minimizes the cross-entropy loss. Make sense? And that is why the logits go to infinite. This term forces the other logits to decrease. This term forces the other logits to go to negative infinity. And this term forces the correct logit to go to positive infinity. 
+
+One vs. all classifiers Transcript (38:13)
+Logistic regression is used for binary classification, apples or oranges. Now, when I have m classes, let's say m is the number of digits, 1 to 10-- actually, 0 to 9, I can design 10 different classifiers. The first classifier says zero or not zero. The second one says one or not one. The third one says two or not two, OK? And I can run all these 10 classifiers. This is what happens in scikit learn when you fitted your SVM, right? 
+
+The loss that I would use-- I can still-- there is one logistic loss for every class, right? Zero or not zero every time I show a nonzero, I give-- I call this not zero class. Every time I show a zero, I call this a zero class. 
+
+So I can think of this as m different loss functions that are dependent on each other because it is only the one network that creates all these 10 outputs, but the losses are independent, OK? What is one bad thing that can happen with this? 
+
+Let's say I have a model that creates 10 outputs, and I interpret every element of this output as the probability of a zero being present or a zero being not present, OK? As opposed to the probability of this digit being one out of 0 to 9. Each of these outputs, I have-- I'm interpreting them independently. And then I can always fit this model by maximizing the probability of each of these neurons being correct on those images. If I feed in a zero, I get a loss only for this particular neuron. This is a legitimate model. What can happen? 
+
+This is 10 different one-versus-all classifiers, right? So when something makes a mistake-- let us say that I show you a two. A two classifier could get it correct. So it says, oh, yes, there is a two there. Actually, let's do it like this. So the two classifier gets it correct and says that there is a two in this image. The three classifier can also say that there is no three, right? 
+
+And in this case, you will classify the two correctly. If all the other nine classifiers also say that there is no three or a four or a five, et cetera. But if one of them says yes, then now you are confused because it is either a two or a five. And both of your classifiers are predicting this. 
+
+So you'll get a lot of false positives like this. Because multiple classifiers are being used to make the predictions, and many of them can-- some of them can be wrong, OK? In this case, you won't get too many false negatives because for every one to say no-- like, it is a lower probability. Makes sense? 
+
+So this is one example where the network architecture is identical. There is a bunch of layers here. An image enters in. The outputs of my network are 10 numbers, just like the softmax network also has 10 numbers as the output. I choose to interpret my numbers a little differently. I choose to interpret them as the probabilities of each element being-- each number being there or not there. Together, they don't have to sum up to one anymore. 
+
+But-- in this loss. So it's a different loss that I'm using, but the same architecture. This is a very fundamental point to appreciate. Architectures can be the same, the loss can be different, and you are fitting a totally different model of your data, OK? 
+
+This business that we just did, 10 one-versus-all classifiers, has a name. It is called a binary cross entropy loss. Can you tell me where it is useful? We saw an example where it won't work. Why would people use this? 
+
+So when you have many, many labels for the same image, let's say I-- you take an image from the internet. It is not as if every image has one object inside it, right? Two images typically have many objects. This image has chairs, people, computers, et cetera, you would like to get multiple outputs from your model. So this is a person. There is a car. There is a tree there. There is a building there. Et cetera. 
+
+For those kinds of problems, you want to use these kinds of losses, even though the network architecture is identical. So when people train very large models with thousands of classes in the industry, they will use these kinds of losses in some cases. 
+
+The easier loss is the one where there is only one object in every image, OK? In that case, all our outputs, y hat, we like to interpret as the probability of an image being there, period. Together, they all have to sum to one. The probabilities have to sum to one, not the y hats, OK? 
+
+If we say that our y hat k is proportional to the log probability because y hats can be both positive and negative, this is, again, our model. Just like for the logistic regression, y hat was the log odds ratio. This is our-- what is called a probabilistic model. I choose to interpret my y hat like this. Once I choose to interpret it like this, there is no mystery to maximizing the likelihood. There is only one answer. But this is my choice. 
+
+If all of these have to be probabilities, then they better sum up to one. For them to sum up to one, you have to divide them by this numerator-- denominator. We saw in the previous lecture how, depending on the temperature you use, the same vector of logits can give you different kinds of probability distributions. These are different models, OK? Same architecture, slightly different loss, different models. Before this, we saw the binary cross entropy loss, which is a very different loss and a very different model. 
+
+Using max instead of softmax Transcript (44:50)
+So we talked about back propagation. When we did back propagation, we said we are doing back propagation because we would like to-- or we are using surrogate losses because we want to take gradient descent updates to fit our model. And back propagation was simply a method to calculate the gradient of our surrogate loss, right? 
+
+The back propagation of the cross entropy loss-- all of you will agree with me that I can differentiate the cross entropy loss with respect to d y hat, which is what you did in your homework, and everything follows. 
+
+If instead of this I had written down this expression, let's say LC weird is maximum over k of the-- let's do actually [INAUDIBLE]. OK? Can you take the gradient of this? No. But can you train the network with this? I can do something like this, right? OK. Now it's a loss function. 
+
+I can differentiate this with respect to y hat for every-- for the true y hat, right? This is a very cool point, so I want to-- so let's say that this is our y. This is the true class. And there is all these other k's from 1 to m. 
+
+So when I say that my value-- the max of k-- actually, let me write a slightly different loss function. You can say something like this. Argmax of k minus y. y is the true label. Argmax of my probabilities over k is the label that the network predicts. And I am forcing the true label and the network and the label that the network predicts to both be equal. 
+
+Now this is a legitimate loss function. The previous one was not correct. The previous one was simply saying that-- let one of your maxes be one, respect of what the true label is. That wouldn't work. 
+
+Now, let's say that the argmax over k of these probabilities is some k. If it is the correct y, then I would get a zero loss. If it is an incorrect output, I will get something like this. I will get, let us say, k star minus y all squared. 
+
+Now, I can take the derivative of this object with respect to k-- with respect to y hat, right? So this is still a differentiable loss. Will it work? Why? 
+
+If the network predicts the same correct label, then the loss is zero, so things are consistent, at least. If a network has zero loss, it also makes correct predictions. Now you are complaining that the network does not get-- it gets unduly penalized if it predicts a one when it sees a nine. And it gets only a tiny penalty when it predicts an eight when it sees a nine. 
+
+But surely, this is a legitimate loss function, right? If it is zero, then I'm good. I have a good model. If it is nonzero, sure, I don't have a good model, and it won't work well, but that doesn't make this a bad loss function. It makes it a bad loss function. That doesn't make it an incorrect loss function. One second. 
+
+So does everyone agree with me that you can differentiate this object with respect to y hat? I take whichever y hat is the largest. And that is really the one that is creating my k star, right? So it is very important to realize that back propagation does not require the loss to be differentiable, not, at least, differentiable the way you think of it in calculus. Only one of the y hat is being created for every image. And that particular back propagation gradient can go back just fine. 
+
+And this is really the crux of understanding why people in deep learning really don't worry about differentiability. There is nothing to worry about because at any given point of time, only one of the neurons is active that creates your output. And the gradient of that neuron is going back just fine. 
+
+What do trained logits look like? Transcript (49:57)
+I had my y hats. I chose to interpret them independently of each other. Now I get this as my binary cross-entropy loss. This is a bunch of one-versus-all classifiers. 
+
+The exact same mathematical expression is this, OK? The key difference is that this works when you have one output-- one image-- or one object in every image. And that is why it makes sense to write this as a one-hot vector. If there were multiple objects in every image, then I wouldn't want to call it a one-hot vector right. I would want to call it a multi-hot vector. It will have a few nonzero entries if there are two classes. So the binary cross-entropy loss is more interesting if you have a multi-hot vector. But this is the cross-entropy loss. 
+
+Now, when we said that log pw is e to the y hat k divided by sum of e to the y hat k prime, you will get this expression when you expand it out. There is m different terms in this summation. Only one of them is nonzero because there is only one object that is marked as the ground truth class in the images, OK? 
+
+Let us say that this is the object. y is our class. So I write this funny notation, but bear with me. y hat of y is the yth element of our vector y hat. y could be 0, 1, 2, 3, 4, 5, to 9 for 10 digits. 
+
+When we minimize this loss, you will notice that this value, y hat of y, has to be driven down to infinity-- so it has to be driven up to infinity because then this entire first term becomes negative infinity. And that forces the loss to be small as possible. 
+
+When one of your elements of a vector goes to plus infinity and you do the softmax operation on it, the other elements have to go to negative infinity if you are supposed to get zeros at the other elements after doing the softmax. 
+
+So the softmax loss or the softmax cross-entropy loss, sometimes we will call this together, forces the correct logit to go all the way up to positive infinity and the incorrect logit to go all the way to negative infinity. And this for every image. So if you fit the model perfectly, this is what you will see. Makes sense? 
+
+So let me write this as hl minus one. That multiplies this vector v transpose. And that gives us our output y hat. Now, if you want some elements of y hat to be very large and some other elements of y hat to be very small, the magnitude of v will have to match it somehow. Either h has to be large, the features of the penultimate layer, or v has to large-- be very large, one of them, OK? 
+
+And this is what causes a lot of issues when you have many, many classes. Typically for 10 classes, 100 classes, you will not notice the difference. But when you have 1,000 classes or 10,000 classes, you will notice that it is very difficult to increase the magnitude of one of these weights to such a large value that it rises above all the other 10,000 classes, OK? So 10,000 things have to go to infinity or negative infinity. So these weights have to really change in nontrivial ways. 
+
+And so the learning rate that you use in these cases, which after all, is the one that is incremented or decremented these weights, will matter a lot. And this is why when you train models with lots and lots of classes, use-- it is not that easy to pick the learning rate if you are doing the softmax loss. OK? 
+
+Any questions? You will not notice it in this class, but let's say if you go to an internship and train a big model, you will notice this. 
+
+For temperature-- 
+
+Mm-hmm? 
+
+--will it help for-- 
+
+So he is asking will it help if you lower the temperature. And the answer is what? 
+
+Actually, yes, because you are artificially expanding-- letting the logits go up, right? So small logit with a low temperature can be-- can give you a probability that is very close to one. So you can use a temperature to tweak your method. 
+
+ 
+
+Label smoothing Transcript (54:26)
+We said how soft max cross entropy loss has to send the logits to infinity or negative infinity. Here is one technique that people have invented to fix it. It is called label smoothing. 
+
+So remember that when we did one-hot vectors of y, we created a vector where it is one at that particular entry and zero everywhere else. Label smoothing will set this entry to 1 minus epsilon and give that remainder epsilon weight equally to all the other classes. So think of it as a smoother form of the one-hot vector. It is not exactly one hot. It is very large at the correct class, and then tiny, tiny mass, probability mass, everywhere else. And so this is something called as a label smoothed version of your true ground truth label y, OK? 
+
+Now, you can again implement the cross-entropy loss as-- by replacing the one-hot thing by label smoothing. And now you have a summation over m entries, and all the terms are nonzero. When we did the one-hot label, only one of the terms was nonzero, the one corresponding to label. Here, all these terms are nonzero. 
+
+You will again get an objective of this kind. You will again get terms that are looking a little bit like this. But in this case, you can do a little calculation and convince yourself that the optimal value, the value of y hat y, the true y hat, is actually not infinite. But the soft max loss, it is infinite. For the labeled smooth soft max loss, it is not infinite. In fact, it will take some small value alpha for all the incorrect classes. And it will-- exactly with this value for all-- for the correct class, not infinite. 
+
+If you think about it a little more, if epsilon is zero, then the label smooth soft max-- label smooth vector goes to the one-hot vector, right? So as epsilon goes to zero, this number will go to infinity, OK? 
+
+This is just a little trick that people use to ensure that picking the learning rate becomes a little easier when you train the model. Picking the learning rate becomes easier and you train the model because the logits are no longer forced to go to infinity or so. 
+
+And in practice, you can just use, like, epsilon as 0.1, or [? some ?] [? system. ?] Typically, I like to choose it as one over the number of classes. It is not that necessary to do it for your homework. Of course, it will-- you can do it, and it will work as well as the cross-entropy loss. But when you have, let's say, 10,000 classes-- a couple of years ago, I was doing an experiment where I was training a model with-- for 23,000 classes. There, you would need stuff like this. Otherwise, you cannot train those models. 

@@ -1,0 +1,179 @@
+Perceptron Transcript (00:00)
+Let us look at another very simple model. This is an old model that we also talked about in the last lecture. It is called a perceptron. It is the one where this guy called Frank Rosenblatt had built a machine to distinguish punch cards that are punched left and punch cards that are punched on the right-hand side. OK? 
+
+A perceptron is a classification machine. Unlike our regression, which was a regressor, a perceptron predicts plus 1 or minus 1, given an input x. So it's a classifier. It's a binary classifier, and it does so in the following way. 
+
+So it takes our image x. It is let us say a d-dimensional vector. It takes w, which are d-dimensional parameters now, it applies w transpose x. So up to now, it is doing the same thing as the linear regression, except that instead of predicting the value directly, it applies a sign function. 
+
+A sign function is simply something that outputs plus 1, if the argument is positive. It outputs minus 1, if the argument is negative. OK? So it takes the sign of the argument. 
+
+This is our model for a classifier. This is a perceptron. OK? Nothing very complicated so far. 
+
+Now, we would like to understand, how should we find the right w for a perceptron? Just like we focused on how to find the weights of linear regression, we would now like to find the weights of a perceptron. We will fit the perceptron to the training data set. This is simply what the perceptron-- how the perceptron makes predictions. 
+
+In this case, we have a much nicer way of saying when a prediction is correct or incorrect. If you predict an apple for an image that is an orange, then obviously, you are wrong. There is no such thing as by how much you are wrong. 
+
+If you predict the cost of the housing, there is some notion of how off you are from the true cost. For apples and oranges, it is clear. Either you get it correct, or you get it incorrect, for a binary classifier. Right? 
+
+So our objective, we can think of it as a 0 or a 1 loss. You get a penalty of 1, if you make an incorrect prediction. If the true label yi is not the same as the label that you predicted-- remember that you are predicting plus 1's and minus 1's. So yi is also plus 1 for oranges, let's say minus 1 for apples. 
+
+If these are not the same, then you get a penalty of 1. If these are the same, then you get a penalty of 0. And what I would like to think of as an objective is the average number of mistakes that you make, averaged over the n training samples. 
+
+So nothing spectacular going on. We are simply in a setting where we have a very natural notion of what correct means. This has a name. It is called a "Zero-one loss." 
+
+What if I give 1,000 such classes? Instead of a binary classification problem, let's say you have 1,000 classes. Can you still use this objective? Yes, of course. There is a notion of what is correct. 
+
+But then you can also think of slightly different kinds of objectives. Let's say that among these 1,000 classes, so ImageNet last time we talked about has 1,000 classes, and about 150 or so are dogs. Now, most people in this room will not be very good at distinguishing between different breeds of dogs, and in fact, some breeds of dogs look very similar to some other breeds of dogs, and it is debatable whether they are same or different to begin with. 
+
+So expecting that our model predicts the correct breed of dog from among these 150 dogs-- or more broadly, the correct class out of these 1,000 classes-- is a little bit too harsh. What can we do? So I can think of predicting 100 real numbers-- or 1,000 real numbers and say, this is 90% cat, but then with another 10% probability, it could be a dog. This is one way to think about it. 
+
+How will I check this? I need an object that I can evaluate. If I give you an image from nature, how can you say that this is 90% a cat? We know that dogs are similar to other dogs, and cats are similar to other cats. But dogs and cats are different, and there is some overlap between the two. 
+
+So if you mistake a dog for a cat, I will not penalize you that much. But if you mistake a dog for an aeroplane, then I will give you a large penalty. This requires me to know something about the kind of objects that I have in my data set. OK? 
+
+So what you said, I would need to sit down and write a nice distance between all these 1,000 classes, and then I can calculate your penalty. About what you said, I would need to ask, let's say, all of you in the class and show you all these images and see how many of you believe that this is a cat, how many of you believe that this is a dog? And then I get all my true values, and I can check whether the model predicts those true values or not. 
+
+So when we have many, many classes, we need to think about how to make predictions in a slightly different way. For regression, we were looking simply at the cost. If you have two classes, again, it is correct or wrong. If you have 1,000 classes, a million classes, then you have to be much more careful about how you pick the losses. 
+
+Perceptron: Surrogate Loss Transcript (05:52)
+One cool thing about this objective is that you can differentiate it. You can take the derivative with respect to w. You can take the derivative with respect to b and then do all kinds of calculus using this. One bad thing about this objective is that you cannot differentiate it because it is either 1 for a mistake and 0 for the correct answer. So we need some surrogate for this objective. 
+
+This is the objective that we want. zero-one loss is the one that we want to minimize the number of mistakes. But we cannot minimize it because then we have all this machinery that we have developed in the field of optimization that works for differentiable objectives. It doesn't work for this one. So either you cook up that machinery again all by yourself, or you tweak your objective to make it differentiable. And then now you have all that machinery at your disposal. 
+
+And this is why in machine learning we use what are called surrogate losses. These are losses that we think that are differentiable. And these are losses that we think are close to the zero-one loss. 
+
+So let us draw a picture to think of how the zero-one loss looks like. I will draw a slightly weird quantity on the x-axis. You will see why very soon. I will write down this as the quantity. 
+
+w transpose x, if it is positive, then we know that the perceptron takes a plus 1. So if y is plus 1 and w transpose x is also positive, then y times w transpose x is positive. So I am somewhere on this side. 
+
+So should my perceptron be penalized? No, because it is predicting the correct answer. So if you were to draw the zero-one loss, it is 0 here because it is making correct predictions. If y and w transpose x have the opposite signs, then the perceptron made an incorrect prediction. So the zero-one 1 loss is 1. You make a mistake for that sample, right? 
+
+So let's see. So this is 0. Let me put it here. This is not differentiable, as you can clearly see. This is another loss. It is called a hinge loss. The hinge loss, as you can expect, doesn't penalize you if you're making correct predictions. Why should we, right? If you're making incorrect predictions, it penalizes you by the egregiousness of the incorrectness of your prediction. 
+
+If you're making really, really incorrect predictions, if w transpose x was very negative and y was positive, then you would be way far out on the left-hand side of the origin, right? So I give you a much larger loss. If w transpose x was a tiny bit negative and y was positive, then by improving the value of w, you can make it a tiny bit more positive. And I expect you to-- I give you a slightly lower penalty. Is this a natural intuitive? OK. 
+
+So the hinge loss, it is called the hinge loss because it looks like a hinge. It's given by this expression. It is the maximum of 0 and minus w transpose x. So think about this expression a little carefully. If w transpose x times y is positive, then minus y times w transpose x is a negative number. 
+
+So the maximum of a 0 and a negative number is 0. So it is 0 on this side of the origin. If y times w transpose x is negative, then this is the maximum of a 0 and a positive number. And it is this. 
+
+As you can see, this is a differentiable function. So I can take the gradient at any point, and I can improve my w to reduce the loss. This is an example of a surrogate loss. It is clearly different from the zero-one loss, which is what we really want to do. But it is a good proxy to use because if we minimize the surrogate loss, we are on the right-hand side of the origin. In that case, we are good. 
+
+If we do not minimize the surrogate loss completely, or if we are somewhere, let's say, close to the origin but somewhere here, then we could have done something better. Then there is a clear discrepancy in the thing that we want to minimize the zero-one loss and the stuff that we are actually minimizing the surrogate loss. There are many other losses. 
+
+So let's think of the exponential loss. e to the negative y times w transpose x-- if the entire exponent is a large negative number, so that means that y and w transpose x are both the same sign, then this loss is very close to 0. e to the negative large number is 0, right? So this number-- then exponential loss goes like this. If this entire thing is 0, if y times w transpose x is 0, it is e to the negative 0, which is equal to 1. 
+
+So this is 1 exactly. So you will get an expression loss that looks like this. It's e to the negative y w transpose x. This is a slightly different loss than the hinge loss. It is also clearly differentiable. Now, you'll see the difference between the two. 
+
+The hinge loss is below the zero-one loss on the left of the origin. The exponential loss is not happy, even if you push things to the right of the origin. It wants you to push things all the way to the infinity. Only then it is exactly 0. All until then you will get tiny, tiny penalties from the exponential loss. Makes sense? 
+
+There is nothing to say that this one is better than other and the other one is not as good. These are all different candidates you can use, depending on the problem. You can go home and plot this one yourself and see where it lies. This is called the logistic loss. This is the one that you have used many times until now by the name of logistic regression. 
+
+So just to recap, there are many situations when you may want to use a surrogate loss, or even regression. Have you seen an example already? This is the surrogate loss for classification. For regression, we said that we may not like the quadratic error in all cases. Sometimes we want to use the absolute value, the one norm. 
+
+Sometimes we want to use a combination of the one norm and the two norm. These are all surrogate losses. You can use whichever one you wish. Cool. 
+
+So to summarize this section, there is a different model called the perceptron. It predicts plus 1's and minus 1's. We cannot minimize that model easily because it has the zero-one loss. To work around the situation, we invent this concept of surrogate losses. There are many surrogate losses you can use. Which one you use depends on the problem you are solving. 
+
+Stochastic Gradient Descent for Perceptron Part One Transcript (14:23)
+How do we minimize a loss? Any guesses? I have a w. I would like to improve my loss. What should I do? 
+
+Let's say I have only one image. So I can plot the entire data set on one page. My loss is currently somewhere here because my w is such that it is predicting something that is a lot negative. What should I do? 
+
+So I have the loss. And if I move in this direction, then I reduce the loss. So we would simply like to differentiate this loss with respect to w. w is our variable that we can change. y and x are fixed because they are the outputs and the inputs, respectively. 
+
+So I calculate the derivative of this loss with respect to w and change my w from this value to this value. And now I have achieved a location that has a slightly smaller loss. So I'm making a tiny bit more correct predictions. Make sense? 
+
+This is something called as gradient descent. You descend in the direction of the negative gradient. You always minimize the loss. When do you stop? When you reach here. In this case, for the hinge loss, you would stop somewhere here because there is no more gradient to use to descend. 
+
+For the exponential loss, where would you stop? Yes. It is infinity because there is a tiny gradient no matter how far out on the x-axis you look at. So the name of the game in fitting a perceptron is to update the weights w in the direction of the negative gradient. 
+
+What is the negative gradient here? I would like to calculate dlhinge as a function of w by dw. What is it? 
+
+Let's look at the picture. What is the gradient here? This function at this point is what? It is minus y times w transpose x because we have the maximum of those two quantities exactly minus y times w transpose x. The gradient is 0 here. 
+
+So we can think of two cases. If the perceptron is making correct prediction, if y and w transpose x have the same sign, then it is 0, the gradient, because you are on this side of the x-axis. If the perceptron is making a mistake, then what is the gradient? The value of the function is this. What is the gradient? 
+
+Minus y times the gradient. 
+
+OK. If incorrect, it is minus y times x. 
+
+Now, for any location, you have the gradient. So you take the sample. Let's say that your data set had only one sample. You know how to calculate the gradient. You can initialize your w to any location on the entire x-axis. If you got lucky, and you initialize here, there is nothing to do. 
+
+If you initialize over here, you can update your w to the original value plus some negative gradient. The gradient is minus 5 times x. The negative gradient is y times x. So you can do w equal to the old w plus y times x. And this will reduce your loss a tiny bit. It will not make it entirely 0. It will reduce your loss a tiny bit. 
+
+Stochastic Gradient Descent for Perceptron Part Two Transcript (18:14)
+Next, we talked about gradient descent, how to minimize the loss. We said, look, we know that the logistic loss is like this on the left-hand side of the origin. It is 0 on the right-hand side of the origin. If your perceptron is getting that example correct, then it is presumably sitting somewhere to the right of the origin, right? The loss is 0. 
+
+In that case, the derivative of this function with respect to w is 0. If the perceptron is making a mistake, it is presumably sitting somewhere on the left of the origin. In that case, the derivative is what? It is the derivative of this guy with respect to w, which is equal to minus y times x. 
+
+So this gives you a very natural algorithm to train the perceptron. Here is how it works. You take your data set. And for every iteration-- you do many, many iterations-- you initialize your weights of the perceptron, let's say, to 0. Initialize it to anything. 
+
+At that tth iteration, you sample an index. We have n samples in our training data set. We sample one of them random, uniformly randomly. And let us call that sample x omega t y omega t. So in this entire course, I will always denote random variables or samples as omegas just to keep everything very pedantic and clear. 
+
+So omega is some number between 1 to n. x omega and y omega is that particular sample on my training data set. I run the perceptron on this sample. If the perceptron predicts correctly, I don't change the weight at all. Why should I? 
+
+If the perceptron makes a mistake, then-- and you can check that the perceptron is making a mistake by watching the output, y omega t, and the prediction of the perceptron, which is simply your current weights, wt, times x omega t with the sine function applied to it. So this, the left-hand side, is our function of x omega t with the weights wt. If they are not the same, that means that there is a mistake being made by the perceptron. This much is clear to everyone? That means that we are on the left-hand side of the origin. 
+
+So let's say that we make a mistake. Now I will update my old weight in the direction of the negative gradient. So we know that the hinge loss looks like this. If I move the weight a little bit to the right, then I reduce the loss a little bit. So presumably, I make a slightly better prediction on this new sample. 
+
+So I take my old weight. This old weight is wt. This gradient is y times x omega t, y omega t. And then I sum them up. So I'm moving a little bit to the right of my old weight. That means I'm improving the loss on this particular sample. 
+
+Now, like she said, I don't have to move by the exact magnitude of the gradient. I could move 0.5 times y times x, or 1.5 times y times x. So in general, I could move with respect to some scalar constant-- let us call it the learning rate, like she said-- times the gradient. In this expression, I have set the learning rate, so-called, to 1. So let's not worry about it for now. Let's say that we move by 1 unit gradient to the right-hand side. We'll worry about the learning rate in a bit. 
+
+Is it clear to everyone that moving the weights so will improve the error of the perceptron? If you are sitting somewhere very close to the origin here, then moving like this will move you to the right of the origin. And now you'll get that particular example correct after such an update. 
+
+Will such a movement improve the perceptron's performance on some other examples? A slightly less complicated way of saying this is the w-- the weights, w-- are one number, one vector. They are the same weights for all the samples. We improved the performance on this particular sample. And it will improve the performance on samples that are similar to each-- let us say, there are some other samples which are also sitting at this loss level. And once we move the weights a little bit to the right, those samples will automatically improve. 
+
+There could also be samples that were sitting a little bit to the right and whose error deteriorates when you move the weights to the right. What is right for one sample is not-- or what is the correct weight for one sample may not be the same for some other sample. So the perceptron, when it samples an image and a particular label uniformly randomly from the data set, it improves its performance on that sample. This may improve the performance in some other sample. This may deteriorate the performance in some other samples. But the point is that it does this ad infinitum. 
+
+Will this process stop? So we'll talk about what linear set level data means. But the rough understanding is that if there exists a w such that all these examples are correctly classified, if there exists a w star such that the error of the perceptron on the training data set is 0, then this method will find that w star. And this is a simple proof that we'll do in a bit. And that is what it means for a data set to be [INAUDIBLE]. 
+
+If there exists a solution, then you'll find it. You will stop this shuttling around of errors in a finite number of iterations. If that does not exist, w star, in the sense that, if all the oranges are here, and all the apples are here, and there is some overlap of oranges and apples, then there does not exist a w star that separates these two point clouds cleanly. And in that case, you will not-- the perceptron will keep on shuttling between the errors like this. It will never stop. OK? 
+
+This is called the perceptron algorithm. And this is what Frank Rosenblatt implemented in the '60s. We will know it by a slightly different name. We'll know it by the name of stochastic gradient descent. And it is called stochastic gradient descent because we are using the gradient at each iteration to make the updates. It is called stochastic gradient descent because we pick one particular sample from the entire data set to calculate the gradient and only update the base using that sample. 
+
+So when we update the gradient-- update the weights once, we do not really know what it is doing to all the other samples. We only know what it's doing to this particular sample. And there is some notion of randomness in here because we choose the sample that we want to improve upon randomly. All of this is-- we'll dig much deeper into this. But for now, this is our simplest possible implementation of stochastic gradient descent. 
+
+As you see, it is nothing complicated. So long as you have an objective that you can take derivatives of, and so long as you have a data set from which you can sample uniformly, you can implement SGD. That is why it is both the simplest method to use and also the most general method to use. 
+
+Understanding why SGD converges for the perceptron Transcript (25:45)
+We talked about how to update things. Let us talk about why this stuff works. I convinced you by pictures that if you are at this location and you made a mistake, if your weights are here and you made a mistake, then updating using the gradient will improve the loss on that particular sample. 
+
+We can write this statement down in mathematics. wt plus y times x is the new weight value, right? It is exactly equal to this one. y times the new weight value wt plus 1 times this x is the prediction of the perceptron of the new perceptron on the sample that you recently chose. 
+
+OK. So at each iteration, you got this particular sample incorrect. You updated the weights, and now the left-hand side is saying, what do the updated weights predict on this recently chosen sample? OK, just a quantity. Convince ourselves that we indeed improve the loss after the weight updates, OK? This is this particular value. This was the old value. 
+
+Now, you can expand this out. It is y times wt times x plus y squared times x transpose x. What is y squared? y is either plus 1 or minus 1, so y squared is always one, no matter what the true label of the sample is. This quantity is the prediction of the perceptron before it was updated on this sample. It's the last iteration. It's the exact same condition that we used to check whether it made a mistake or not. 
+
+So one way to read this equation is that the prediction of the perceptron after the update equals the prediction of the perceptron before the update plus x square or x norm square, OK? And this one is always greater than 0 because it is a norm. So as you can see, you're moving rightwards on the x-axis. You are improving the prediction on the sample which you made a mistake upon. Does this makes sense? OK. 
+
+At every iteration, every time you get a sample incorrect, you always improve things for that sample. This doesn't mean you improve things for all the other samples. That much, I think, is clear. But you certainly improve things for this particular sample. OK? 
+
+So as we said during-- through pictures, if the training data are linearly separable, then this process will stop after some time because you will improve all the incorrect samples one by one. If there are conflicts within the samples, if there is 1 plus 1 here, and then this entire cloud is of minus 1's, and then there is 1 minus 1 here, and this entire cloud is of plus 1's, then you will never be able to get them-- get the samples correct because every time you fix the minus 1 here, all these other samples get unhappy. Every time you fix the minus 1 there, all these samples get happy-- unhappy. OK. So we'll talk about this in a bit. And you will also think about it later when you go home. 
+
+But as I said, this is really the simplest version of stochastic gradient descent. And the funny bit is that Rosenblatt worked on the perceptron in the mid-'60s. Stochastic gradient descent was well-known as an algorithm, even in the early '50s. So this is the oldest paper which talks about stuff like SGD, Robinson Monro in 1951. This is more related to operations research literature after the war. But even then, people did not realize that this was the same method. 
+
+ 
+
+General form of SGD Transcript (29:42)
+Let us talk about simply rewriting this business in a slightly more general language. And we'll use it henceforth. As I said, given any objective that I would like to solve-- so let us say that l superscript i is some loss of some model on the i-th image in our data set. This is a name that we give. It is some surrogate loss that you choose. Fitting our machine learning model amounts to you minimizing the average loss over your entire data set. We would like to find w star that minimizes this objective. 
+
+Let us assume that this objective is differentiable. So we can take derivatives of l superscript i with respect to w. This brings SGD into the business. We can sample images from our data set uniformly randomly. At each iteration, we have our weights wt. Actually, let me go to this version. Yes, I am writing w t in brackets to denote that it is the weight at the t-th iteration. At each iteration, we sample an image randomly. Let us call that index omega t. We calculate the derivative of that particular loss with respect to w at our current weight vector wt. 
+
+And then we update the weight vector wt in the direction of the negative gradient. And like she said, in general, instead of simply updating the weights by one unit gradient, we can scale the gradient by some scalar parameter, eta. Eta is something that is greater than 0. It is called the learning rate. You will see later why it is important so and so. But for now, it is just the scale that we apply to the gradient. This is SGD. And these two equations are in some sense, a very, very general way to fit models. 
+
+Anytime you have a model for which there is a legitimate loss, you have a data set with n samples. You can run this method to fit the model. We have done this for perceptron. If you are curious, go home and do this for linear regression. You know the solution of linear regression, you can run this method for linear regression and check if you find the same solution that you know from the closed form expression. You should get the same answer. We descend in the direction of the negative gradient. So this is a function. The derivative of this function is pointing in this direction. So we descend in the direction of the negative gradient. 
+
+You don't have to pick one particular sample omega t. You could pick 10 samples. You could pick 100 samples. In general, you can pick the entire data set to calculate the gradient, right? I can rewrite this. So this problem, I don't have to write it like this. I can write it as w star is argmin over w of l of w, where l of w is the average of all my little losses. And this equation now, I can solve with gradient descent, not stochastic gradient descent. There is no concept of a summation in this objective. 
+
+I can simply take the derivative, which is wt plus 1 equal to wt minus the learning rate times the derivative of l and w. What is the derivative of the summation of different functions? The derivative of a sum is the sum of the derivatives. So that the derivative of the average of a bunch of quantities is the average of the derivatives of all those quantities. So in this case, this will be equal to minus eta. This is called gradient descent. This is not called stochastic gradient because we did not sample anything. We are taking all the samples and averaging the gradient. 
+
+This is another way to fit the perceptron. You can try this at home. You will see that it works a little worse. Cool. So just some nomenclature or rewriting of things. As I said, omega t is a random variable. It takes values from 1 to n. It tells you which image we sample from the data set. It is traditional to write this dl by dw as this expression nabla of l, just the name for the same quantity. The important thing, however, to remember is that the gradient of a scalar with respect to a vector is a vector. 
+
+The loss is a real valued number. When you take the derivative of the loss with respect to weights, you are trying to ask yourself, how does this scalar change if I perturb my weights in some way? If you perturb the first element of the weights, then you get this term. It is the derivative of the loss with respect to the first weight. If you perturb the second weight, then you get this term. It is the derivative of the loss of the second weight and so on. So the gradient of the loss with respect to a bunch of weights with respect to w that is a vector is also a vector. 
+
+It looks very trivial right now, but when you implement your backprop, I promise half of you will make this mistake. So in simple words, if our weights are p dimensional vectors, then the derivative of the loss is also a p dimensional vector. This is true if l is a scalar. What happens if l is a vector? I can also take the derivative of vector with respect to another vector. 
+
+It'll be a matrix. 
+
+It will be a matrix. So derivatives of vectors and matrices are really dumb quantities in some sense. I shouldn't say "dumb," actually. They're very simple quantities in some sense. And the only way of thinking about this is that if f of w is a function in Rm, then df w dw is a function in Rm cross p. And the ij-th quantity or ij-th entry of this function is exactly df i by dw j. It is the i-th element of your function, of the numerator of the derivative. I did it differentiated with respect to the j-th weight. So this looks like a matrix, and it may look like something complicated. It is the derivative of a vector with respect to a vector. But fundamentally, it is just all the little scalar derivatives arranged as a matrix.

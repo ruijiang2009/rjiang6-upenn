@@ -1,0 +1,231 @@
+Dropout Transcript (00:00)
+Another regularization mechanism-- this is a very funny one. It looks nothing like weight decay on the face of it. It is called dropout. Dropout was a very weird method that came out sometime in 2014 or '13 or so. 
+
+So I remember when I was in the first year of my PhD and Geoff Hinton, who wrote the paper on dropout, was giving a talk at Caltech. And so I drove for one hour to listen to this talk. And then he's saying, oh, take all these neurons, and then set half of them to 0 randomly, and let the other half work. 
+
+And it seemed completely absurd, why you would do something like this. And I came out like, what the heck is this deep-learning stuff? They don't even know what they're doing, et cetera. But turns out dropout is a pretty nice and effective regularizer. So in the next few minutes, we'll look at how it works and maybe some weak understanding of why it works. OK? 
+
+As usual, let us consider a two-layer neural network. x is our input. S is the matrix of the first-layer weights. Sigma is a nonlinearity. And v is the classifier, as usual. 
+
+Between v and sigma, we will insert an operation called dropout. Dropout does the following. Dropout takes your activations, h, that were created by sigma of S transpose x. And it multiplies every activation by a random Bernoulli variable, by a Bernoulli random variable. 
+
+This random variable is 1 with a probability of 1 minus p, where p is some hyperparameter that you will choose. So with probability 1 minus p, you set the element of h to whatever its value is. With probability p, you set it to 0. r is a Bernoulli random variable. 
+
+So in pictures, it looks like this. I have my h. This is my first neuron, second neuron, so on and so forth. I take every neuron. I toss a coin that has a probability 1 minus p of coming up 1. If this coin comes up 0, then I set this guy to 0. If the coin comes up 1, then I let this be. I don't do anything to it. 
+
+So think about ReLU. This is kind of like a very random version of ReLU. It tosses a coin and then sets it to 0, lets the activation be. 
+
+Now, if you tell me that this is an operation that you're using, I will call you silly. Because it doesn't really make sense. We created all this architecture, we talked about features and everything, and now, suddenly, we are setting stuff to 0. 
+
+But let us first understand the mechanics of it. Will you be able to do backpropagation if you set things to 0 like this? How will backpropagation change? 
+
+So let's say that when we did dropout in the forward pass, we set this particular one to 0, this particular one to 0, this particular one to 0. So these are the only two activations that were left untouched. All of these were 0. 
+
+Now, every synapse that is connected to it or every weight that is connected to it, it no longer played a role in creating the output. So it will not get any gradient back. So backpropagation is completely oblivious to whether or not you did dropout. Dropout is just some operation. 
+
+Again, remember that you don't need stuff to be differentiable to do backpropagation. This is another very dramatic example of that. I am setting stuff to zero randomly during the forward pass. But whatever I did not set to 0 was the only stuff that I used to do the computation. 
+
+So when I do the backward pass, that is the only gradient that will come back down. There is no gradient that is coming down from these nodes. So at least we know that this is a syntactically-correct operation. We can run backpropagation even if dropout was happening in the forward pass. Make sense? 
+
+Here is how it looks. So this is our standard neural network. With every, let's say, fully-connected neural network, there's five neurons on these two hidden layers. And they're all connected to each other with weights, right? 
+
+I have drawn the arrows. The arrows actually have numbers on them because some weights are large, some weights are small. And depends-- that determines how important this particular neuron is to creating the output. 
+
+When you do dropout in the forward pass, we are setting some neurons to 0 by this Bernoulli coin toss. So the actual network is this. These are the weights that are creating the output, and all the others are silent. The backpropagation will only work on this particular network. 
+
+How many such networks are there? 2 to the power of the number of features. So there is 10 features. So 2 to the 10 different networks exist. Such sparse networks exist, right? Are all of them equally likely? 
+
+OK, yes, depends on the probability, p. But so for now, we know how dropout works. We know that it creates a sparse network. Every time you do dropout, every time you do one forward pass, you get one sparse network. 
+
+Next mini batch, you do another random mask of the activations, you get a different sparse network. So in the next forward pass, these weights might be active, and those gradients will be on. And as you keep taking more and more mini batches, you sample different weights, and that is why you train all weights. 
+
+Can you guess why it works? Think about it like this. So let's say you are this layer, and your friend from the bottom, it doesn't give you all the activations. Every once in a while, he sets stuff to 0. So you cannot rely on this friend. You cannot rely on the lower layer to give you all the activations. 
+
+So any function that you are computing at the top, it has to use-- it has to be very redundant. It cannot rely on any specific neuron to create its value, because that neuron can be set to 0 after the lower layer applies a dropout. So you can imagine that when you train a network with dropout, every layer learns-- or every layer learns features that are very spread across many, many input neurons. And the function that it computes, the output of the model, is not reliant on any one particular neuron. It is reliant on all neurons as much as possible. 
+
+Because as soon as you have one neuron that is dominating your predictions stuff, then your predictions will take a hit when you set it to 0. so this is one intuition for why Hinton also came up with dropout. He said that we want to prevent neurons from dominating the predictions because we have so many neurons and we want to use all of them in equal parts. And this is one way of forcing the neurons to be playing an equal role in creating the output. 
+
+Every time you feed a new image, a new dropout is applied to the network. So think about it. So if you have two images, x1 and x2, in your minibatch, then you have two pairs of activations, h1 and h2 corresponding to those two images. Both of them get an independent dropout mask. So every image is passed through a different sparse network of its own. And the gradients are all, of course, correctly backpropagated down. 
+
+Revisiting the bagging classifier Transcript (09:11)
+Let us talk a little bit about how dropout works, or why it could work. And we do a simple experiment. So I have all you students in the class. I would like to know the mean height of the students-- of a student in the class. I can ask each of you your height, and I can calculate the mean, and I'll get one number. There is no student with that exact height, right? So I would also like to report, a typical student is 5 feet 5 inches plus minus 5 inches. This is the kind of output that I want from my exercise. 
+
+I can also ask a slightly different question. We talked about what the height of a typical student is. If someone asks me, what is the mean height of the students in this room? How can I calculate this? Again, I ask you, each of you, your height, and I calculate the mean height, and I give you one number-- 5 feet 5 inches. But if there was some slightly different classroom, if more people showed up, the mean height would be different, right? 
+
+So the mean that I estimate using you students as the samples is slightly different from the mean of the population that someone asked me for. The average height of a typical Penn student is what I am after. You are a sample data set of this population. So when I calculate your mean height, I am off from the population mean height by something. This is called standard error, if you haven't heard it yet. Just like we have standard deviation for the deviation of the height of one person with respect to the mean, standard error is the deviation of the mean of the heights from the mean of the population, OK? 
+
+How can I estimate the standard error? I have this one classroom now. I want to say the mean of the students' height in this classroom is off from the population mean by 2 inches. How can I get this number 2? 
+
+So this is what we will do typically in a statistics class. We will take the height of the students, calculate the standard deviation of the height, and divide by square root of the number of students, and we get the standard error. There is a slightly different way do this I can wait for the next lecture, when a slightly different set of students will show up, and calculate their mean, and calculate that standard deviation across the different means. Makes sense? This is some notion of how far away my estimate of the mean is from the population estimate. 
+
+If I don't want to wait for another lecture, I can also do another experiment, I can not count the height of 10 students in this class. I only count the height of the others and get one estimate of the mean. And I can do this many, many times. 
+
+I have, I don't know, 35 students here, maybe 40 students here. I can take a random subset of these 40 students to calculate my mean height, and the standard deviation across all such means will be my estimate of the standard error. Makes sense? 
+
+Why we are doing this? Because we don't care about height so much, but what I'm trying to explain is the concept of bagging-- so bootstrapping. "Bootstrapping" is a concept that says, I have a fixed data set. From this fixed data set, I want to estimate a quantity, the mean height of the population. The way I estimate this is, from my fixed data set, I create another fixed data set by sampling it randomly-- either sampling with replacement or sampling without replacement-- and I calculate many such data sets by sampling randomly. 
+
+The mean of those data sets will be the mean height of the population. The standard deviation across those data sets will be the standard deviation of my estimate. This is called bootstrap aggregation, or "bootstrapping" in short. It is perhaps the most important idea in all of statistics. This is just a true statement. Basically, no one will disagree with me. 
+
+It was discovered some time in the-- not early '90s, but more like late '70s, by this statistician called Efron. It is a very powerful idea. So any time you want to calculate, let's say, the mean of something, you can always get an error bar on the mean by bootstrapping-- by taking your same data set that you used to calculate the mean, but then re-sampling it many, many times. 
+
+This here is how we use it in machine learning. We will take our data set. Let's say that our data set is D. Using sampling, either with replacement or without replacement of the samples, we will create M different data sets, D1 to DM, OK? 
+
+These are just different data sets. They are not disjoint from one another. There is many shared examples in these data sets. I fit a model on each of these data sets-- W1 on D1, W2 on D2, and WM on DM. These are M different neural networks that I am fitting. 
+
+The final neural network that I use is the sum of the neural outputs of each of these networks. So remember that f of x comma w is our one neural network. It gives us one output. 
+
+I take my M networks, I sum up their outputs, and I get an output of that I'm going to use. This is what is called a bagged classifier. This is always better than doing one neural network on your data set, even if these data sets were frequent created from the same thing. It is not as if you are getting new samples out of it. You are getting the exact same number of samples in union. 
+
+Can anyone tell me what we are doing by doing this? We are reducing the variance because every data set now is a sample from the population. We are averaging-- our new classifier is an average across all these outputs. So the variance of this new classifier is a bit smaller. It is smaller exactly by a factor of square root n, OK? 
+
+If it is not super obvious why we are reducing variance, don't worry about it. But for now, let us fix in our mind that you can take your data set, and you can fit multiple models on the same data set by chopping up the data set in different ways. When we did cross-validation, we were chopping it up in disjoint ways. Here, we are chopping it up by simply sampling randomly. 
+
+Bagging is-- so if bootstrapping is the most fundamental or most useful idea in statistics, bagging is the most useful idea in machine learning. Every single machine learning model-- until neural networks, actually-- works via bagging. So people will have heard of things like random forests, which are bagged versions of decision trees. There are bagged versions of random forests that also work well. 
+
+But to give you a one specific example, so around 2007 or so, there is a competition that Netflix had organized. Netflix was new at that time. They had organized a competition to give good predictions of movies to people. And this is a famous one called Netflix Prize. And it had a prize money of $1 million. So as a research lab, if you get it, that's a pretty big deal. 
+
+And many people took part in this competition. The one that won was a bagged version of many, many, many models. So you take SVM, you take decision forest, you take any other rich model, and you put all of them in one bag and average their outputs. So averaging is the oldest trick in the book and the most powerful trick in the book of machine learning. 
+
+When I was your age, I was taking my first machine learning class, and the professor, on the first day, he came in and said, if you learn nothing from this class whatsoever, learn one thing-- averaging is good. 
+
+[LAUGHTER] 
+
+So and he's correct. You will go very far if you just average. What to average, you have to think a little more carefully. 
+
+Interpreting dropout as a bagged classifier Transcript (18:34 )
+We are now going to explain dropout as a bagging classifier. That's it. OK. And we will do a very simple example. So this is from the original paper. I said that the original paper was very weird, but in the appendix of the paper, they had written down this very simple argument. It is very hacky and heuristic, but it's quite beautiful. So let's see what it is. 
+
+Let's do linear regression with dropout because we can. y are our outputs. w are our weights. X is our data matrix. But instead of using X directly, we are first going to apply dropout to X and then use it. OK? We said, when we talked about neural networks, that every time you feed the image-- feed a mini batch to the network, you do dropout on the activations. 
+
+Mathematically, one way of writing this is that instead of minimizing y minus Xw, whole square, you are minimizing y minus R times Xw expected value over R. So on average, across many, many dropout masks, you want to predict the correct output. OK. This is one correct way of writing what dropout is doing. 
+
+This expression also works for neural networks. So you can say y or the cross entropy loss, which is logarithm of pw y given X. Let us call it R, and you take the expected value over R. This is the one that we are actually minimizing or maximizing when we do dropout for a neural network. 
+
+This funny notation, R times X, simply means that every element of X is multiplied by a Bernoulli variable. R is the matrix of these Bernoulli variables, and each of them is independent. And this is just element-wise multiplication, the way you do it in MATLAB. So far with me? OK. 
+
+So first things first, what is the expected value of R times X over R? Every element of R-- R is a matrix. Every element of R is 1 with probability 1 minus p. It is 0 with probability p. So the expected value of R element-wise producted with X is 1 minus p. Every element of X persists with probability 1 minus p. Dies with probability p. So on average, the value is 1 minus p times that particular element. 
+
+This much is fine. Similarly, you can also calculate the outer product of these two things. Let us see. Let us see how it is done. So let us say we have R11, R22, R12, so on. R times X is a matrix. R times X is another matrix. When we take R times X transpose multiplied by R times X, what are we really doing? We are really taking two elements of X, and then multiplying them together with their corresponding random masks. 
+
+If the two elements are distinct from each other of X, then the two masks are independent because every Bernoulli coin is tossed independently. So if you're multiplying two different elements of X when you do this matrix multiplication, then the two masks are independent. 
+
+What is the probability of things persisting, of two masks? The probability of things persisting for one mask is 1 minus p. So the probability of things persisting for two masks when they are multiplied together is 1 minus p whole square. Make sense? 
+
+So if i is not equal to j, that means that you're not multiplying the two same elements of X. Then things persist with probability 1 minus p. If you are multiplying the same two elements of X, then this is the same mask. The same mask persists with the probability 1 minus p. No longer the square. OK? 
+
+So so far, we are just doing algebra. The expected value of R times X is 1 minus p times X. The expected value over R of this outer product is a matrix which is X transpose X. But on the diagonals, you are multiplying that matrix by 1 minus p because the same masks were used to take the product. Off the diagonals, you are multiplying all those entries by 1 minus p whole square because independent masks played a role in creating that particular entry. 
+
+Reglarization effect of dropoutTranscript (23:43)
+Now we can expand the quadratic, y minus RXw This should be a square here, a whole square. What will we get? We'll get y square-- y minus 1 minus pXw whole square when we multiply together. 
+
+Y minus RXw is a vector. So this is vector transpose times a vector. So you will get terms of the kind y transpose y minus y times minus y transpose RXw minus w transpose RXw RX transpose y plus W transpose R dot X transpose R dot Xw. OK. I have just expanded the quadratic. This y transpose y comes from these two y's. And then you have the cross terms. And this is the final term. 
+
+This is why we spent some time expanding these. Now this expectation does not depend-- this does not depend on R. So we get y transpose y on the outside. When this expectation goes in and hits this particular quantity, what do we get? We get y transpose 1 minus p times x times w. Right? Same thing for this guy. This one we know from this particular calculation. OK. 
+
+So if you write it out, you will be able to see that this expectation that we have written here is equal to y minus 1 minus PXw whole square, which is coming from these three terms and this particular term, which is coming from all the diagonals. OK. It will take a couple of lines but it's a very distinct form. 
+
+Now think of what happened. So we said that this is the objective that we are minimizing in linear regression with the dropped out version of linear regression. It is equal to some nondropped out version of linear regression. There is no R in this expression. Right? 
+
+In any case, there should be no R on the entire right hand side because we took an expectation over R. But this looks very similar to our objective for linear regression, except the 1 minus p stuff sitting in front of x. Does this look like something to people? It is something that is not our loss so let us call it a regularizer. 
+
+It is also a regularizer that you have seen before. It is w transpose w, which is equal to the norm squared of w but not the exact norm squared of w plus p multiplied by p times 1 minus p, which is just a constant, or which is just a function of p. But the peculiar thing is that it has the diagonal of X transpose X inside it. So last class someone asked a question what if the weight decay coefficient is not the same for all different weights. This is an example of the weight decay coefficient not being the same for all weights. The different terms of the diagonal of X transpose X give you different coefficients for different weights. OK. 
+
+So this is just a bunch of algebra. But the important point is to realize that doing dropout in linear regression is equivalent-- and I emphasize the word equivalent-- to doing linear regression of a slightly different objective, y minus 1 minus PXw whole square plus some regularizer that looks like weight decay except that it uses larger weight decay along elements of the diagonal that are large. So if one particular element of the diagonal of x transpose x is large, then that particular weight gets a larger weight decay coefficient. OK. 
+
+To make it even more similar to our original objective, what I'll do is I'll divide the entire thing by 1 minus p whole square. So this stuff-- or actually, sorry, I'll pretend that my weights are not W times 1 minus p but really like some other weight w prime, which is equal to w times 1 minus p. 
+
+So if I minimize over this slightly different weights, I can write down my objective as X minus-- sorry-- y minus X times w tilde whole square where I've simply defined w tilde to be w times 1 minus p. And then this is the outer product of-- inner product of w. And then there is the 1 minus p whole square that sat on the denominator. Let us say that we mean center the data. The diagonal is the product of that element with itself. 
+
+Why is this a good objective? If some elements on the diagonal are large, then this objective tells you that those w's should be small. If some elements on the diagonal of x are small, or X's transpose are small, then it tells you that let those w's be large. I don't mind. So effectively, it says that X times w has to play the same role. OK. Every element w, every particular weight w and that particular input feature x, they play the same role. When you sum them up, you get your y's. 
+
+OK. And this is precisely what we said dropout might do. It says let me use all the outputs in equal ways. I don't want to depend too much on any of the output. OK. And here it is doing it in a very, very precise sense because it simply puts a larger weight decay on the weight that corresponds to the inputs that have a larger magnitude. OK? 
+
+Cool. So this stuff that we did obviously only works for linear regression. So to summarize for linear regression, the dropout is equivalent to doing a specific kind of weight decay. And this is why we don't mind calling dropout a regularization mechanism because, at least in this specific case, you can write down what the regularization mechanism is. It also clearly looks like restricting the weights w. OK. 
+
+This same calculation also works if you do some other problems, like matrix factorization. So you have one problem on matrix factorization in the homework this time, the x minus a times b whole square problem, the one where you take an [INAUDIBLE]. Those kinds of problems a name. It is called matrix factorization. For those problems also if you write down dropout, you can try to do this calculation yourself if you are curious. In the homework problem, we are doing this. OK? How will I do dropout on this? 
+
+I can write down a slightly different objective, which is this where R now is a matrix of Bernoulli zeros and ones. If you take the-- if you expand out this summation, it's a little bit more cumbersome than what we did for linear regression. You will also see that you get exactly this term plus some omega that depends on A and B that forces the products of A and B to be such that they are equal in when they create every element of x. So dropout is a regularizer because we can write down the regularization mechanism in terms of [INAUDIBLE]. 
+
+Dropout at test time for linear regression Transcript (32:49)
+How does dropout work at test time? At test time, at training time we have shared the mini-batches with different masks. We calculated the back propagation gradient, et cetera. At test time, if you believe me that dropout is a bagged classifier, then at test time I should be averaging over all possible models that are created by bagging, right? 
+
+In here, we said that when you run a bagged model, you take all these M models that you had trained and you sum up their outputs. And you get the output of the bagged model, right? Let us see how dropout is doing this secretly without actually doing the average. In this particular case, let's say that I have my different masks. 
+
+Each mask is called r k. Superscript k simply stands for one particular mask that I apply to the input. My output for that particular mask is my input x i element vice product with r i k, and then multiplied by each of the weights. So this is simply the linear model w transpose x. But instead of w transpose x we have done r dot x, OK? 
+
+This is for one mask. We would, of course, like to write down the expression for many, many masks, how to take the average of all possible masks. Before we do that, let us look at this identity. This is our linear regression's output. Because the mask is binary, it is either 0 or 1, whether I multiply it to x or whether I multiply to w, it doesn't matter so much, right? 
+
+I'm doing w i times x i. This should be i. I'm doing x i times x i. Whether I multiply the mask on w i or whether I multiply the mask on x i, it doesn't matter because the mask is just one number, OK? So this thing, which is what we said dropout is, I can rewrite for the case of linear regression to be this thing, where now I am using different weights but the same input. 
+
+This is a very cheap rewriting of the same expression, nothing very deep about it. Perhaps the only interesting thing here is that bagging says that we should average many, many models. And for linear regression, averaging the output of many masked inputs is equal to averaging many models of the masked weights. So just like you said, why don't you mask the weights, for intervention they are the same thing. 
+
+So this is our function that we are going to average, f of x, comma w k, where w k is simply the w's with the mask r k applied to them. So we have our models. Now we just need to figure out a way of averaging them. Let us say that our output is the average of many such models, OK? 
+
+This is our one model. It is f of-- again, this should be x i. This is our one model x i times w k. And this is the average over all those models. Now a very cool thing happens. 
+
+The average over all these models, because I'm working with a linear model, I can push the average inside the summation over the dimensions of my inputs x, and I'll get w i element-wise multiplication by the average of all the masks that I have. What is this? This is very simple. 
+
+This is just 1 minus p. It is the average of a bunch of Bernoulli numbers. As m becomes very large, the average converges to 1 minus p, because with the fraction p, they are 0. So it is just a big vector of 1 minus p's. So averaging or bagging the different models that are effectively created by dropout is equivalent to taking my original weights, multiplying them by 1 minus p, before doing my linear regression, before giving the output of linear regression, OK? 
+
+This is quite beautiful, so let me walk through this way of thinking. So we said, let us look at linear regression and dropout. We said like how it shows up as a regularizer. We wanted to make a connection of dropout with bagging. 
+
+Bagging tells us to average many different models created for many different datasets. For linear regression, we said we can write bagging as if we have these different weights, w times r k, r k being the mask applied to all the elements of my training samples or my test sample. X i could be the test sample. Now at test time, I will still be forced to calculate this averaging by running all these different linear regressions, calculating w transpose x for all of these. 
+
+But I don't have to, because I know that instead of calculating this summation to average all my models, I can actually simply calculate this one, because I can use one weight vector multiplied by 1 minus p and simply do w transpose x of that vector. This is very cool. You will never be able to do it for any other model other than linear regression, averaging a bunch of stuff by just multiplying the weights by a constant. 
+
+So moral of the story, you can calculate the bagged output by just scaling the weights in linear regression. This is not true for neural networks, but it is a pretty nice way to think about dropout. 
+
+ 
+
+Implementation of dropout in pytorch Transcript (39:14)
+The way dropout is implemented in PyTorch, they will actually do it very cleverly. The reason for that is like this. So suppose you trained a model with dropout and all these masks. Before you give it to your friend to use at test time, let's say that you're a car company. Some engineers train a model. 
+
+Now this model is used by the testing team to run the model on the car. Someone has to give them this value of p for the model. So which value of dropout was used, so that they can scale the weights like this and calculate the output of the model? This is very cumbersome, because you are not just giving your model but you are giving this one more number next to it that says every time you run the model, make sure that you scale the weights by this number, and only then your outputs will be nice. 
+
+Instead of doing all this, PyTorch does a pretty cool trick. It already scales up the activations of the dropout layer, of the layer following the dropout layer, by 1 over 1 minus p. If you divide the output of that layer by 1 minus p, then it is equivalent to scaling up the weights by 1 minus p at test time. So you never have to scale the weights at test time. Is this easy to understand or no? 
+
+Let's say that this is my weights. These are x, these are our h, and these are our second weights, our results. Let's say that we did dropout on x. As we said in our calculations, if we do dropout on x, it is kind of like saying that I take my weights w1, multiply them by 1 minus p, before making the predictions. That is what gives me this averaging, OK? 
+
+I don't want to remember this coefficient 1 minus p. So what I'm going to do is divide the output by 1 over 1 minus p. So if I don't multiply my weights by 1 minus p, it is kind of like me multiplying them, me getting the average output. Is this clear? 
+
+It's just an empirical trick of how to implement stuff. And that way you don't have to tell your friend what dropout probability you used to train the model. You can use the model as is without scaling the weights up and down. 
+
+OK, so do people know what model.train does? This is a homework question I think in homework 2, right? So model.train actually affects very few layers in the network. It doesn't do anything to linear layers, convolutional layers, softmax layer, et cetera. The way it changes the dropout layer is that it will say that you should do these masks when you do the forward prop. 
+
+So it's a little Boolean that you set up. If model.train is true, then every time images are forward propagated through the network, the mask will be applied to the activations. If model.eval is true, then no mask is applied, because this is what you use for evaluation mode or test time. And you don't need to do any scaling of the weights also because it was already done during the training process. 
+
+Dropout to estimate uncertainty Transcript (43:08)
+So here is a very heuristic way to use dropout to understand the uncertainty of a classifier. When we say that the model predicts a probability vector, pw of y given x, and let us say that it predicts 0.9 for a cat and 0.05 for a dog, and then 0.05 for a giraffe, OK? It is how can we check the correctness of this model. 
+
+One way for that you are calculating the error in your homework is that if the model predicts that this is a cat with probability 0.9, then you say that the output of the model is a cat. But this is not necessarily true. It is simply a 90% probability that the model says this is a cat, right? 
+
+So in addition to simply calling the image a cat or not a cat, we would like to know how incorrect the model can be around these predictions. One way to think about this is to ask the model to predict not just the probabilities, but also some error bars around these probabilities, so that you may threshold them later with whatever choice you have. 
+
+So if the model predicts 0.9 and it predicts 0.9 plus minus 0.25, then it is a pretty small probability that the model is correct. So the lower bound will be 0.65, or the upper bound will be 1 in this case. So the model is at least 60%-65% correct, sure that this is a cat. 
+
+And maybe that is not good enough for you for some application and you will say, no, no, no, I don't think the model is predicting a cat in this case. So in order for you to make a decision like this, you want the model to predict not just an output, but also some error bar around that output. You will use this error bar in different ways depending on the application. Such error bars are called uncertainty, just the name again. 
+
+It is how imprecisely the model is making this particular prediction of 0.9. Can you think of a cheap way of calculating this using dropout? What happens when you feed an image to a trained network and still do dropout on it? In some cases, it will give you 0.9. In some cases, it may give you 0.7, some other cases, it may give you 0.99. 
+
+And you will get many such outputs for different masks of the image. So if you do drop out at test time, and you look at the outputs of the model for every one of these dropped out versions of the image, then you get to say that, look, it is not always predicting 0.9. Sometimes it predicts 0.65, sometimes it predicts 0.5, et cetera. 
+
+And the distribution of these outputs will tell you something about the error bar, right? So this is not a correct way to do things. But it is used in many places. It is some notion of uncertainty. So moral of the story, you can use the different masks to get a hacky estimate of the error bar. 
+
+Are the explanations for algorithmic choices in deep learning accurate? Transcript (47:05)
+In deep learning, it is often very important to always, always keep in mind the distinction between what is actually occurring and what you think is occurring. So when I ask you what does dropout do, dropout sets neurons to zero, some of them. 
+
+Now we think this is related to weight decay. We think this is related to avoiding specialization of neurons. We think this is related to bagging, and these are all our ways of understanding it. 
+
+As we saw in the last couple of lectures, they are not precise, right. So the fact that dropout is related to weight decay is only a statement about linear models. The fact that dropout does averaging is, again, only a statement about linear models. The fact that dropout or dropout avoiding specializing of neurons is just a vague statement that no one ever claimed precisely. So it will always help you if you distinguish in your head the difference in what is actually going on and what we think is helping the science of it. 
+
+Oftentimes, the two will be closely connected to each other. But oftentimes, more often than not in deep learning, they'll be very different. So even for something like dropout, there is very big differences. Some other people in the later class, later part of the class will say, oh, dropout does Bayesian averaging. Some other people will say dropout does remove-- implements information bottleneck. 
+
+There's many, many ways of saying the same thing. And they're true in some cases. They're true-- and not true in some other cases. But it is always true that some neurons are being set to zero, OK. 
+
+This will help you avoid, like, maybe like a year from now you don't want to say that dropout does weight decay or drop out-- because you will miss all the other little things that it does in addition to the decay part if you always think in terms of one explanation of [INAUDIBLE]. 
+
+Next one we are going to look at is what is called batch normalization. But before we go to batch normalization, I wanted to show you this picture, which is precisely making the point that I just made. So some people say that dropout does weight decay. Some other people say that dropout does a Bayesian averaging. 
+
+Some other people say that dropout prevents-- inhibits neurons and prevents them from being similar to each. Some other people say that dropout implements information bottleneck, and there is many, many other things like this, OK. What it actually does is still up for debate. These are all slightly different ways of thinking about it. 
+
+This is a when you teach deep learning or when you give talks about deep learning like I sometimes do, this is a very useful picture to have. I can use this picture for every single topic, not just for one. So dropout, batch normalization, SGD, everything I can give-- or even neural networks themselves, I can give names to all these different people as to what they are trying to understand and how weak it is as compared to the whole that they're trying to understand. Good one to have found. 

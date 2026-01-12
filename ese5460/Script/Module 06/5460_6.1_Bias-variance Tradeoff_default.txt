@@ -1,0 +1,317 @@
+Bayes optimal mode Transcript (00:00)
+Cool. So in this chapter, we'll be looking at something called as regularization, which is a very important technique to train neural networks and make them do well on test data. Until now, [INAUDIBLE] looking at gradient descent, which is simply a way to train the network. 
+
+It may or may not predict well on test data, depending on how you train. And this chapter will help us understand when it does, when it doesn't. OK? We'll start with something called as the bias-variance decomposition. And here is how it goes. 
+
+So there's a little bit of math here. It is not complicated. But if you follow with me, you'll try to follow with me a little more closely. Our data set is a bunch of samples, xi and yi. X are the images. yi are the groundwork image, OK? 
+
+When we say that we fit our model, what we're really finding is a function. Given a test image x and the weights that you have found from your training process, it makes a prediction. It creates a vector y hat, right? 
+
+And when we take the maximum of arg max of y hat, we get the class that the model has predicted. OK? Or you can the soft max and take the max as the same thing. 
+
+So this is the model that we fed the stuff that is predicted by the network. x is a test datum that is not a part of our training data set, OK? I'll write that this little f belongs to this calligraphic f. It is not important. 
+
+What it means for something to be some class of models, think of some functions, polynomials. When you do polynomial regression, you pick fifth-order polynomials. So f is the set of all possible fifth-order polynomials. 
+
+And at the end of your training process, you are getting-- you're selecting one particular polynomial of degree 5. Right? In the previous chapters, we talked about how to select this polynomial by gradient descent. In this chapter, we'll talk about when this polynomial will work well for test data. OK? Cool. 
+
+The loss that we saw, the regression loss, is this. Is your prediction f of x? Allow me to ignore the w because otherwise it becomes too cumbersome. Is f of x minus y whole square [INAUDIBLE] regression loss. 
+
+So when we say that we want to achieve a good regression loss on the training data set, this is the quantity that we are minimizing, the average regression loss of all the samples. Because we'll be using it so often, let us give it a name. It is called R hat of f. 
+
+Any particular choice of weights give me one predictor, f of x comma w. Every particular predictor f has some training loss, R hat. OK? So R hat of f is the training loss of f. f is our network with some weights. 
+
+OK? People in theoretical machine learning also called this empirical risk. It is just a different name for the training loss. Of course, this is not the context that we want to minimize. We want to minimize the test loss, right? We want to make correct predictions at test time. 
+
+We don't want to make correct predictions at one particular test time. You want to make correct predictions at this time on average. So if I give you 100 test images, I will check how many of them you predict correctly. And that is how I will say that you are good or bad, OK? 
+
+The test loss in this case, notice that we are doing regression. We are not doing classification anymore, but allow me to talk in terms of regression because that is easy. The test loss is simply the regression error again but on many samples that I draw from nature's probability distribution. 
+
+Nature's [INAUDIBLE]. The data set that we have of n samples is a sample from this distribution. So at test time, I draw many, many more samples that were presumably not a part of the training data set. And I average the loss over all these samples over multiple x's and multiple y's corresponding those x's. Make sense so far? 
+
+This is something called as a test loss. Just like we have a training loss, which is the average of the training samples, this is a test loss, which is the average over test samples, except that, of course, you don't know P. So it's not as if you can calculate this quantity. 
+
+You can calculate this quantity if someone has given you a data set that you did not use for training. In that case, you can also write this as the average of the test samples, unseen samples. You did this in the homework. You called it the validation loss. 
+
+We'll give it a name. This will be R of f, the test loss. Other people also call this the test risk. Sometimes, people will also call this the population risk. It's an old word that comes from statistics. 
+
+They call it the population risk because it is across the entire population. And this is over the samples that you choose, OK? So this is called the empirical risk. OK? 
+
+When we say that we want to do good machine learning, what do we want? We want R hat of f to be similar to R of f, or in particular we want R of f to be small. Makes sense? We want predictions to be good at test time. 
+
+We really don't care what R of f is. We want R of f to be very small, OK? Let me do a very hacky derivation. Do people notice what has happened here? 
+
+I have a joint distribution, P of x comma y. I rewrote it as P of y given x times P of x. And I wrote this P of x as an expectation on the outside for over x. OK? And that is why the two are identical. 
+
+I am writing it down like this to convince you that it is an average over the test samples, every possible output that nature could have assigned to those test samples and the loss that you incur if your model does not predict nature's selected output. OK? So P of y given x is what nature chooses the output to be. 
+
+Suppose we fix one particular sample, OK? Fix one x. How can we minimize this over f? What is the best model that minimizes this for one particular x? 
+
+You don't really know the answer to this because this is differentiating a quantity that is a function. So f is a function, but imagine that it is not a function if it's just some vector. And in that case, you can take the derivative of the center object, d over df of f of x minus y whole square. 
+
+What is this? OK. So let's not worry about the fact that f is a function. We just move the derivative inside the integral. And you will get what? You'll get that. 
+
+OK? Makes sense. I will move f of x P of y given x dy to the other side. And I'll have f of x P of y given x dy is integral of y times P of y given x dy. Does f of x depend on y? 
+
+This is simply the prediction of our model. The model doesn't know what the true label is at test time. So f of x obviously doesn't depend on y. If I take P of y given x and integrate it over y, what do I get? 
+
+1. This is a legitimate probability distribution. So I get f of x equals-- do people recognize this? What? It is a conditional expectation of y given x. OK? 
+
+It's the definition of the conditional expression of y given x. OK? So this is a very, very hacky derivation because you're not allowed to differentiate left, right, and center like this when you have functions. But let's not worry about it for now. And let's focus on the fact that the true function that you have found, the ideal function that predicts correctly for the test datum x, is the expected value of y given x. 
+
+Can you calculate the right-hand side? No, because you don't know P of y given x. P of y given x is nature's distribution. So you cannot calculate the right-hand side. 
+
+So you cannot calculate f star either, OK? But this is the answer. If you could magically get this answer from someone, then this is the one you would use without even training. OK? For every x, you would calculate the right-hand side. And then there would be no neural network and nothing else. 
+
+Cool? OK. So we know the answer that we want. Now we would like to say that I have a function f that I found out of my training process. How close am I to the answer? OK? 
+
+This is what we are going to do in the next few sections. We will write down the difference between f and f star and understand where the difference between these two things come from. It is very important to realize that f star is something that we cannot calculate. 
+
+f is something that we propose after the training process. At the end of your training process, you have a model. You have f, right? And we are simply checking how good or bad it is. 
+
+Decomposition of the loss Transcript (11:18)
+So f minus y whole squared-- f is your model. y is the label, true label. f minus y whole squared, I can write it down like this by adding and subtracting f-star. This is nothing sophisticated so far. I've just added and subtracted some stuff. 
+
+Now, I can expand out the square. So I'll get f minus f-star whole squared f-star minus y whole squared and 2 times f minus f-star times f-star minus y, OK? We have just expanded out the quadratic here and done nothing more than that, OK? 
+
+Let us now take this expression, and then substitute this into this particular integral, OK? We have an expression for f minus y whole squared. And now, we are going to rewrite this integral in a different form, OK? What am I going to get? I'll get stuff like this. So integral of f minus y whole squared P of y given x dy expected value over x. F really means f of x. 
+
+This, let us call this term A. Let us call this term B. And let us call this times C. And this is equal to expectation over x of A squared. Actually, let's call the entire thing A-- A plus B plus C P of y given x and dy integrated over dy, OK? 
+
+Look at A for a second. So does A depend on y? No. It is the gap between our prediction and the true answer. It doesn't depend on y at all. So when I do A times integral of Py given x dy, what do I get? Just say it? Right. So this is my expected value of x times A. 
+
+This is B, f-star minus y whole squared, which obviously does depend on y, right? So I get this particular expectation, f-star minus y whole squared. In this case, let me actually show it to you. Let us focus on C for a second. 
+
+I can now again rewrite this expectation as an expectation of P of x dx dy, which is equal to f-star minus y whole squared. What is this? This is P of x, y. dx dy. So that gives us this particular expectation, OK? We have done term B. And we have done A. Now, we would like to understand what to do with C. 
+
+So let us write C now. It is the expected value of x 2 times f minus f-star f-star minus y P of y given x dy, OK? Does f minus f-star depend on y? Again, it doesn't. So I can write this as expected value of x. I cannot pull it out of the expectation over x because it does depend on x. But I can pull it out of the integral over y, right? I can say 2 times f minus f-star integral of f-star minus y P of y given x dy. 
+
+Can anyone recognize the value of this integral? So f-star is exactly this equation, right? So if I subtract f-star from y and then integrate it over Py given x, I'll get a 0. So this entire integral is 0. Make sense? f-star is the conditional expectation of y given x So f-star minus y integrated over y given x is 0. So we have shown that the second term integrates to 0 over both x and y in this case. 
+
+Bayes error Transcript (16:58)
+After a tedious but straightforward calculation, the population risk or the test error equals the two terms f star minus y both squared, summed up over-- or integrated over nature's samples, x, comma, y, coming from p. And the first term is all our excess, and how different is the correct answer f star from what we say the answer is, f of x. 
+
+You never touch this term when you train. f star is not something that you ever see when you train. You only see f, right? f star of x is the best answer that we could get. But that may not be equal to nature's answer. Nature picks one y. 
+
+So think of it like this. People are born, and they will grow up to different heights. The height of one person, even if I calculate it, it may not be equal to the distribution of heights. y is the height of one person that nature has chosen. The expected value of y given x is the height of one person in this room that I can create. 
+
+Nature could have randomness in how it creates the labels. Sometimes it sees the result of an experiment, and it says, this is an apple. Some other times, it can say an orange. And it need not be deterministic in how it creates y. If nature creates labels deterministically, then this term is 0. If nature itself has some noise in how it creates labels, then this term can never be 0 because f star, after all, is the average label that nature could have produced. This average label need not be the label that it actually produced. 
+
+It's like the average fruit that is born. But that is not equal to this particular mango. OK, so this has a name. This is called the Bayes error. The Bayes error is something that is nonzero if nature chooses its labels non-deterministically. If nature is a perfectly deterministic organism, or a perfectly deterministic agent when it creates the true labels, then the Bayes error is 0. 
+
+Cool. So, another thing to appreciate is that we cannot do anything about this term. We want to reduce the population risk or the test risk? This is an additive term that comes about because of how the data was created. There is nothing that we can do to reduce it. Can you give me an example of Bayes error that you will see always in your data sets? 
+
+Nature creates these labels y. Who creates our labels, the amnesty measures that you use to label them? Someone labeled them, right? Any data set that you use, someone has labeled it. And when they label it, they will make mistakes, sometimes big ones, sometimes small ones. But they might make mistakes. And that will show up in your life as Bayes error because, for all intents and purposes, they are nature. 
+
+So these last data sets that are created for machine learning will contain a pretty large fraction of mistakes. The one that you will use for your homework 2, about 30 mistakes in that data set. And obviously-- so if a frog is labeled as a horse, then no machine learning model can get it correct. So you will see that the Bayes error of data sets that we use is not necessarily 0. It is not 0 because typically, these data sets are created in the following way. 
+
+So you take one image. You show it to 10 different people. And then if 8 of them say that this is a frog and 2 of them say that it is a horse, then you label it as a frog. But you could have made mistakes. So majority voting is not always correct. And that is why you can get errors. 
+
+If you're doing an actual experiment, let's say of biology or something, then also you can get Bayes error. Or even physics, because stuff that you see the phenomena could be fundamentally stochastic. What if we have some more information about the system that lets us predict these levels better? In that case, the Bayes error would be different. But let us say that we have these images and we have this system, and we don't get to ask nature what it is using to create the labels. 
+
+So Bayes error can be non-zero because of mistakes. Bayes error can be non-zero because you did not record all the observations. You only try to predict [INAUDIBLE] by looking down. Of course, [INAUDIBLE] have their-- there is no way you can have good annotations even for your predictions. It's not that different from you showing images that are very grainy to annotate us, to annotate the images. They will make mistakes, not because they're bad annotators, but because you showed them grainy images. 
+
+Cool. OK, that's the Bayes error. It is the irreducible error, cannot be set to 0 no matter what you do as a machine learning person. So let us not worry about it. 
+
+Bias variance decomposition Transcript (23:06)
+Now we are going to dig deeper one level. And we will say how f was created. f star is the ideal answer that you have on a test datum x. f of x is our answer on the test data x. And now we are going to introduce the training data set into the mix. And we'll see how f star is created. 
+
+So f is fundamentally a quantity that depends on your data set D. You give me a data set, I give you a function f. Now it doesn't matter how I create it. In this class, let's say we have a neural network and we train that neural network. 
+
+And then you give me a test image and I make my prediction, f of x comma D. If you had given me a different data set, I could have found a different f. Consequence is that I could have predicted differently. So f is a function of both the test data and the training data set. And this is very important. 
+
+Instead of remembering the training data set, we remember it as weights. It is our choice to summarize the training data set as a bunch of weights, so that we don't have to search over these functions again and again. But this may sound like a philosophical thing, but it's a very well defined object. The weights that we are learning are, in some sense, the information that our data set has, information that is relevant to us making a prediction on a new image that looks similar to those data sets images. 
+
+So let us write f as x comma D. Now we are going to expand f minus f star of x. I will again do the same trick, but I'll add and subtract a quantity that does not depend on D. So expected value over D of f of x comma D does not depend on D for the same reason that he said. 
+
+What is this quantity, really? I take 100 data sets. I fit 100 functions. And I predict the average of all those functions for my test datum x. 
+
+The data set in this identity is fundamentally thought of as a random variable because nature has a probability distribution. Every time I get a data set, I get a draw from this distribution. So the data set is also a random variable. x is also a random variable because that is the test datum. 
+
+So I'll add and subtract the same quantity. Again, play the same game. We will expand the quadratic. So you get f minus the expectation over D of f, all squared. Expectation of D minus f star, all squared, which is this term here. And then you get the cross terms, 2 times f minus expectation over D times expectation of D minus f star, this on. 
+
+Until now, we have done nothing spectacular. And now we are going to again take an expectation over this. When you say that I have a good model for this data set, it is only reasonable that no matter what data set I give you, you me good models. If you are good at learning, you are not good at learning this one data set that is called a hash function. But if I give you a slightly different data set, you should be able to give me a function that is not that different from the old function. 
+
+Does this make sense? So we are now going to take this quantity and ask ourselves how different would f of x comma D be over different D's. It is certainly different over different x's. But that, we'll average later. For now, we'll average over D. 
+
+f star of x does not depend on D. Because f star of x is the true answer. It doesn't depend on what data set was given to me. 
+
+So now you have an equation. You take the expected value over D on both sides of the equation. This is the expected value over D of the left-hand side. And now let us do the expected value over D of this particular right-hand side. 
+
+Does this quantity depend on D? No, f star doesn't depend on D. So this entire thing doesn't depend on D. So when I do an expected value over D, What do I get? 
+
+0? Just the same quantity, not zero, right? I get exactly this quantity squared. So that it is equal to this second term here. Cool? 
+
+If I take an expected value over D of this term, what do I get? I have some stuff. I have the mean of that stuff. And now I'm taking another average over that stuff. This is the variance. 
+
+This quantity is the mean of f of x comma D over D. So I get a variance. The variance is no longer a function of capital D anymore. It is a function only of x. Now I get this particular term, f minus expectation over D all squared averaged over D. 
+
+If I take the expected value over D of this particular term, what do I get? 
+
+Why? In this case I do get a 0, but why? 
+
+[INAUDIBLE] 
+
+The first term, its expected value is 0. This is the mean. And this is the variable over which we're going to take an expectation. 
+
+This term does not depend on D. So it comes out of the expectation over D. So both of these things cause this product to go to 0 when I take the expected value over D. Cool, so this term again dies. And now we are left with these two terms. 
+
+So what have we done? We have asked ourselves, how different, on average, my function, after the training process, is, compared to f star, the loss, or the gap between them? And this is the left hand side that I wanted. 
+
+I wrote it down as a sum of two terms. The first one is what is called bias. It is called the bias because it is the average distance of our learned function from the true answer. 
+
+f star is the true answer. That is the one we want. The first term tells us how far away we are from it. When you take the square or the entire thing, that is called the bias. 
+
+The second term does not depend on f star. The second term says if I give you two data sets, how differently do you predict on them? Or, how different are the functions if you learn from these two data sets? It is the variance of the function we find after two training runs. 
+
+If you get a data set that is very large, then this term, we would expect it to be similar to this term. Then you would get stable answers. The difference of the function learned on two very large data sets is expected to be small. 
+
+If I give you a very small data set, then this difference will be large. Because I gave you eight apples and two oranges. Next time, I gave you seven apples and three oranges. These are quite different because I'm only giving you 10 images. But if I give you 1 million images, then the difference between them seems very small. 
+
+So this is the difference in what we learn across different training runs, or across different training data sets, to be specific. This is the difference in what we learn and what we should have learned. 
+
+ 
+
+Interpreting the bias variance decomposition Transcript (32:04)
+The best risk that we wrote down, R of f-- R of f, we had written it down as some of the base error-- the stuff that cannot be decreased anymore-- and the gap between f and f star. In the second page, we took this gap between f and star and rewrote it as a sum of another two terms, the bias and the variance, by looking at the data set that we are being given. 
+
+So effectively, we've taken that test loss and written it down as the sum of three different terms. It is exactly this. The test loss equals the base error plus the bias squared plus variance. There was an expectation of x that we have been floating around since before, right? This is the expectation over x here. v only expanded this quadratic here. This entire thing is a function of x, just like this entire thing is a function of x. It is not a function of v anymore. 
+
+So the expectation of x is floating around, and that comes here. So the point of doing all this exercise is to convince you that the performance of our model on test data comes from three different things. The first one is the base error that we cannot do anything about. 
+
+The second one is-- let's see. The second one is the bias, which is how far we are from the true answer, f star. The third one is the variance, which is how insensitive we are to the exact data set that we got. How different would your answer be if I'd given you a slightly-different data set? That is what the variance is. 
+
+How different your answer is from the true answer, that is what your bias is. It's like the same student taking the exam multiple times. This is the variance of their scores. This is the actual score that they get on average. 
+
+So now it is important to realize-- so we said that if I have few samples, if I give you a very small data set, then you are very sensitive to what I gave you inside this data set. That will give you a large variance. So when will bias be large? Bad training, where you just train badly and, no matter what data set I give, you always get bad answers. 
+
+Another reason? Overfitting, OK, so a similar answer. If I have my through data being created by a 10th-degree polynomial and I fit a quadratic to this data, no matter what data set you give me, I will always make mistakes, right? If you did not study one particular chapter for an exam, there is no way you can get correct answers on the questions from that chapter. 
+
+So you will get a bad bias when you have a small model, when the model is too small to be able to do correctly, to be able to predict correctly. The correct model, f star, is more complicated than your model and you are always fitting small models, it doesn't matter what the data set you get, you always have a bias. 
+
+So, roughly speaking, bias is a quantity that determines how close you are to the true model. So if you have a 10th-order polynomial that you're fitting to fifth-degree data, depending on what samples I get, your polynomial may jitter a lot. The jittering of the polynomial, that is a function of exactly what samples you've written the polynomial on, is the variance. If I move my one sample a tiny bit and my polynomial changes a lot, that is literally the variance. 
+
+If you want a mnemonic to remember, you can think like this. So we want both low bias and low variance because we want the entire left-hand side to be small. Base error, we cannot do anything about. 
+
+So in two coordinates, you want to be both near the origin on bias and near the origin on variance. Bias fundamentally is how far you are from the origin, is f star. Variance is how different you are at different points you try on different training runs. 
+
+So if you imagine the training process as, like, shooting darts at the bullseye, if every time you shoot, you have a large spread but you're essentially around the center, then that's variance. That's not bias-- very intuitively also. If you're always off, this is what will happen if, let's say-- I don't know-- I hold your hand back systematically, let's say. This is what happens to most of us. This is what happens to even more of us. 
+
+You're systematically off because maybe you are, like, closing one eye a little bit worse or standing incorrectly. And then you have a variance, of course. So in practice, this is what you will see from all the models also. There will be non-zero bias and non-zero variance. Our goal is to reduce both of them to 0 and to go from this to this. OK. 
+
+Bias variance trade-off Transcript (37:40)
+One way to think about bias is as follows. I can write down on the x-axis something called as model complexity. Let us not worry about what it is right now. Just imagine that simple models, so polynomials of degree 3, lie on the left-hand side. More complicated models, polynomials of degree 100, lie on the right-hand side. As you can appreciate, the true model is somewhere. The true model is somewhere on this x-axis. 
+
+As I keep increasing the complexity of models that I am fitting, my bias should go down because if I fit a 15 degree polynomial, it has a 10 degree polynomial inside the set. So if 10th degree polynomial was the correct answer, I would find it. Makes sense? So bias goes down as you increase the complexity of the models that you're fitting. 
+
+Variance goes up as you increase the complexity of the models that are fitting. For a fixed data set, if I gave you 100 samples in the data set, if you keep on fitting more and more complicated models, then you don't know-- you don't have enough constraints on the parameters of those models. Every datum is one constraint that tells you the parameter should be so and so to create the output so and so. 
+
+If I give you the same number of samples for all these experiments and I start fitting more and more complicated models, then I expect a larger variance. So let's give you a data set, and let's say these are the four points I am fitting. I'm doing regression, polynomial regression. I can fit a model that looks like this. I can also fit a model that looks like this. 
+
+One of these models is very sensitive to what exactly the point I give you. If I give you this point versus some other point here, the wiggly model, which is presumably a higher order polynomial, will have a huge difference in how it makes predictions. So when I integrate its deviation from the other model, the one with this data set, I will get a large error. So variance, at the end of the day, is how much the function changes when I give you a slightly different sample. 
+
+If I fit a line-- if I fit exactly a horizontal line to this data, what will be the variance? 
+
+[INAUDIBLE] 
+
+Zero. If I don't even look at the data before fitting the model, then obviously the model doesn't change when I give you a slightly different data. So the variance is zero. Make sense? 
+
+I can fit a very complicated model like this. I can fit a model that is exactly 1, 2, 3, 4. It is not even a continuous function. This is still a model. It's a bad model. It is the very first model we created in the first lecture where we wrote down the inputs and the outputs in a table and said, this is our machine learning model, and these are the four points of that table. 
+
+If I give you a slightly different data point, obviously the model will change enormously. So the variance will be large. So variance of large models is large because they are very sensitive to what data set they use. Make sense? 
+
+So variance has to go up as I fit more and more complicated models. This is a little vague at this point. These things are precise for linear regression, but for general machine learning models, you have to think a little more carefully about how you talk about these quantities. So let us not worry about what that thinking carefully is. Let us look at the concept first. 
+
+If bias goes down and variance goes up like this, the sum of bias squared and variance has to have a little u like this. Make sense? So this is called the bias-variance tradeoff. If you fit small models to your data, then you get a large bias. If you fit very large models to your data, then you get a large variance. 
+
+Another way of thinking about large variance is the curse of dimensionality. If you have a large model, I need to give you lots of samples to fit. If I give you a few samples, then you get large variance. So you cannot beat these two, the tradeoff. The best way to beat them is to be at some point which minimizes their sum. 
+
+The sum of these two quantities plus the base error is exactly the test error. So if you want to minimize the test error, you want to find a point which is the minimum of bias squared and variance, not their individual minimum because the individual minimums are at different places. 
+
+So this is probably the most fundamental idea to understand in machine learning. We want large models because we want to reduce the bias. But if you want large models, then you need lots of samples. So you cannot get the best of both bias and variance. You have to live at some place where both of them together are small and hope that that is good enough with respect to your application. OK? 
+
+Double descent Transcript (43:23)
+The funny thing is that when people try to bias-variance trade-off is a very old concept, so maybe 200-year-old in statistics literature. When people try to search for such trade-offs in deep learning, they noticed that you don't really see them, which is very weird because it is-- we could derive it in a class so easily and yet deep networks do not have a bias-variance trade-off in this specific sense. 
+
+So I take one data set-- you can also do this experiment at home. You take your [? MNIST ?] data set. You start increasing the size of the model that you're fitting. So take your neural network-- the one that you used, let's say, in homework 2-- start increasing the width of the layers or start adding a few more layers. So you'll get many models of larger and larger complexity. This is not exactly complexity again, but it is definitely larger model so for sure it lies somewhere on the right hand side if you have a large number of neurons in each layer. 
+
+What you'll typically see is that the test error-- the population risk, as written in this picture-- it decreases just like this particular picture. As you start making the model more and more complicated, the test error decreases and then it goes up. And that is why we pick something in the middle. 
+
+So that thing happens just fine for neural networks. It decreases and then it increases. But after a specific threshold or a regime, it starts decreasing again. And it decreases essentially ad infinitum. This is very funny because in our derivation with the linear regression, we never saw anything like this. Variance increases ad infinitum because as you fit more and more complicated models, they become more and more sensitive to the data set that we have. 
+
+Somehow when you calculate this experiment-- and this is not a precise experiment in the sense that we don't know the bias of the network, but we do know the variance. We do know that the test error should go up as I fit more complicated models, that much is true even-- that much should be [INAUDIBLE] formula. In practice, the test error doesn't go up. It goes up and then it decreases also after a threshold. 
+
+Now, this is called a-- people gave it a name. It is called double-descent phenomenon because your test error decreases twice as you increase the complexity of models. And there is many, many papers over the last three, four years trying to study why this happens because it is so unusual. It really shouldn't happen like this, but-- so people are trying to argue when it happens, when it shouldn't happen, or why it happens, including people like me. So the current understanding is that the-- this part of the curve-- the fact that it increases-- is more of a statistical anomaly than anything meaningful. What happens is if I take-- to give you a simple example-- let's say if I take a quadratic polynomial-- a perfect quadratic polynomial, let's say y equal to x squared plus 5, and I give you a few points on this parabola, now if I give you an extra point that is a tiny bit away from this, then suddenly you will change the polynomial a lot. 
+
+If I give you points perfectly on a quadratic, then you get the quadratic perfectly-- the true model. But if I give you one point that is a tiny bit away from them because of noise, the entire polynomial now has to change a lot. There is no such thing as outlier rejection when you fit a model. 
+
+So this little point here causes this variance to blow up. The tiny, tiny discrepancy that happens exactly when you have all the points perfectly matching the model and maybe a few points that are a little bit misaligned with the model. That is what causes the variance to blow up. So, in a sense, this is not very important because usually you will have points that where-- [INAUDIBLE] where many points do not match the true model. One or two points not matching is a little bit rare. 
+
+So the fact that the test error increases is-- people have done some calculations also with it now and it is not that interesting. It is surprising because we did not know about it before but now we understand that it is not important. What is more important is the fact that your test error keeps on decreasing as you fit more and more complicated models. 
+
+All this while in the last seven, eight lectures we have been saying that, look, you need to pick a model after write complexity. If you fit a very large model then you need a lot of samples. If you don't give me too many samples, you get a large variance. For neural networks, at least in these experiments, you-- it doesn't seem to be the case. Can you guess why? 
+
+So we are all fairly new to deep learning here in this course. So you don't have to be very cautious or humble when you point mistakes in these kinds of plots. The biggest mistake lies in the x-axis. So when we say capacity of H, people usually say that the number of parameters of the model is what I plot on the x-axis. 
+
+So this plot, in many, many papers, you will see it being plotted with a residual network with 1 million parameters, a residual network with 2 million parameters, a residual network with 10 million parameters. Obviously, the number of parameters is not the same as the complexity of the function that you are fitting. Surely the complexity of the function is a more nontrivial measure of the complexity of what you are predicting than just the number of parameters. So what this plots-- the fact that this plot is not consistent with our bias-variance trade-off is simply saying that we do not know what to write on the x-axis. If we found out the right quantity to write on the x-axis, then you will not get such a double-descent curve. 
+
+Double descent: The number of parameters may not accurately represent model capacity Transcript (50:33)
+My x goes to y. And let us say that I'm predicting a 10 dimensional y and a 25 dimensional x. So every data point, xi, yi in my data set is really 25 times 10 numbers. And this is the number of constraints that I impose on my function that I fit. So using these kinds of stuff, depending on how the function in here is created, in that case, they use something as random Fourier feature model. They can say that this blow up will happen at so-and-so number of parameters. 
+
+All of this is true. There is nothing wrong in those experiments. The point is that the number of parameters is not equivalent, or somehow it doesn't seem to be the correct way to measure the complexity of these functions. If I have a huge number of parameters, if I fit a 50th degree in a polynomial-- and actually, we will have an entire lecture on this concept later, but maybe I can give you a sneak preview. Let's do an example. 
+
+So I give you lots of data from the region between 0 and 1. And this function looks fairly simple. It could even be quadratic. 
+
+You don't know this, of course. You just have access to this data. And you fit a polynomial of degree 100 to this data. How well your function look? 
+
+It will look like this, maybe a little wiggle here. And outside, it can do crazy things. But in the region where I give you lots of data, there is nothing else that you can fit. Because the data is coming from some clean model like this. And even if you fit a 58 degree polynomial to this, the deviations that you make from my data are not going to be too many. So the reason having large models still gives you a small variance is because I measure the variance in only a small subset of the domain. 
+
+Think about it like this. I give you images of very trivial dogs, the stuff that is so obviously a dog that you don't even need to think about it. And I give you lots and lots of such images. And you realize the fact that a dog always has like a little label associated and a little collar around its neck. And you start saying that all things that have collar are dogs. You would be wrong in using this feature to make the predictions. But if I never test you on anything else, you will never make mistakes. 
+
+This is a very basic example, but this is the kind of theory that I personally am trying to build, that says the questions we ask to the model, the variance over which the variance comes from some kind of data sets. These data sets are not that diverse. If I ask a question about one very specific kind of data sets, let's say between 0 and 1, so long as I give you enough data from that regime, you can fit whatever function you want. It can be horrendous outside the domain, but [INAUDIBLE] we don't care. 
+
+And in this case, the number of parameters now is not a correct notion of how complicated the function is anymore. Because within this domain, the function is quite simple. So the X-axis, we would like to replace by some other thing than the number of parameters. And then we can basically resolve this surprise or double descent. 
+
+I wanted to tell you this, not because bias variance tradeoff is wrong. There are many papers written about the fact that the bias variance tradeoff doesn't exist anymore. But all of that is bullshit. Bias variance tradeoff is obviously a real thing. What we don't understand is how to use it. 
+
+Cross-Validation Transcript (54:52)
+So let's do a simple way of thinking of using the bias variance trade off for quantities like this to estimate a test error. All of you know one specific quantity-- the cross-validation error. Why do we do cross-validation? 
+
+To summarize your answer, you have a training data set. You take a few samples that are disjoint from your training data set, and we call it the validation set. If I train a model using my training data set and then evaluate its error on the validation data set, what am I really estimating among bias and variance? The variance. 
+
+I take a new data set. I ask myself, how different are the predictions on the test data set as compared to my new data set? And I get some notion of what the variance of the model is. But that is just a small comment. 
+
+What he talked about was k-fold cross validation. Typically, the way you should work and everyone should work is you take your data set-- let's say that your data set has 400 samples, or your training data set has 400 samples. You would like to select a particular model for these 400 samples. That is what it means to train. 
+
+You would like to say, check whether this particular value of learning rate is a good value to use, or this particular value of dropout is a good value to use, so on and so forth. There are many such parameters that we use, batch size being another one that you already are familiar with. 
+
+What you will do is take these 400 samples and split them so in four data sets. The first one, these first 100 samples, you call it your validation data. These 300 samples, you call it your training data. In the next fold, these 100 samples are your validation data, and these 300 samples are your training data. You train a model on the training data, evaluate its error on the validation data that it has never seen before training, and you get one number. So after you do this, you will say, my model works with accuracy 70% on this data set. 
+
+Next thing, you run the entire-- you run with the same learning rate that you used here on the second fold. And you say, my model got 72% accuracy on this particular 100 samples. And let's do this like this. 
+
+So maybe here, you get 68, and then just to make the averages easy, I'll do 70% on the fourth row. Now, when someone asks you, should you pick learning rate of 0.1 versus learning rate of 0.2, you will run these four experiments with learning rate of 0.1, you will run another four experiments with learning rate of 0.2, and then you will pick the one with the best average. 
+
+You could have done this in another way, like you did in the homework. In the homework you said, I have a fixed training data set, a fixed validation data set, and I simply report the error of the validation data set. The concept of cross-validation is a way of choosing the parameters that we use to train the model with. So hyperparameters of the model-- learning rate, batch size, and many others that you will learn in a bit. 
+
+Choosing between different types of hyperparameters involves you measuring or creating these folds instead of having a separate validation data set because, in that case, you would need a lot more samples. We have only 400 samples, and out of these 400 samples, we have to cook up a training data set and a validation data set to select between these different values of learning rate. 
+
+The way we create these data sets is by interleaving like this. We split the data set into four folds, and that way, every sample in the data set is someone's validation sample. Makes sense? This is called k-fold cross validation when it is used to select hyperparameters. But fundamentally, it is a very clever way of taking these 400 samples and creating many validation data and treating every sample inside this data set as a validation sample. It is just validation for some model that did not see it before. 
+
+And just to clarify, you could have done this differently. You could have said that I have 200 samples that are my training and 200 samples that are my validation samples. And then you would be able to run only one experiment. You would never know what the test error on these samples is of a model that was not trained on them because you demarcated that you are always going to use this for training. 
+
+Cross-validation is a much better way of using all your data because it does this multiple shuffling. It is much more expensive because to choose between two learning rates-- in this case, if I wanted to ask you, is learning rate of 0.1 better or learning rate of 0.2 better, you would run two experiments. You would train on these 200 samples, evaluate the model on these 200 validation samples. The second experiment, you would do the same with a slightly different learning rate. So you run two experiments. 
+
+In this case, how many experiments do you run? Eight experiments. So obviously this is much more expensive, but you're going to get a much better answer because we are using every sample to do the validation. 
+
+ 
+
+Practical tips from the bias-variance trade-off Transcript (01:00:55)
+Let me put the number of training samples on the X-axis. And let us say that I train my model many, many times, once with these many samples and other times with these many samples, another time with these many samples. And I got a curve of this kind, OK? 
+
+How can I improve this curve over here? I don't like the fact that the error is this-- or let us do it like this. Let us say that I got a curve of this kind. I don't like the fact that the error is so large here. What should I do? 
+
+Should I train a bigger model or should I get more samples? Obviously get more samples, because then I'd be here. Let us say I cannot get more samples. What should I do? If I'm forced to use only these many samples, probably it would decrease the bias, right? I'm sorry, probably it will decrease the variance, right? 
+
+If I fit a smaller model, and I decrease the variance. If even after many, many samples, I still get a large error-- I want a smaller error-- what should I do? Yeah, so decrease the bias. If with many samples I'm still getting a large error, then I think then maybe my variance is as small as it can get, I need to fit a more complicated model because I'm not capturing something more important about the true function f start. 
+
+So if I fit a larger model, I expect this curve to come down, OK? So this is how you use the bias variance trade-off. You never actually use it exactly. You just use it as some weak heuristic to make choices. 

@@ -1,0 +1,103 @@
+Sampling mini-batches for RNN training Transcript (00:00)
+Let's talk about mini-batching. It's simple, but it is important. We said that our data set consists of n sequences. Each sequence is of some length capital T, right? 
+
+So I can think of my data set as a matrix of T columns and n the rows. So every row of this matrix is a different sentence. And every column is one of the words of that sentence. If you have long sentences, let's say that we simply chop them up into at most length T. 
+
+The first mini-batch-- let's say that we sample here. This mini-batch takes in these few sentences and these few time steps. Let's say that the length of the mini-batch in time is 25. Now, I'm saying these things because capital T is the largest length of the-- or is the smallest length of a sentence in a book. And that could be, let's say, 50. You know that you should not use such large sentences in your RN because that will lead to gradient vanishing interval, anyway. So the first word will not determine what the last output is, anyway. So we might as well use a slightly smaller mini-batch. 
+
+So the effective T for our RNN-- let us set it to something like 25. So you will choose the first 25 words out of however big your sentences are and pick a few sentences as your mini-batch. What is the hidden state initialized to in this case? You can initialize it to zeros or you can initialize it to random noise. That's fine. 
+
+Now, after I do the forward pass on this mini-batch, I get the hidden state at this particular location as well as the last hidden state of my RNN, right? So what happens in recurrent models is that people will immediately sample this as the next mini-batch so that they can initialize the hidden state for this mini-batch to be exactly the last hidden state of the previous mini-batch. Make sense? 
+
+So they slide the mini-batch across the data set. Instead of sampling the mini-batch-- you could have sampled a different mini-batch here. But then you wouldn't know what to initialize a hidden state with. You could still initialize the hidden state to zero, and you could make some predictions. But clearly, this particular word in your data set has information that correlates with many other words in the past. So initializing the hidden state at this point, to zero, is undercutting your model. 
+
+So when you train-- is this clear to everyone? When you train an RNN, you take a mini batch or you sample mini-batches by sweeping them like this. Next one you will sample is-- so you do-- this is your first one. This is your second one. This is the third one. Next one, if you sample it here, you again set the initial state edge to be 0 or random noise. And then you slide forwards like this. 
+
+Why do we do this? We do this because this way we can preserve the hidden state of the previous mini-batch and use it to initialize the hidden state of the next mini-batch. In the homework, you are going to write code to predict the next character of this book called War and Peace. Now, you will see implementing an RNN by yourself is actually quite nontrivial. That is why I've linked a piece of code in the PyTorch examples repository. 
+
+So what I want you to do is understand this chapter carefully. Go and read that code very carefully. And you will see that it does a lot of complicated things. You will be able to design your code for the character prediction using the code in the PyTorch examples that I've linked. You will see this kind of mini-batching happening. You will see initialization of the RNN happening, et cetera, et cetera. Good? 
+
+Gated recurrent units (GRU) Transcript (04:24)
+All right, the next model. So the next one we are going to look at is embellishment of RNNs. And as you can appreciate, the innovations in the world of RNNs, really, the one key thing that they innovate upon is the ability to remember long sequences. This is the key problem with RNNs, so everything that is an innovation, we will try to attack this problem. 
+
+LSTMs are actually very old models, so roughly speaking, they are older than all of us in this room, and they are also the only neural network that has continued to work very successfully all through the last 30 years or so. The non-neural network people did not know it so much, but this is the model that was running-- translation and these kind of things-- even in the '90s, not just now. 
+
+A very simple version of an LSTM. It has a very funny name, and it's not really important why the name is like this. The assigned reading of this lecture is this paper, and you will see that it is a little bit crazy in how it is written. That is why I have shown it to you. You don't need to read it and understand everything that is written there. 
+
+A simpler version is something called as a gated recurrent unit. And a gated recurrent unit does a very simple operation. This is the operation inside our recurrent model. You have the previous hidden state, the current input, multiplied by the weights to get the next hidden state. 
+
+Now, as we said, this operation is problematic if you chain many of them across time. So what do you do? You basically create some kind of shortcut across time that allows information to pass, to jump across time steps so that the back-propagation gradient also has a shortcut path to come back. This is the key trick in all these models. 
+
+A GRU has two extra variables. One of them is called a reset variable, and a second one, called z, is called a zero variable. And here is how they work. 
+
+So it's ht plus 1 in an RNN was given by simply this. ht plus 1 in a group is given by a convex combination of ht and all the stuff that we had before. And let us see how it works. 
+
+So if z is equal to 0, then this is equal to the forward path, in some sense. If z is equal to 1, then it simply copies the last state in time ht as the current state in time. So this is the shortcut. 
+
+When z is 1, you get to use the shortcut. When z is 0, you don't get to use the shortcut. So this is why it is called gated recurrence. The z acts as a gate. 
+
+It does one more thing. It believes that the h that you have, sometimes, you may not want to use the h sufficient statistic to propagate forwards. And let's say, especially across sentences, you can imagine that a sufficient statistic is quite different. I talk about one concept in one sentence. In the next sentence, I talk about a slightly different concept. 
+
+So when the RNN goes across sentences, it may be useful to initialize the hidden state separately. Now, for this purpose, a GRU sets something called as a "reset gate." A "reset gate" is another learned function, just like the zero gate is a learned function of the inputs. We'll come to them in a bit. 
+
+But the reset gate, when it is 0, it simply does not use the current hidden state, and it is as if the current hidden state is 0. So it is literally resetting the hidden state if it doesn't want to use it. Now, one thing that is very important to understanding all this business is that we implement this computation in the network. How the network uses it is not in our control because both of these variables, Z and R, are learned functions of the inputs and the hidden state. And so these are now all extra parameters, and the network can have them to be something quite different. 
+
+They are both sigmoids, so we encourage them to be close to 0 or close to 1. But the network can choose whatever values it wants in between also. So we imagine that there is some shortcut business happening, or some resetting happening, when we write down an equation like this. But the reality of when you implement it is that it is somewhere in between. It is neither forgetting fully nor resetting fully, and in some cases, maybe, it is resetting a lot. In some cases, maybe, it is not resetting enough because these are simply learned things. 
+
+OK, now, after you train the network, and if you check these variables, and they do look like 1s, then you get to say that, OK, a reset happened at so-and-so location. And you can actually do this experiment yourself. You can train a group on the same data set that you have for the homework and check if there a reset gate is being used at the end of sentences, or check if the zero gate is being used for long words. 
+
+In the character prediction, long words will presumably want some shortcuts. So you can check these things. They are typically not very easy to validate, but this is our hope. 
+
+I am saying all this because in deep learning, you will often see people writing down equations that are desires and hopes, but they don't really check whether the network does what they hoped for. And as a good scientist, you should check, if you really believe that 0 is giving you a shortcut or R is causing a reset, then after turning them on, you can go and check them. 
+
+But this is a GRU. A GRU is a gated recurrent unit, and it gives two things to an RNN. It gives the ability to jump across time using the zero gate. It gives the ability to reset the hidden state occasionally using R. 
+
+ 
+
+Long short-term memory (LSTMs) Transcript (11:23)
+So let's talk about LSTMs. As I said, LSTMs have been pretty impactful models, probably the only neural network that has been working essentially unchanged for such a long period of time. But they're a complete mess. So here is how they work. We wrote down the-- let me write down a GRU. 
+
+Times damage times w1 times rt plus 1 times ht plus w2 times ht. OK. This is a convex combination of z and 1 minus z. OK. In an LSTM, these are two different things. So there is something called as an F gate and an input gate. And so just like you have z and 1 minus z here, you can think of f being z and i being 1 minus z. 
+
+Someone said that let us not have them coupled together like this but we have two different gates. One of them is called a forget gate. This one is called the input gate. Whatever we compute on the right hand side here we immediately assign it to ht plus 1. An LSTM actually has another output gate that takes in whatever we calculate here and then multiplies it element-wise. So all these little dot circles mean element-wise multiplication. So this is another vector that gets to play a role in how the output is created. 
+
+So an LSTM is different from an RNN in that it has three different gates. The first one is called a forget gate, which, conceptually, does the same job as passing the hidden state along as a shortcut. The second one is called an input gate, which does a very similar job as not passing the hidden state along, so z being equal to 1 except that i and f are two totally independent functions of the hidden state and the input. OK. 
+
+So the input gate, forget gate, and the output gate-- output vector are all learned functions in an LSTM. As you can see, it is a much more complicated model than a GRU. A GRU is a simplified version of an LSTM. So the GRU paper literally began by saying an LSTM is too complicated. Let me set this to zero. Let me set this to 1 minus z. And then I will use an r here instead of an o here. OK? 
+
+I see disbelief there. But so there is some historical reason for how the LSTM was constructed. So there's a professor called Jurgen Schmidhuber in Switzerland. And he created this model. And so in his mind, he wanted to build something that looks a little bit like the transistors in a computer where you have a gate for a transistor that sets the transistor on or off, et cetera. And together these transistors compute some function. So you will see at the beginning of the LSTM paper that there is a lot of motivation coming from such a computation. And these gates or these variables are designed to somehow-- are influenced by how a circuit works. 
+
+Now, again, like just because we implement this function inside a neural network doesn't mean that the neural network does computations that look like the transistors. OK. It is some function. It looks like a pretty complicated function. But it does work. So an LSTM is a very good model for long temporal sequences for the same reason that GRU also works. It gets to jump across time. It gets to reset things when necessary, et cetera, et cetera. OK. So LSTM should be like 1987 or so, the original paper. GRU is sometime around 2014 or 2015. 
+
+We could have talked about why the LSTM is built like this but it wouldn't be any different from a storybook. So an LSTM is this. It works fairly well. There choose some theme to why it is like this. And a GRU is actually a much better way of understanding why the LSTM works. In general, if you have a problem that you cannot solve with an RNN, you should first try to solve it with a GRU. If you cannot get good answers with a GRU, then you try to solve it with an LSTM. 
+
+Bi-directional architectures Transcript (17:01)
+So bidirectional architectures. When you read a book, or when you read these notes, you go back to the beginning of the sentence sometimes, right? You finish reading a sentence and then you're like, oh, let me see what the first part of the sentence was to understand this part better. 
+
+We would like to mimic this when we make predictions. For the purpose of making causal predictions, by causal predictions, I mean use all the information from the past to make a prediction about the future, you're not allowed to use this kind of information because the future hasn't happened yet. So if you're trying to locate the estimated location of a car, then you should only be using information from the past. 
+
+But if you are summarizing a document, or if you are answering a question, then you are allowed to go back and forth like this. In an RNN so far, we never use information from the future to make a prediction at a given time step. This is a very important point to appreciate. So RNNs are causal in how they work. 
+
+But sometimes, how you fill in a sentence can be very different depending on what you see in the rest of the sentence. So in order to solve problems like this, you can imagine that you can build a bidirectional recurrent neural network. A bidirectional RNN has one RNN that goes forwards like this and another RNN that goes backwards like this. It's literally like taking your entire book and then flipping it from the back to the front and then running and then running a new RNN. 
+
+This has nothing to do with back propagation. The back propagation of the forward RNN comes back in time. The back propagation of the backward RNN goes forward in time. Back propagation is a totally different thing. These are simply two recurrent models working in tandem, one from the front, one from the back. 
+
+And so here is how you can draw them, x1, x2, x3. x3 is our sentence. This is our standard forward recurrent neural network. It takes input from the left-hand side at each timestamp. This is a backward recurrent neural network that takes in, you will notice, the input at each time step, x3, x3 et cetera. But the hidden step now is coming from the right-hand side before you go to the left. 
+
+So when you-- right now, these are two completely uncoupled recurrent models. The backward one does not talk to the forward one at the last level. So in the last layer, you will basically concatenate the features or add the features and compute the loss. Make sense? 
+
+The sufficient statistic of this is very complicated. It is a statistic that is from all the way in the past and all the way in the future to make predictions at each time step. For a Kalman filter, in the world of control theory a Kalman filter is called a Kalman filter because it makes predictions in the causal sense. It uses all past information to make predictions at this time. There is also something called as a Kalman smoother, S-M-O-O-- smoother, that takes information from all the past and all the future to make predictions at each time step. 
+
+Think about it like this. So you are an autonomous car company. You drive around the car in the city. And at the end of the day, you have data from the entire driving around. And you can calculate where was the car at noon given all my data from during the day. 
+
+This is a problem that requires you to know what happened before noon. It also requires you to know what happened after noon. So it's a more complicated statistic that also uses the future. You will use these kinds of models when you are doing question answering, or fill in the blanks like this, et cetera. 
+
+If I'm doing question answering, I can answer a question at the end of reading my sentence. In that case, I don't need the bidirectionality of the bidirectional RNN at all. If I'm doing a word prediction of this kind, then I need it. But when you run this kind of word prediction on your phone, you want this prediction after you type this word. 
+
+You don't care about this prediction after you type this word because you've already typed it. So can you give me an example where this would be useful? Autocorrection. You can fix the spelling of this word based on what was typed next. So on your computers, you are doing autocorrection all the time and this is how it will work. 
+
+But then you don't want to go all the way in the future to do autocorrection here because you want something that is relatively real time when you do autocorrection. So a bidirectional RNN will be implemented on chunks of time and it will not go all the way into the future. 
+
+Simply, another way of thinking about this is that if I want to know the location of the car at noon, then I will use the data from 11:00 AM to 1:00 PM, but I don't need the data from the rest of the day. So you can implement this bidirectional things always as a sliding window and go forward-backwards within the sliding window and move along. 
+
+ 

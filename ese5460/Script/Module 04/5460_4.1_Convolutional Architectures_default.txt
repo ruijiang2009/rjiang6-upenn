@@ -1,0 +1,311 @@
+Why don’t fully-connected networks scale Transcript (00:00)
+We'll begin a new chapter. We'll talk about convolutional architectures now. We've talked about fully-connected networks. We've talked about deep networks. 
+
+We've talked about backpropagation, which is about how to train these networks. Now, we are going to look a little bit deeper into what makes different neural networks different. So when you have just a matrix a transpose x, and s does not have any special structure, it is just a bunch of numbers, it is what is called a fully-connected network. Can anyone imagine or argue why it is called a fully-connected network? 
+
+This is our calculation, to go from h1-- if I have some features h1, and I want to go to some other features h2, then I multiply s2 times h1, apply nonlinearity, and I'll get my extra features. Let us say that h1 was some m dimensional features. h2 was also some m dimensional features. So what is the size of s2? m cross n, right? 
+
+I can think of these m dimension features as the m different neurons. This neuron creates-- is connected to every single neuron on the right-hand side. It is an m cross m matrix that takes in m entries on h1, and then returns me m entries on h2. 
+
+So it connects every entry of h1 to every entry of h2. If you think of this is the first row of s2, this is the second row of h2, et cetera. So a fully-connected network is called a fully-connected network because every neuron is connected to every neuron of the output. Cool. 
+
+So now, allow me to do a tiny calculation. If you have 100 cars, 100 images, 100,000 images are small or are they large? Very small. 
+
+How big is the photograph of your phone? 2 megapixel? That's a very old phone. My phone is very old, and it still takes like a nice 7, 8 megapixel images. 
+
+The latest iPhone 14, it does 50 megapixel images. So it has 50 million pixels, 50 million rgb pixels. That's 150 million numbers inside the image. 
+
+Now, if you wanted to predict this image as belonging to 1 of 1,000 classes, even for a 100,000 images, you will get 10 [INAUDIBLE] 4 times 10 [INAUDIBLE] 3. So 10 million entries in my weight matrix. Even if you are only 1 layer for a neural network, if you wanted to take this 100 cross 100 image, string it up as a vector, and predict 1,000 classes out of it, you would need 10 [INAUDIBLE] 7 different weights. So this is a large number, because images are surprisingly large. We are just so used to them that we don't worry about it, but images have really huge numbers of pixels and highly redundant information. 
+
+So fully-connected networks are a little bit of a no-go, if you want to do computer vision. They may be useful for some other things, let's say speech, where you can use Fourier features and bring down the dimension of the signal. But for images, they are really just too big to do fully-connected models. 
+
+ 
+
+Understanding image data Transcript (04:13)
+Why are images so large? Images are large because they have lots of nuisance information. So nuisances is a statistical concept, but for us here, we can understand it in very simple words. It is all the stuff inside the image that does not help you do anything with the image, that you would rather not have. OK? 
+
+So this is the picture of an office. It is actually the office of my advisor, in UCLA, and it is taken at some time during the morning. The exact same office, it looks very different, if you take a picture at night. OK? 
+
+So if you wanted to identify the fact that there is a monitor here, there's a bookshelf here, lighting is a nuisance. Lighting makes your life hard, or illumination makes your life hard. And if magically, somehow, you always had images taken during the day, then you wouldn't feel this nuisance. OK? The fact that a bookshelf is a bookshelf does not depend on whether it is illuminated or not. 
+
+Visibility is another nuisance. It is the exact same office, this time, with a tree put in front of it. So the bookshelves still exists in the physical scene. You just don't see it in your image. So if someone could magically give you images without such occlusions, then you would have a very simple image. 
+
+Viewpoint is another nuisance. Viewpoint is something that you are much more. Familiar with the same objects look slightly different, if you look at it from a different vantage point. Right? It is the exact same room, and as you can imagine, you're looking at it from a slightly different vantage point. So viewpoint is a nuisance. 
+
+This is an entirely different building. This actually we used to be my office, when I was a grad student. It has nothing to do with this particular office. So these are different objects. 
+
+So the stuff that makes images different is coming from both the objects being different, like in this case, but also differences in how these images were created, even if the same physical object is in the scene. So you can click the images at night. You can click images across different viewpoints. Something else may come in between you and the camera, the object and the camera, and then you will get occlusions. These are all nuisances that make your life difficult, when you process images. 
+
+Images are large, but there is a very large degree of redundancy in these images. There is no nuisance redundancy in these images, but there is also slightly different kinds of redundancy. So this monitor has a few pixels that go, that tell you that the monitor is a monitor. The chair has some surface area that you see in your images. Right? 
+
+Suppose someone deleted this monitor and simply gave you a marker that says "Monitor." You will still understand it just fine. So images have highly repeated structure. The carpet has repeated structure. 
+
+These wooden boards have repeated structure, and even if the pixels capture the structure, you really don't care for the structure. To call the wood a wood, you don't need to know the structure. To call the monitor a monitor, you don't need to know all the pixels of the monitor. You'll be just as happy with a few pixels, if you could find it quickly. OK? 
+
+So all this huge dimensionality of the images is an artifact of there being few objects, but then there are being many, many different ways of creating images of these objects. And if you want to do visual processing, you want to kill this variability, but you cannot kill all kinds of variability. 
+
+So I can take all these images and then map them to a perfectly black image or a perfectly white image. It will be identical across everything, so there is no nuisance at all. But it would also be perfectly useless, because I cannot identify different objects from it. OK? 
+
+So the name of the game, in computer vision also and machine learning in general, is to be able to kill the nuisances that you don't like but preserve the differences that you do like. And you often don't know this, because it's not as if you know the names of the objects before you make the predictions. Right? 
+
+There is also different kinds of variability. Semantic variability, that comes from, let's say, paintings of chairs and actual chairs. There is this functional variability, in the sense that you can sit on this just fine. 
+
+So for all intents and purposes, this is a chair. Although, it looks nothing like the typical chairs that you see in this room. This is all different kinds of variability, and obviously, that creates a huge dimensionality of the images that we see of these objects. 
+
+Convolutions are a way to tackle one particular kind of nuisance, and this is translations. So if I take an image and then look at the exact same object from a slightly different viewpoint, translated viewpoint, not even rotated, then convolutions will kill this variability. And so we will see why and how now. 
+
+Convolution operation Transcript (09:58)
+So until now, we always wrote expressions of this kind nonlinearity applied to w transpose x. This is a linear operation on x. In the next few sections, we'll write the basic unit of our neural network as this operation, x convoluted with w, applied by some nonlinearity. You have a signal. For now let us not worry about images, but let us imagine a signal as a large vector. We have some width, w. I'll have 1 comma 1 comma 2, and then a bunch of zeros as my range. Think of it as an infinite vector with a huge number of zeros at the end, but these are the only three non-zero weights. 
+
+And as you said, a convolution is an operation that looks like this. It is another vector. So just like x and w are infinite dimensional vectors, it's an array of infinite entries. The convolution of x and w is also another array with infinite number of entries. The kth entry of this array equals the summation from minus infinity to infinity of x tau, which is the tau-th entry of this array times w of k minus tau. So you take the array w. You slide it from the left to the right. And at each point k, you write the dot product of all such slides. And we'll see why in a bit. 
+
+So let us give some names. We will call this our signal x. And we we'll call this our signal w. x, I have simply written down as 2 minus on 1. This is 2 minus on 1. And I have not shown all the zeros to the right-hand side of it, OK? A convolution, it does what? It is xT times w of k minus T. And this is our kth entry, where T goes from minus infinity to infinity. So w of k minus T, let us write x star w of k, where k is 0. For k equal to 0, we are going to take this signal x, put it here. w of 0 minus tau is interpreted as the mirror flip of w around the origin. 
+
+This is a peculiarity of our convolution. So we'll talk about it in a bit. But for now, just imagine that you have an array w. You flip it across the mirror. So after you flip it, it becomes 2, 1, 1. It was 1, 1, 0. It becomes 2, 1, 1 with a bunch of zeros on the left-hand side. The zeroth entry of your convolution will now take the dot product of these two signals. So we take this. You multiply 2 by 0 here, 1 by 0 here, 1 by 2 here. And that is 0, 0. So we don't need to worry about minus 1's and 1's. And you write down a 2 here. 
+
+So this is x convoluted with w This is the zeroth entry of that vector. This is the first entry of that vector, so on and so forth. Just for our own edification, let us do the second entry. The second entry is, again, x with zeros padded to the left and right. The kernel w-- w is called the kernel-- it is now shifted one place to the right. It was 2, 1, 1, 1 with a bunch of zeros on the right-hand side now. We have shifted it to 2, 1, 1, but it is hitting here. Now when you take the dot product, it will be 2 times 0, 1 times 2, plus 1 times minus 1, which is equal to 1. So now you can do 1. And you will do this all the way from left to the right to get all entries of your converted signals. 
+
+So convolution happens between two vectors, both of infinite length. And it returns another vector of infinite length. As you notice, we did not create actual infinite vectors. We create finite vectors. And then we put a lot of zeros to the left and right of them. And as a result, the dot product of such two signals will also have a bunch of zeros to the left and right of the signal. So even if it is a infinite array of numbers, there's only few of them that are non-zero. How many of them are non-zero? Four, right? Can you tell me why-- sorry five. Can you tell me why five are non-zero? 
+
+Because if this kernel was sitting somewhere here-- so if it was 1, 1, and 2, then it would be multiplying with zeros for the signal x. And you would get 0. So the only time the kernel and the signal x overlap, you get something that is non-zero in the summation. And the kernel is of length 3. The signal is of length 3. So the kernel overlaps when two of its legs are on the left-hand side of the signal. And again, it finishes its overlap when two more of its legs are on the right-hand side of the signal. That gives you a signal of length 5. The kernel only has non-zero overlap with the signal x five different times along this entire infinite sequence of numbers. 
+
+Interpretations of the convolution operation Transcript (15:51)
+So in an infinite sum, or in a discrete summation or convolution, it looks like this. It is the k-th element of our infinite vector is equal to an infinite sum of xt wk minus t. These infinities are a little redundant because there are a bunch of zeros always. So you will never have to do them in practice across infinite sequence. You'll know exactly when to start the summation and when to end the summation. 
+
+If you write it down as an integral, if x and w are continuous time or continuous signals instead of discrete sequences of numbers, then it is the integral of minus infinity to infinity of x tau w of t minus tau. The important thing to remember about the convolution is that when you slide the kernel w-- and w is called the kernel-- you flip it. Every time you see a negative w, or if t minus tau is negative, then you flip it. Convolutions work with flipped kernels, mirrored, flipped kernels. 
+
+You can write down a slightly different operation, which is x tau w of t plus tau d tau minus infinity and infinity. This is called a correlation. It's a slightly different operation. And it is conceptually like saying that, is x similar to w or not? It is calculated without actually flipping the kernel. 
+
+There's a very subtle difference between the two. Convolution is what signal-processing people call the impulse response of a signal. So if I have some signal, and I apply this kernel to it, if my signal was just this-- looked like this, then if I apply some kernel that looks like this, then the signal will be a little bit more smoother. The result of the convolution will be a little bit more smoother. And we'll see why. 
+
+So as you see here, if I have this signal, 2 minus 1 1, the result of the signal is a little bit more fat. So if I had a signal that has a Dirac delta here, and my w was a square wave, how will it look, the convolution? When the square wave starts overlapping with my Dirac delta, the infinite sum will increase. And when it moves to the right-hand side of the Dirac delta again, the summation will start decreasing. So the result will be what? It will be a little bit more like this. 
+
+So such filters-- this is a square filter. Or it's a filter whose weights w are all identical. They're smooth, the signal on which they run. So the convolution is being smooth. 
+
+But another way that signal-processing people think about this is that this is the impulse response of this particular filter. You don't have to worry about why they call it so. There is no big reason for why anyway. 
+
+Correlations are different kinds of operations. They are more like dot products for these infinite functions, dot products of infinite vectors. Where are x and w similar to each other? Now it turns out that we calculate correlations by basically flipping the filter and-- we calculate convolutions by flipping the filter across a mirror, and then calculating the correlation. But that's just a mathematical artifact. And there is no big meaning behind it. 
+
+Just for an exercise, can we do one thing? So let's do a square wave as x. And w is this. Can anyone work with me for what is the convolution of x and w? 
+
+So we have our w that looks like this. When you flip it across the mirror, it will look like this. So you flip the w, and you start moving it from the left to the right. If w is here, what is the overlap? 
+
+0. 
+
+So the overlap is 0 all the way until w is at this location. And as it starts moving in, the overlap is simply the integral under these two. Over here, the overlap again goes to 0. Yeah? 
+
+So the picture that you will see if you do this at home is something like this. So let's see. You will see something like-- so this is what is called a sawtooth wave. This is called a square wave. And a convolution of a sawtooth wave and a square wave looks like the fin of a shark. 
+
+So go home, and do some basic pen and paper style pictures. And you will get convolutions. Convolutions basically look like smooth thing. But you can kind of think of-- you can come up with stuff that does not look like smooth versions using convolutions also. 
+
+OK, so another name before we proceed. So in signal processing, people usually use the words filters and kernels interchangeably. Just another historical artifact that is-- we will use-- usually use the word kernel. But that's something for you to know. 
+
+Properties of Convolutions Transcript (22:15)
+A small identity about convolutions. The convolution of x with w. x is the signal, w is the kernel, is equal to the convolution of w with x. So you can pretend as if your signal is the kernel and your kernel is the signal and the result is the same. 
+
+So convolutions are symmetric if you flip the order of the two signals that you're computing things against. This is not surprising because instead of sweeping the kernel from the left to the right, you can see the signal from the left to the right and things should remain the same. 
+
+And that is exactly how the proof works. So if you look at the proof, x convoluted w at time t is equal to the infinite sum between negative infinity to infinity of x tau wt minus tau. This is just the definition of a convolution. 
+
+I can now do a change of variables and I can replace tau by t minus s. So d tau is what? Minus ds, right? And I can do x of t minus s. X of tau becomes x of t minus x. W of t minus tau becomes w of s and dt becomes negative ds. 
+
+And you can now flip it again to see that the limits are also flipped. So this minus cancels out with the limits. And you can, again, write it as an integral from negative infinity to infinity of w of s times x of t minus s. So this is equal to w convolved with x. This is kind of a very pedantic calculation. But an easy way to remember is that conventions don't change if you flip the signal and the kernel across each other. 
+
+Convolutions are also linear operations and they are also commutative. For instance, f convolved with g convolved with h is equal to f convolved with the combination of g and h. It can change the order of brackets in whichever way you want that is it does not change. 
+
+F plus g convolved with h is equal to the convolution of f with h plus the convolution of g with h. So they are linear operations. Just like multiplying a matrix-- multiplying a vector by a matrix is a linear operation. Because if you sum up the two vectors, then the result of this operation is the sum of the two operations. Convolutions are also a linear operation like this. 
+
+Now, coming back to correlations, turns out most libraries for deep learning, they don't actually implement the mirror flip thing in the convolution. We said how the convolution should be calculated by flipping the kernel, right? But all the libraries implement convolution without the flip. So they actually implement the correlation operation. 
+
+Can anyone say why? Can people who wrote pi charts are sometimes wrong, but very rarely. Why would they implement correlations and call them convolutions? 
+
+[INAUDIBLE]. 
+
+Remember that in a neural network-- we haven't talked about this yet-- but we will want to learn w. We are not going to use a fixed w. So whether you learn the right w or the mirror flipped version of w, things don't matter. So even if the pi dot layer is called an n.convoluted, it is implemented as a correlation operation without the flip. 
+
+You learn the mirror flipped version of the kernel. And if you want to get the legitimate kernel out of it, you can always flip it across the mirror. But it doesn't matter because you are learning them either way. So this is just a historical artifact. 
+
+To convince you they're actually, indeed, different. So this is what we just calculated on the previous page. The convolution of a square wave with a sawtooth is a shark fin. This is how the correlation operation will look, in which case, you're not flipping the kernel. 
+
+So you see, in this case, the kernel is being flipped and then translated from the left or the right. In this case, the kernel is not flipped and is translated from the left and right. So the shark fin becomes a little different. The shark is moving the other way. 
+
+So we talked about this. You don't need to-- if you wanted to write down a code for calculating convolutions, you would never have to create the infinite vector because you know that only some entries of the result are going to be non-zero. How many entries will be non-zero? 
+
+So let's say that x has d non-zero entries. And then, w has five non-zero entries. What is the number of non-zero entries in x convolved with w? 
+
+The first time x and w have an overlap is when there are four elements of w to the left of x. The rightmost element of w, so let's say this is our d or this is our x and this is our w. So the rightmost element of w is here. This is our first time when you have non-zero overlap. 
+
+This one moves d time steps, all the while getting non-zero overlap. And then, it moves up further how many time steps? Four. Four time steps, right? So your number of non-zero entries will be what? D plus 4. You're moving the signal right d plus 4 times. Whoever d plus 8, that is a very common mistake. Convince yourself that it is d plus 4 instead. 
+
+Usually, people will use our kernels with r number of non zeros just so that this flipping becomes a little easier to calculate. That is why I set five non-zero entries instead of four non-zero entries. For images, it makes a little more sense, and you will see why. 
+
+Convolutions for 2D images Transcript (29:21)
+Convolutions. We have been talking about convolutions for one-dimensional objects. But two-dimensional objects they are, essentially-- they are completely identical except that you are convolving both the dimensions, x dimension and the y dimension. So in a picture, it looks like this. This is our x. It is an image of 3 plus 3 pixels, 9 total pixels. This is our w. It's a kernel of size 2 plus 2. 
+
+Just like we flipped the signal-- mirror flipped the signal from the left to the right, now you will do a flip from the left to the right and you will do a flip from the bottom to the top and you will get this kernel. This is the one that we're going to slide around. 
+
+It is flipping from the Northeast to the Southwest overall because it is being flipped across both directions. You take this kernel, flip to a kernel, and then you sweep it around your image. You sweep from-- sweep the image from both the left to the right and from the top to the bottom. 
+
+Now, you will see when will this one have non-zero overlap. It has zero overlap if it is here. It has non-zero overlap when it has exactly one overlapped cell, right? Out of the four cells in our kernel, which are non-zero, if one of them is overlapped with our image, then you get a non-zero result for the summation in the convolution. 
+
+And that is why you will get an output, which is of size 4 plus 4. It is 3 plus the size of the kernel divided by 2. Does this make sense? For 1D signals, we flip once. For 2D signals, the kernel flips twice. For 3D signals, it flips three times. 
+
+Convolutions for multi-channel images Transcript (31:23)
+Now, let us talk about something that is quite important. Until now, we've been doing a lot of mechanics of convolution. Some of this you don't need to know because Python already implements them and you will never need to think about it unless you are doing some very fine grained things. 
+
+But convolutions for multi-channel images are pretty important to understanding how the network works. Until now, we've been looking at grayscale images. Grayscale images have one channel. Every pixel takes values from 0 to 255. Typical images that you create are what? RGB images. It has three channels, red, green, and blue. 
+
+Some images-- people who take photographs might know they are CMYK. They different kind of color space. There are four channels. So typical images that we want to use in machine learning. An apple is an apple because it is red. You will not see a very big difference between-- in grayscale between apples and oranges. The difference is much more prominent in color space. 
+
+So our images are typically grayscale images. Also, our images are typically colored images. We are going to think of an image as something-- as a three-dimensional matrix with the first number of dimensions being the number of channels, c. So c equals 3, typically. 
+
+If you are doing medical imaging, then they will have slightly more number of channels. [INAUDIBLE] are the width and the height of our images, OK? It's not very appropriate to call this a tensor. A tensor is a very different mathematical object. It is much more precise to call such an array a three-dimensional matrix or three-dimensional array. Tensors have specific properties in physics. And these do not have-- a bunch of three-dimensional numbers does not have those properties. 
+
+Anyway, so you have a three-dimensional array. And now, our output of the convolution. We would also like it to be another three-dimensional array. Just like we had a one-dimensional signal, we wanted the output to be a one-dimensional signal. A two-dimensional image has an output that is two-dimensional image after convolution. Now, we have three-dimensional images and our output will be three-dimensional signals. 
+
+So this is, let's say, our input. And after a convolution, we expect to get another image of so-and-so size, so-and-so height, depending on what stride you use and what padding you use, and so and so number of channels. And we are going to see how. 
+
+A typical implementation of the convolutional layer in PyTorch works as follows. So you separate out the red channel, the green channel, and the blue channel. When PyTorch says that it is doing a three cross three kernel, what it is really doing is three different three cross three kernels. One for the red channel, one for the blue channel, one for the green channel. 
+
+The red kernel hits the red channel, the green kernel hits the green channel, the blue kernel hits the blue channel. Each of them create their own outputs. These outputs are summed together. So this is the summation of the output of the convolution of each of the three channels. 
+
+And then, you may want to add a bias to this, just like we add a bias to the linear layer. We can also add a bias the convolutional level. And this is the output you'll get. This is one channel of the output. 
+
+When we create lots of filters, you will want the output to have more number of channels than one. So when you want to have another output, let's say, it's c equal to 1, and this is the second channel, the entire thing repeats. So you have another kernel that corresponds to the kernel for the second channel. 
+
+That one also has three different variants, one for R, one for G, one for B. And again, they operate independently, sum up, and then, you'll get this channel. 
+
+So if I ask you now, I have an input image that is of 3 cross 10 cross 10. This is my input. My output is 5 cross 10 cross 10. My kernel is of size, let's say, 5 across 5. How many different kernels are there? 
+
+For every one of the output channels, there are three kernels. So there is 15 different kernels. How many different weights are there? 
+
+[INAUDIBLE] 
+
+15 times 25. Each kernel has 25 weights. There are 15 different kernels. And so there is 25 different-- 15 times 25 different weights. This is very important to appreciate. So multi-channel images go in as inputs to convolutional layers. Multi-channel images come out as outputs of convolutional layers. 
+
+And inside it, you mix and match stuff. All the channels of the input layer are summed up like this after their individual convolutions to create one channel of the output. The channels of the output are computed independently from each other. 
+
+ 
+
+Convolution filters for sharpening, blurring and edge detection Transcript (37:44)
+Let us look at a few examples to make things intuitive. So do people recognize this person? Yes, this is Geoffrey Hinton. He is a professor in Toronto and Google. He reinvented backpropagation. So we saw his name in the first lecture in the '70s. And he has a lot of nice results. We'll see more in the coming few lectures also. So an image of Hinton, a kernel. Can you guess what this kernel does? It is written there. So you don't have to guess, technically speaking. But can you tell me why it blurs? 
+
+So this is a slightly blurred image. I hope you can see it on the projector. Yes, you can. Why does it blur? Can you look at the kernel and argue why? So this 4 sits on a pixel, and then it averages its four neighboring pixels using the 1's. And then that particular pixel here in the output is this average, right? You see that it is the weighted average of a bunch of pixels of five pixels to be precise with slightly larger weight at that particular pixel and less weight for its corresponding pixels. So something like this blurs. If I change this 4 to 8, what will happen? 
+
+It blurs it? 
+
+Exactly. So it will blur a tiny bit less. So the bandwidth of blurring will be less. So when you do your Photoshop brush, that's exactly the operation that they apply. Photoshop is lots of money being paid for convolutions. [LAUGHS] You can also sharpen using the exact same trick. Can you guess how? Yes, you do minuses on this side, right. Sharpening. Sharpening is about checking when a pixel is different from its neighbors. OK, so this is a sharpening filter. As you can see, there is a bunch of minus 1's on the other side. And now you get something that does look visually sharper. 
+
+This is a very nice kind of kernel. It detects edges. If you imagine sliding this kernel from the left to the right, and from the top to the bottom, you get a large output every time there is one pixel to the left that is large and one pixel to the right that is smaller than the other one. So these plus 1's and minus 1's, and this row is a little bit more special but it doesn't really matter so much. But these numbers are positive on the left-hand side. And these numbers are negative on the right-hand side. 
+
+So if you have something-- if you have two pixels, the pixel to the right is a tiny bit smaller in value than the pixel to the left. Then the output of this particular pixel, the sum will be large at that location, OK? So this kind of a filter detects left to right edges-- stuff that decreases in intensity from the left to the right. Can you make it detect stuff that are upside or top-down edges? You just take the transpose of this entire thing, right? 1, 2, 1, minus 1, minus 2, minus 1, and then 0's, 0, 0. This will detect stuff where a pixel to the below a particular pixel is slightly smaller. 
+
+What happens if you apply this kernel, the left-to-right edge detector? This is called a Sobel edge detector, by the way. So if you apply a Sobel left-to-right edge detector, and then you apply a Sobel top-to-down edge detector, what will happen? What kind of points are both left-to-right edges and top-to-down edges? Kernels. Yes. Stuff that is relatively sharp across anything in its neighborhood, that is a kernel. So you'll get a kernel detector if you apply these two kinds of convolutions one after the other. OpenCV is a library that some of you might know. Others who do not may want to check it out. It is a bunch of image processing operations and convolutions, or variants of convolutions will be basically the driving block of this library. 
+
+Stacking convolution layers and padding images Transcript (42:48)
+It shouldn't be a surprise at this point that just like you can create a deep network by stacking up multiple fully connected layers, you can also create a deep convolutional network by stacking up multiple convolutional layers.
+
+We haven't yet seen exactly what a convolutional layer in PyTorch is. And we'll see it in a bit. But for now, you know that with a 2D image, you can apply a kernel, and then you get another 2D image as an output. Right. So you can do this many times. And just like you would learn the different layers of a fully connected network, you can also learn the different kernels of a convolutional kernel.
+
+OK. So we have a 100 plus 100 image. If I take a 3x3 kernel and apply it, I will get an image that is of size 1.
+
+Let's say that I forget the two rows. I just don't want to do it. So it will be a 100 plus 100 image. OK. Then I apply another 3x3 kernel. And then I again get a 102x102 image. I again forget the two rows and columns, and I can have a 100 plus 100 image.
+
+Now, can you appreciate the fact that this particular pixel was created as a sum of the pixels in its neighborhood on this particular image? Every one of these pixels was created by a sum of their own neighborhoods in the bottom image.
+
+So if this particular pixel has nine things, 3x3 elements that create it, this particular pixel has how many? Yes. Actually, that should be roughly correct. I don't want to calculate right now. But you will appreciate that this pixel has many more pixels that created it using the kernel being applied twice. So do people appreciate the fact that this pixel is created by nine pixels on the layer below? And each of those nine pixels is created by nine more pixels on the layer below. So effectively, there are 81 different entries of this particular image that play a role in creating this particular pixel. Makes sense? Yes.
+
+OK. This is called a receptive field. The receptive field of this pixel is a 3x3 window—nine pixels. The receptive field of this particular pixel is a 9x9 window. And as you keep doing these combinations again and again by going up the layers, the receptive field increases. This is very useful because if you imagine this stuff happening in your retina, then one neuron that is a couple of layers away from the retina is looking at what many, many parts of the retina are seeing. OK. It has a much larger receptive field than the actual kernel it runs. OK.
+
+This is why you can detect, let's say, a dog that is kind of small sometimes in some images, large sometimes in other images. Because the dog has some scale invariance. Small dogs look the same if you zoom into them. Big dogs look small if you zoom away from them. So this is how receptive fields will help you. You will appreciate this a lot more when you create some filters of a trained network. But for now, it is more of a mechanistic object—the fact that this pixel has many, many [INAUDIBLE] here that create it. OK.
+
+You can look at these two blocks. They won't tell you much more than what we have been talking about. But they have nice pictures.
+
+ 
+Padding Images Transcript (47:29)
+One thing that is important to keep in mind is in signal processing it is traditional to always pad our infinite vector by zeros. Just force of habit of the last 200 years. For images we can do something that is a tiny bit better or different. Think of this being your image. OK. I just got the example from the [INAUDIBLE] website. These are numbers, but think of them as images. 
+
+When you apply a kernel to it, instead of padding the boundaries with zeros you can pad the boundaries by reflecting it. So this is a reflection pad operation. I think it does 1 plus 1 padding for both sides of the input. And what you want to do is something like this actually. Let's look at this example. This is much easier. 
+
+This is our three class three image. X OK. 1, 0, 1, 2, 3, 4, 5, 6, 7, 8. When you do a padding to it, this is going to pad the image by two pixels on the left and the right. You will see this particular image being put here. And notice that these two are a reflection of these two elements. These two are a reflection of these two elements. Why is this useful? Why is this more useful than zero padding? I could have just padded the entire thing by zeros before doing the convolution. 
+
+So if any one of you has read The Silmarillion? Have you? Too young. Maybe one. In that, there is the God, and then he gets angry. And then he destroys the world. And it was flat before and it becomes round. 
+
+But OK. The utility of doing this for images is that images with zeros on the outside would look pretty "un-imagey." Typically, when you click to get photographs from the phone, you don't have a nice black border around them. So if you think of the average intensity of a pixel, before padding and after padding the average intensity of the pixel would be slightly different. This is not necessarily a bad thing. But definitely it cannot be a good thing. So such reflection padding will preserve the average intensity a little bit. 
+
+So moral of the story is that instead of padding by zeros, you can do reflection padding. You can also pad it by the average value of the pixel to begin with. But for images there are a few choices that you get to make. 
+
+Variants of convolutions Transcript (50:30)
+Sometimes we may want to have large kernels. A kernel is fundamentally an object that detects something. It detects a special kind of features. So just like this kernel detects sharp things inside the image and then sharpens them, this one detects edges. We can imagine that the kernels we learn in our convolution network also detect certain kinds of patterns. If you want to classify more complicated objects, the patterns that you should be looking at are quite large. If I wanted to recognize your face, and I zoomed into your face and only saw a tiny patch of the skin, it would be pretty hard to recognize your face. But if I zoom out, I get many more features. And I can create a better classifier. 
+
+So it pays to have a convolutional kernel that is quite large. That is not small. Now, large convolutional kernels are also expensive because convolution fundamentally is a double for loop if you are doing a two-dimensional convolution. So the larger the convolution, the slower it is to calculate. Dilated convolutions are a neat trick to create large kernels but with fewer calculations. So this is a 3 cross 3 kernel. A dilated convolution looks like this. This is the kernel. 
+
+So instead of our kernel being a contiguous block of 3 cross 3 pixels and being slid left-right, top-down, the kernel now has holes inside it. And you are sliding this window from the left to the right and the top to the bottom. The number of operations that you need to calculate it, it's still the same. It is nine operations for every pixel, except that your receptive field, like he said, has expanded. Make sense? You can do this a little more. And now it is an even larger kernel, even that will give you larger features. 
+
+You won't get features from this patch because there are no weights in those places. But you will get them when you slide from the left to the right at some point. So we're looking at different kinds of kernels. Is it obvious to people that this one is equal to a 5 cross 5 kernel with a bunch of 0's? So a 5 cross 5 kernel with 0's at these locations is equivalent to a 3 cross 3 kernels without those 0's. This is a 5 cross 5 kernel with a bunch of 0's. The two are not equivalent to each other. They are different things. 
+
+There is a concept called separable convolutions. Separable convolutions are another nice way of reducing the number of operations it takes to calculate a convolution. They work as follows. So think of this matrix. And I promise you that this matrix can be written down as this matrix because I created them, 3, 4, 5 times 1, 2, 3. 3, 4, 5. 6, 8, 10. 9, 12, 15. So this matrix is a product of two vectors, an outer product of two vectors. So what is the rank of this matrix? 
+
+One? 
+
+One. Right? Now, if your kernel has such structure, then instead of doing a double for loop, you can do two for loops, one and two one-dimensional for loops. Is that easy to see for people? Instead of sliding a big 3 cross 3 block from the left to the right, because we are taking dot products with respect to these elements, the dot products can be taken now with respect to its individual components. And you are doing a one-dimensional convolution with this particular vector in one direction, and another one dimensional convolution with this vector in the orthogonal direction. The two are identical. 
+
+So if your kernel has low rank, then you can write it down as two one-dimensional kernels being done simultaneously. This is a linear algebra trick. Not all kernels you can write them down like this. Is that clear to everyone? Not all matrices have low rank. If the matrix has a rank 3, then you cannot write it down like this. You will have to write three terms for each of the three rank elements. In that case, the cost of doing these six different one-dimensional convolutions and this two-dimensional convolution is the same. 
+
+But if your rank is less than 3, then you can write it down either as two terms or one term, exactly. So what happens is that in large neural networks, even if we said that convolutions are a very nice way of reducing the number of parameters as compared to fully connected networks, even convolutions can begin to have too many parameters. So a typical neural network, let's say that we use for research, will have 25 million parameters, 50 million parameters. And essentially, all of them are convolutions. So we are really doing a lot of CPU cycles to calculate all these convolutions. And any special structure that we can impose upon the convolutions will reduce that amount of work. 
+
+Are such low-rank kernels or separable convolutions as powerful as convolutions? No, because they pertain to a specific kind of convolution. All convolutions are not separable. So separable convolutions are a subset of convolutions. I can learn some kind of features with separable convolutions, but not all kinds of features that I can learn with standard convolutions. But for many problems, it may be enough. Remember that in a neural network, we have many, many convolutional filters. 
+
+So whether you have some weaker convolutional filters or many, many strong convolutional filters, because you have so many of them, it matters a little less that you have separable ones or non-separable ones. So these are another neat trick to use if you have a large network that you think is very slow. As I said, you cannot do it for everyone. The Sobel filter, as you can appreciate, is actually a simple convolution. This is the left-to-right Sobel filter. 
+
+Implementing convolutions Transcript (57:36)
+I think we already talked about this. So we know how to implement convolutions using a for loop that is easy to code up. You also know how to implement convolutions using a matrix vector multiplication. So after you are done with homework 1, if you want to add a convolutional layer to the library you can do so. And this would be the easiest way of doing it. Take the kernel. Expand it out as a matrix. You have to be a little clever because the matrix is being updated. 
+
+But then you can write the exact same gradient calculation that you wrote for the linear layer in that case. OK. In PyTorch you will also have another algorithm to code up convolutions, which is called a Fast Fourier Transform. This is basically the most important algorithm of the last 400 years or so. It runs everything around you. On your phone, there is maybe 1,000 different FFTs occurring every single second. 
+
+Convolutions can be implemented using an FFT. And PyTorch will have all these three kinds of implementations. Can you tell me when you should use which one? Let's talk about these two. So if you have a very, very small kernel, then it is often more efficient to code it up using a for loop because then you can ship it off to C. And then run this double for loop in C. So if you have really like a three cross three kernels or so, then PyTorch will run them using for loops. On the C part. So that is why you don't see the fact that it is slow. 
+
+If you have slightly larger kernels, let's say 5 cross 5 or 7 cross 7, then PyTorch will create this matrix. It is cheaper to create the matrix once and then run it for many, many operations than to keep running for loops every single time. OK. Then you get benefit from the parallelization on the GPU. If you have even larger kernels then PyTorch will implement it using an FFT because there is a little bit more latency in creating the FFT, all the FFT itself is faster. And so you will get all these kinds of implementations. 
+
+What happens is that when you create a neural network in PyTorch the first forward pass you make in the neural network, it will use it will record some statistics of how much time it took to do the forward pass of every layer. And it will pick which implementation it wants to use for that layer. This is something that happens totally behind your back. You never have to worry about it. You never even see it. Few people know about it. But it will check. It will run different methods for different networks. 
+
+You can prevent it from doing this by setting this flag to false. This is useful sometimes if you want to do some timing analysis of your network. How fast it runs, et cetera, et cetera. A second important concept that we haven't talked about yet is stripes. So the arguments of the convolutional function in PyTorch. The first one in channels. And out channels we'll talk about in a bit. Kernel size. You know kernel size is simply the size of the kernel that we have for the convolutions. 
+
+Stride is a parameter that says that when you slide the kernel from the left or the right or top to the bottom, we have been sliding the kernel by one element every time. Stride simply skips a few steps. So stride of 1 will slide it over every pixel. Stride of 2 will skip one pixel every time it slides. So the output dimensions of your image will be a little fewer. Will be half the output dimensions. Is that clear to people? 
+
+Every time you slide the kernel, you get one element of the output. If you slide the kernel half the number of times, you get half the number of outputs. So stride is a very clever way of reducing the size of the image. So we do in our case, an image a 100 cross 100 centered image going to an image of size 102 cross 102. If I were to implement convolution with a stride of 2, I will get an image of what size? 51 cross 51. OK. 
+
+Because I am placing the kernel over here, then instead of placing it immediately to its right I am skipping a two pixels. Or I'm skipping one pixel and then placing it across. And then I'm sliding it with a few gaps. OK. So only slide it 51 times. Makes sense? This is a nice way of reducing the size of your images as you go up. Why does this not hurt? We are clearly forgetting some pixels. Right? 
+
+Many answers. I want to maybe do an example because I see a lot of confused faces. This is the result with a stride of 1. Let us calculate. Can you tell me what the output will be with the stride of 2? Let's say that we start at the same location. Yes, so you'll get 2, a 4 here, and a 2 here. OK. And you'll get nothing in here. Not zeros. You'll get nothing. You'll just get an output of size 3. OK. 
+
+So this is how it reduces the size. You've clearly forgotten information of these two elements. This doesn't hurt because images, as I said, are piecewise constant things. Stuff around the pixel is pretty damn similar to that particular pixel. So forgetting a pixel here or there doesn't matter. If you do stride with a huge-- if you do convolutions with a huge stride, then you will lose much more information. 
+
+Convolutions are linear operators Transcript (1:04:23)
+A few examples. So we wrote down our perceptron like this, or we wrote down a fully connected layer like this. And we wrote down a convolution like this, right? All of these are linear operations, modular and nonlinearity on the outside. Convolutions are also a linear operation. 
+
+What does a linear operation mean? If I multiply the input image by 2, then the output of x convolved with w also gets multiplied by 2. This is easy to see in the definition. This is the definition. If I multiply x by 2, then it is equal to twice the convolution. 
+
+If I take the sum of two images and can involve them individually, then it is equal to the convolution of the sum of the images. Make sense? This is what linear operations mean. This is what it means to be linear. Matrix vector multiplication, obviously, satisfies these properties, so convolution also satisfies these properties. 
+
+So you can write down a convolution as a matrix vector multiplication. The exact same example that we saw before, this was our x, this was our w. The convolution of these two one-dimensional signals can be written down as our vector x written as an array now and this special kind of matrix. 
+
+It's a matrix. If you notice, carefully, it takes this kernel, flips it from the left to the right, and then slides it across every row. Across the columns and downwards every row. Do people see it? 
+
+So imagine that there is a 211 here, 2 here. And so these two, obviously, don't play any role because there are zeros here corresponding for the signal. So we can think of the last element of this kernel, the only one that gets a non-zero frame to multiply with here as the first element-- first row and the first column of our matrix. 
+
+Next time, you slide the kernel to the right by one step. And now, the two doesn't get anything to multiply with and you only have 1 and 1. And you would do this all the way until the 2 also goes out of the window. So it is exactly the same operation that we have done for-- we wrote down using a summation except that I've written it down as a matrix vector multiplication. 
+
+Such matrices are called Toeplitz matrices. And they are a nice way to code up convolutions instead of writing a for loop. If you write a for loop in Python, it is quite slow. But if you write-- if you know the kernel and you write down the matrix like this, then you are doing a matrix vector modification, which will be a little bit faster. 
+
+And you can anyone tell me why it is faster? I claim that calculating this using a for loop, the left hand side, is slower than calculating the right hand side in Python. If I code it up-- I code up the left hand side using a for loop, I'll be writing for loop in Python. And Python is an interpreter language. So it will learn to follow one by one. 
+
+If I code up the right hand side using a matrix vector multiplication, I'll be doing it we via NumPy. NumPy multiplies matrices and vectors by writing C code. So as soon as you create the matrix, creating the matrix might be a tiny bit more operations. But as soon as you create the matrix, it is shipped off to the C part of NumPy, which is much faster. This is why you shouldn't write for loops in Python. 
+
+So what you said is also correct except that it is correct if you actually do the matrix multiplication on a GPU or something. It is not true if it is happening on a CPU. Cool. 
+
+So such matrices are called Toeplitz matrices in Python. Actually, we'll use such matrices to do convolutions if the size of the kernel is relatively small. This is the one-dimensional version of convolutions, right? A two-dimensional convolution is also a linear operator. And you can write it down exactly the same way. 
+
+The matrix, in that case, is something that is a tiny bit more complicated. It is called a circulant matrix. Again, given a kernel, there is a well-defined way to create a circulant matrix corresponding to a kernel and simply write down the two-dimensional convolution as a matrix vector multiplication by stringing up the two-dimensional image as a big vector. 
+
+ 

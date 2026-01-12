@@ -1,0 +1,453 @@
+Stochastic gradient descent Transcript (00:00)
+So after a lot of gradient descent and stuff, now we will talk about stochastic gradient descent. So until now, we've been writing our objective, or writing down our updates, as wt plus 1 minus the loss of wt. As one of you, I think, asked me last lecture, this is the training loss. It is the average of the training loss on all samples. 
+
+And in the last two chapters, we never made any distinction between-- we never actually dug into this loss. But you know that this loss is the average of the losses of all the examples. So in this chapter, we are going to write down this loss as the average of all the samples. And then we will see how SGD emerges from this. 
+
+So stochastic gradient descent is actually a very, very old algorithm. Gradient descent is even older. So maybe Gauss used it at some point, I guess. Stochastic gradient descent is relatively recent than that-- in the early '50s. So a lot of science and engineering in the US was done during the war because that is when everyone wanted to fix things, make things efficient, build new stuff. The radar laser, you name it, everything was invented during the war for the war. 
+
+One big problem during the war was you have these large armies. And then there is food for them, there is trucks and ammunition and everything, that needs to be moved around. So if the army needs to fight in one place, you need to send everything there, including all the guns and the food and stuff. And these problems look like logistics problems. So this is what began the field of operations research in the late '40s. 
+
+A similar thing also happened, incidentally, as a historical curiosity, after the French Revolution. So after the French Revolution, the new republic of France, in 1776 to 1780, there were a few people who basically began thinking about similar ideas. But the core problem, or, at least in the '50s, the way people formalized these problems was as follows. 
+
+So imagine that, to give you an example, so let's say that you are United Airlines. You are trying to-- actually, American Airlines-- you are trying to route a plane from Philadelphia to Los Angeles. The locations that the plane travels on in the US are w. So when you say that the plane flies from Philly to LA, it has to take a certain route. And w is the route that you want to calculate as American Airlines. 
+
+You don't know the route a priori because, on the way, the weather could change quite a bit. You know some statistics of what the weather could be. And let us denote the weather by this variable, xi. So over Iowa, the weather has some turbulence. Over Colorado, the weather is nice. So you can [INAUDIBLE]. And different things can happen based on when you left. But you only know about the weather when you actually get to the point. Otherwise, you don't have any idea of what it will be. 
+
+So the problem that American is trying to solve is, really, to minimize some objective, which is, in their case, fuel and our misery, although they don't do a good job of the second one, so optimize some objective, which is a function of the path that the plane takes and what weather you will see along that path. You don't know the exact weather you will see. And you know that weather keeps changing. So you minimize the expected value of this objective, or the weather. 
+
+If you know something about how the weather changes-- let's say, from the forecast-- think of it as a random variable. And you're minimizing the average value of your cost of the trajectory over different draws of this weather. And you want to find the path that has the least cost, on average. 
+
+This is a problem that I gave you an example of a plane going from LA to Philly, or Philly to LA. But if you think of how your Amazon package comes to your house, it is the exact same problem that is being solved. There is a particular set of things that Amazon does when it moves the package. 
+
+First, it comes to a warehouse. Then it comes from a warehouse to the depot. The guy puts it up from the depot in his truck and brings it to your building, et cetera, et cetera. And many things in this process can go wrong. And these are all random variables that Amazon is optimizing, on average. 
+
+So xi is stuff that is stochastic. And what you want to do is find w that is resilient to different values that xi can take. In our case, what is xi? w is clear. w are the weights of the network. What is xi? What are we averaging over when we can compute the loss? 
+
+Samples. 
+
+The samples, right? So one value of w may be good for sample 1. But it may not be good for sample 2. It may be better for sample 3. So what we are trying to find is the best w that works for all samples, on average. Make sense? I-- am simply writing down the objective l from the previous chapter a little differently. 
+
+The samples are, in our case, not a random variable. They are a bunch of samples sitting on a hard disk. So we'll write it a little differently. Instead of taking the expectation, we are going to write l as the sum of the losses of different samples. So l superscript i is the loss that your weights w incur when they make predictions on the i-th datum in your data set. 
+
+We have n data points. And this is the average loss. We have seen this expression before many times. But you can think of it as the empirical estimate of this expectation. Cool? So just to avoid cumbersome notation, we will write down this thing. So l superscript i means exactly the loss of the i-th datum. The gradient of l is the average of the gradient of all our samples-- again, not a surprise. 
+
+Let us define something called as omega, which we also saw in chapter 2. Omega is a variable that takes values between 1 to n. So it can be the index of one of your samples. And at each iteration, I sample a datum randomly from my data set, calculate the gradient of that sample with respect to my current weights, wt, and update my current weights. This is stochastic gradient descent. You have implemented it. You have seen it before, so nothing special. The only difference is just introducing notation. 
+
+You can also think of a mini-batch version of stochastic gradient descent where this script b is the number of images you have in your mini-batch. So b is, let's say, 100. And so this is the first image, this is the last image, this is the 100th image, et cetera. 
+
+And what you're using as gradient is the average gradient of all the samples in your mini-batch. So pay a little attention to the notation here. It is messy. So l superscript i is the loss of the i-th sample. The gradient of L, superscript i is the gradient of the loss of the i-th sample. 
+
+Gradient of l sub b is the average gradient of your mini-batch of size b. And every year, someone asks on Piazza what this variable is. It is just a b. I have written it in a fancy way. 
+
+So this is SGD, or the Perceptron algorithm like SGD, where we are taking only one sample at each iteration to make the updates. What you implemented on your laptop was this one, where you draw b samples in your mini-batch and take the average gradient. And so this is how we will write it. 
+
+ 
+
+ 
+
+What are epochs? Transcript (08:51)
+What is an epoch in PyTorch? So every training data is seen once by the network. That is what an epoch is defined as at least in PyTorch. So let's say I have 100 samples and equal to 100 and my mini batch size is 10. So PyTorch will run 10 mini batches one after the other. And at the end of these 10 mini batches, you will have seen every sample in your data set once. 
+
+PyTorch defines this word called epoch because it helps them in bookkeeping. It's an implementation thing. It is not a mathematical thing. It sometimes helps in papers when people say I train my network for 100 epochs. This other person says, I train my network for 120 epochs. 
+
+And so you can say, look, you trained your network for more-- your network saw more samples effectively than mine because you did more epochs on the network. This is not entirely meaningful, because you should train your network as well as you can. I train my network as well as I can and then we can compare. But it helps to make things a little more precise epochs. 
+
+The way we wrote it, we did not care about epochs and such. We said that at each iteration, I'm going to sample b images from my data set randomly. Every image is chosen uniformly randomly from my n images and that forms my mini batch. In this case, it is not very easy to define what an epoch is. But it doesn't matter, because epoch is, at the end of the day, simply a software construct. It doesn't matter for the mathematics. 
+
+If you really want to define what an epoch is, you can say that, look, after 10 mini batches, I have seen the entire data set exactly in PyTorch. After 10 mini batches of this kind, there is a very high probability that I have seen every sample. Or there is a very low probability that I have never seen any sample by concentration. So the two are slightly different. 
+
+In fact, sampling with replacement, which is what our equations are, so at each iteration, you just sample the entire mini batch uniformly randomly. PyTorch doesn't sample uniformly randomly. These images that you saw in the first mini batch are never sampled when you do the second mini batch. So it samples without replacement. 
+
+So there's a very [? cute ?] proof. This is one. I also had one in my paper on sampling with replacement being a tiny bit faster than sampling without replacement. It's a very tiny difference, not very consequential, but it is there. 
+
+SGD for least squares regression Transcript (11:49)
+So let's do our first insight into SGD. We are going to do a time-honored objective. We are going to do one-dimensional linear regression. So xi are our images, the real value. Yi are our targets. They are also real value. And we are going to write it down as a linear regression objective. w are the weights. w is also a real number. 
+
+So really, the simplest thing you can ever think about. But I'll draw it in a slightly different way. So this is the average of many quadratic functions. Yeah? For the i-th datum, this is the value of the weights that minimizes the loss. If I only had the i-th datum in my data set, then if I set the value of the weights to be this, I would get the smallest loss. 
+
+It is not the same for all data points. Every xi and yi is different from some xj and yj. So the corresponding weights that those samples like are different. How does this look? Let us write down w. This is, let's say, the first datum. If I had only this one data point in my data set, this would be my objective. 
+
+This is my second data point. If I only had the second data point, then this would be the objective that I minimize. And so what I want to impress upon you is that this is the average of many objectives specific to every sample. 
+
+Every sample has a slightly different value of the weights that it would like. This is the ideal value for sample 1, this is the ideal value for sample 2, so on and so forth. And unless and until the samples like the same value of the weights, there is no unique answer to what weights you should pick that will make all the samples happy. Make sense so far? OK. 
+
+So these are the individual objectives. How does the average look like? OK. Is this a convex function or a not convex function? Why is it not convex? It's linear regression. So how will it look like? OK. So it will look a little bit like this. 
+
+Where will the minimum of this function be? You know the solution for the minimum. It is literally the linear regression solution. What does the minimum of this function tell you? It is the value of the weights that make most samples happy on average. So this is-- if you have many samples those ideal weights are in this region, then the minimum of the blue line will be somewhere here. Makes sense? OK. 
+
+If you are doing gradient descent on the blue line, let us say that you start somewhere here, where will you stop? You will probably reach here. So this is, let's say, you begin, and then this is where you end. There should be no mystery about this because this is a convex function where minimizing it by gradient descent or Nesterov, your favorite method, you will reach the global minimum. There is only one global minimum. 
+
+If you began at the same point-- let's say if you began at this specific w with SGD, how will things work? In the first iteration, you sample one of these examples, one of these data points in your data set. And you use that objective to descend. So let's say that you began here. In the first iteration, let us say that I sample the first data. This quadratic is quite large by the time it reaches my initialization. You use this gradient to descend. Is that clear to everyone? Yes? 
+
+And let's say that I am at this location after the first iteration. Next time, I sample some other data point to descend. Let's say that I sample this data point to descend. This objective is even larger over here. Oops. So let's say I'm here, and then this objective is even larger. So I will descend a little bit using this objective. 
+
+At each iteration, you are sampling a random sample and you're using its quadratic objective to go closer to the global minimum. Let's say that there is no quadratics beyond this point. So this is w min, which is the minimum of the ideal value of the weights in our data set. 
+
+And similarly, there is a w max, which is the maximum of the ideal value of x. Is it clear to everyone that if you are to the left of w min, then every quadratic, no matter which one you pick, moves you to the right a little bit because it slopes up. If you are to the right of w max, every quadratic, no matter which one you pick, moves you to the left a little bit. 
+
+What happens in between? Suppose you started here, you kept on moving to the right, and you showed up a little bit inside w min. What happens now? Let's say you showed up here. Yeah. So if I pick this-- if I pick this quadratic, then I will move to the left. In the next iteration again, if I pick this quadratic, I'll move to the right. And this will stop or no? Why? 
+
+Does everyone agree with me that this process will never stop? There is no unique way that makes all samples happy, so just like the perceptron algorithm. Every time I sample a new datum, the weights will move a little bit to fit that data, and this process will keep on going forever. 
+
+So people give it a name. So this region is called a zone of confusion. It is a zone of confusion because the weights of SGD will never settle down. If you have an objective that looks a little bit like this, if-- that's a-- these are all your w star i's. Then you will then-- the zone of confusion is smaller because the w min is not that different from w max. 
+
+So SGD oscillates-- or SGD does not converge within the zone of confusion. How big the zone of confusion is depends on the data set, not SGD itself. Makes sense so far? This is pretty simple stuff, but it is at the heart of so many problems, you cannot imagine. 
+
+SGD, meta-learning, multi-task learning, you name it, and this is really the one picture that somehow very established researchers also regularly flout when they make statements. That is, they make incorrect statements because those statements are not even true for this picture. 
+
+So we know that gradient descent will reach the global minimum. We don't know yet that SGD will reach the global minimum. What can you do to make SGD stop? You can reduce the learning rate. The learning rate is the one thing that causes you to move. If learning rate decreases with time with the number of iterations, of course you will stop moving, force or no force. 
+
+And this is really the second trick in the book of SGD. Decrease the learning rate to make sure that it stops. Where should you stop? Should I stop when I'm here? Should I stop when here? How do I decide when to reduce the learning rate? Well-- 
+
+You validate. 
+
+Let's not worry about validation for a second. Let us only fix on optimization. We don't know anything about the validation. The validation quadratics could be here. Or they could be here. So we don't know very much about that data set, so it doesn't help to think about it. 
+
+But for a second, let us focus only on minimizing the objective that we are given for the training data set. People will appreciate that if you decrease the learning rate quickly, you will stop here. And that's actually a bad point for a lot of samples because the blue curve has a large value there. 
+
+You want to stop somewhere near the global minimum of the blue line, but you don't know when to stop because you're continually switching-- shuffling the weights. And so if you decrease the learning rate too slowly, well then, you will keep on shuffling for a long time. If you decrease the learning rate too quickly, then you may stop somewhere before where you are supposed to stop. 
+
+So this picture will be-- even if you want to think of a convex objective in those many dimensions, it is 1 million dimensions and the quadratics are very far away from each other, so it is not very easy to decide whether the weights are shuffling too much or not shuffling too much. 
+
+They always keep seem that-- it will always seem that weights are moving, but you will never be able to say conclusively that you should stop or not stop. OK, so this very simple picture gives us an idea of how working with SGD is a tiny bit more difficult than working with gradient descent because we don't know when to stop or what to do with the learning rate and this kind of things. 
+
+OK, so this is actually the solution of the linear regression problem. So this is the global minimum of the blue line. And you will see that it is simply the average of the loss. 
+
+An illustration of SGD Transcript (23:09)
+This blog is also listed in the notes. I want to show you an example of SGD optimizing a loss function. If you have a very small step size, then you are taking stochastic updates to optimize this two dimensional function in this case. And not surprisingly, you don't reach the optimum after a few iterations. 
+
+If you have a very large step size, so the small step size is similar to what he said when you stop. Imagine that it was large before and now it is small, so you stop [INAUDIBLE]. If your step size is kind of large, then you jump around the zone of confusion. And this is how the zone of confusion looks like. So in your training, you have seen your training loss do these wiggles. That is the zone of confusion. 
+
+If you have a very large step size, then you know that you reach the optimum very quickly because you're taking large steps. But you're not taking steps exactly along the perpendicular directions to the contours notice. SGD is not the exact gradient as gradient descent. It is only calculated using one sample. So it will not be exactly perpendicular to the contour. It will be a little bit misaligned. And with large step sizes, you can have a very large zone of confusion. 
+
+Reducing the step size makes sure that you don't move much. You can move slowly. So in the blog, whoever wrote this was running for a few iterations. So it looks like you don't move too far away from the minimum. But actually you can move. Just because the steps are small doesn't mean that you don't move very far. It just takes you more iterations. So the zone of confusion is the same size. It's just that how much you move depends on how many iterations you do. 
+
+So next we are going to write down what the step size for SGD should be. The momentum fundamentally is about trusting your past. For SGD, you can't even trust the current gradient. So of course, the past is also incorrect. So momentum plus SGD actually is exactly as fast as SGD. There is no difference. So momentum cannot accelerate stochastic optimization. We'll see this in a bit. But you have clearly used momentum when you trained a neural network. 
+
+Convergence of SGD Transcript (25:55)
+For SGD, you also need to think a little more carefully about what it means to converge. Because the minibatches are chosen randomly, right? So each minibatch is a random variable, so l of wt is also a random variable. wt is a random variable that depends on omega 1, omega 2, et cetera, till omega t. Omegas are the indices of the samples that were chosen. 
+
+So the weights that you are at after t iterations are a random variable that depend on what samples were chosen. The loss that you have is also, obviously, now, a random variable. So it doesn't mean very much to say l of wt minus l of w0 for SGD. l of w0 is a number. This is a random variable. So it's a meaningless quantity. 
+
+What makes much more sense is quantities like this. What is the expected value of the loss after t iterations as compared to, let's say, l of w star, which is actually a number. The expected value, wt is a random variable. wt has some distribution, depending on what samples you chose in those t iterations. And this is the average over those samples. 
+
+So we'll always be talking about this kind of expression. So when we ask how quickly a SGD converges, can you calculate this? How will you calculate this if you wanted to calculate this? This is the average after each step. 
+
+All the different permutations of the samples of these timesteps, right? So you are, let's say, 50 students in this class. Each one of you trains a network, and I will ask you, what value of weights did you get after 1,000 iterations? And then, we'll calculate this average across all you people, and that will be one estimate for this. So it is not very easy to calculate this number. 
+
+OK, so next, we are going to do the analog of the descent lemma for SGD. And it is very, very similar to the descent lemma for gradient descent, except that in the descent lemma for gradient descent, we had expressions of this kind. The gap in the loss or the improvement in the loss after one step was upper bounded by the inner product of the gradient with itself plus l eta square the norm of the gradient square. 
+
+So we had the descent lemma, which was l of wt plus 1, less than or equal to l of wt plus l over 2wt plus 1 minus wt all squared plus the gradient of l of wt times wt plus 1 minus. OK? This was the standard descent lemma. And when you substitute this as negative eta times the gradient of the loss at wt, you get this expression exactly. 
+
+As we said, these kinds of expressions are not very meaningful for SGD. Both of these are random variables. So this is a difference of two random variables, which is also a random variable. So it doesn't make a lot of sense to say every single thing, in fact, in this expression is a random variable. So you cannot write down an inequality like this. 
+
+What people will write down is something like this, the conditional expectation condition on wt. So I am at wt now. How much does my loss decrease in the next time step? The expectation is taken over omega t. Omega t is the datum that I pick to update my weights at time t. 
+
+For all possible samples that I could have picked, there are n possible different samples for all of them. What is the average improvement in the loss do I get? This is how-- and this is a reasonable quantity to think about when we want to understand whether the loss decreases or not. 
+
+The derivation of the descent lemma is very straightforward and a little bit tedious, so we won't do it. But it looks like a very similar expression. Instead of the inner product of the gradient, you have the inner product of the full gradient times the inner product of the minibatch gradient. Then the average of the minibatch gradient. 
+
+So l omega t is the gradient of the sample with index omega t. And this is the expectation over all your samples. This is the same as our gradient descent gradient. 
+
+In the second case, is now getting the norm of the gradient whole squared. You get the expectation of the norm of the stochastic gradient's whole square. So this is a sum over n quantities. 
+
+Each of these things is the norm of the gradient on the ith data point. There's n data points like this. It's a very similar expression like the descent lemma here, but with a few differences because of the conditioning on wt. 
+
+The important point to notice, however, is that for gradient descent, we said that this quantity is always negative. So we chose, if the step size eta is less than 1 over l, then this entire thing is negative on the right-hand side. So we said that the loss of gradient descent always improves after every step monotonically for convex functions. 
+
+For gradient descent, that is no longer the case. For stochastic gradient descent, that is no longer the case. The loss need not decrease monotonically. And that is what we will see next. 
+
+The intuitive reason is, of course, that you don't calculate the full gradient. You only calculate the gradient over a few samples. So the other samples can get unhappy if you try to improve your objective on this one sample. 
+
+Assumptions on the stochastic gradient Transcript (32:52)
+Basically to define an upper bound on the left-hand side, we need to make some assumptions on what these two quantities are. These two expressions are not in the hands of SGD, right? They are something that depends on the problem itself. It depends on the data set. It depends on the loss that we have. 
+
+So we will make some assumptions about these quantities, and then we'll be able to simplify this expression better. What is a natural assumption for this? This is the average of the gradients of each sample. Is it the same as the average of the-- as the gradient of the average loss? 
+
+Why? The gradient of the average loss, which is the left-hand side, is equal to the average of the gradient of the loss of every sample. When is this expression exactly equal to this expression? 
+
+Yes, so I think you are confused more than necessary, in this case. If omega t-- omega t is the way I sample my images. If omega t samples images uniformly randomly, then these two expressions are equal because every image has exactly 1 over n probability of being sampled. If omega t does not sample images uniformly randomly, then the two are different. 
+
+So this is the first assumption we will make. We will make the assumption that omega t is such that it samples images uniformly randomly. It doesn't do any funny things like sampling more cats or sampling more dogs. It samples everything uniformly randomly. And in that case, this is exactly equal to this expression. 
+
+So that is our first assumption. Stochastic gradients are unbiased. What does unbiased mean? It means that the average of the gradients of each sample equals the gradient of the average loss. 
+
+The second assumption is a little more tricky. We need something about-- to say about this stuff. This is the average of the norm squared of the gradient. This is the average of the gradient itself. So we need some understanding of what the average of the norm squared of the-- per sample gradients look like. With me so far? 
+
+Does this expression feel intuitive to you? If there are a hundred images, every image has its own gradient. And this is the average of the norm squared of those gradients. We can call this a per sample gradient, if you want to remember it in words. 
+
+For a second, let us set sigma 0 to 0. And the second moment-- the second assumption that we are going to use is that the second moment of the gradient, which is the norm squared of the per sample gradient, average of the norm squared of the per sample gradients, does not grow too quickly. It does not grow precisely this much quickly. 
+
+At any rate, w, it is upper bounded by some constant sigma times the norm of the full gradient. Do people understand what value sigma can take? So this is an assumption that we are making. This is not a theorem, or this is not a Lemma that we are proving. 
+
+We are choosing to analyze functions for which this expression does not grow too quickly. In particular, it is upper bounded by some constant times the full gradient whole squared. This constant sigma is a choice that we make. It's specific to every problem. Can it take values that are smaller than 1? 
+
+Can you apply Jensen's inequality to this? This is the average of a convex function. The convex function is the norm squared. The average of a convex function is greater than or equal to the convex function of the average. 
+
+The average of the convex function at two points is given equal to the function evaluated at the average. So this one is greater than or equal to the convex function. And this is omega t. All squared. If the gradients are unbiased, what is this? It is exactly equal to the gradient of the loss, of the average loss. Make sense so far? 
+
+So Jensen's inequality tells you that this one is greater than or equal to this quantity. So sigma has to be at least 1. Sigma cannot be smaller than 1. Then equality holds in the other direction, in this direction, for sigma equal to 1. So you can only plug in something larger than 1 and hope that it is smaller. 
+
+So it doesn't-- for sure, the left-hand side is at least this large. And we are making the assumption that it is not too large. It is smaller than sigma times the norm squared. With me so far? 
+
+OK, so this is one part of the assumption. Now, let us think of the weight, w. We said how at the-- because of the zone of confusion, different samples like different weights. Imagine that you are exactly at the global minimum of this function. You are at this location. 
+
+What is the full gradient? 0. What is the stochastic gradient? Non-zero. The stochastic gradient is non-zero because it is specific to every sample. The full gradient is 0 because it is a global minimum. So the second part of this assumption is how different the stochastic gradients are at the global minimum. 
+
+So let us go back down to the expression now. At the global minimum, this is 0. So this term don't matter. And what we are really saying is that, look, the stochastic gradients are not the same, clearly, because then it would be like all the parabolas being the same, having the same solution. 
+
+But the different gradients are not too different from each other. They are not different by this much. The norm squared of the vectors, when you add them up, it is less than sigma. And what this really means is that the different samples are not very different. The solutions of the parabolas are kind of close to the global minimum. 
+
+This one is a statement more about how quickly the norm grows, so how quickly the parabolas shape up. This one is a statement of how different the different parabolas are. Questions? 
+
+This is a very interesting thing to understand because you can read these very abstract papers, and people will basically begin the paper with this assumption. But they will never tell you why they made this assumption. They went through this entire thought process. And that is why the assumption was made in the paper. 
+
+Once you understand why the assumption was made, you can ask yourself whether it is valid in our case or not, or how does it affect what we do in practice or not. So these constants that look like part of the assumptions have meaning. Sigma not being large tells you that this is a very diverse data set. 
+
+The cats like different weights. Dogs like different weights. And giraffes like different weights. Sigma being large tells you that it's a very highly curved parabolas, all of these. 
+
+Descent lemma for SGD Transcript (42:56)
+Once you make these two assumptions, then basically you have assumed everything that you need to assume in the right hand side. Now we just plug in stuff. So we know this much. It is simply the descent lemma condition on wt. We have assumed that this quantity, the average of the per sample gradient, is exactly equal to the gradient of the average loss. 
+
+So I can write the first term like this. We assumed that this term, which is the average of the norm squared of the per sample gradients, is less than sigma 0 plus sigma times the whole gradient squared. So we can substitute that inequality in this case. And if you simplify, you will get a term that looks like this. 1 minus this constant times the full gradient squared plus some constant, a pure constant that does not depend on the weights. 
+
+And now this is an important point to make. In gradient descent, we really did not have this term. We did not have any constant like this. We had that this thing, the gap, the improvement in the loss was always less than some negative number. But here we have that the right hand side is some negative number and a positive number. So it is not clear that the loss of SGD always decreases monotonically after each step. It depends on what the relative magnitude of these two quantities is. 
+
+And now the name of the game is really to pick a learning rate eta that balances out these two. We want this one. So again, we'll be doing a telescopic sum of some kind. Because this is lwt plus 1 minus lwt style terms to get some bound on l of wt with respect to l of w star or l of w0. So we need to pick a step size such that this right hand side is small when you sum up over all the time steps. 
+
+ 
+
+Convergence rate of SGD for strongly convex functions Transcript (45:191)
+So Léon Bottou is a professor at NYU. And he gets the credit for basically popularizing the use of SGD in machine learning. SGD, as we said, is a very old algorithm. It wasn't known by SGD. In fact, when I was a student of your age, I knew about the old style of SGD. I never knew that people use it in machine learning about 10 years ago. 
+
+So Léon Bottou wrote the initial version of PyTorch also with Yann LeCun. And they both get kind of the credit for basically starting to use SGD for big machine learning problems. 
+
+So if the learning rate is less than 1 over L times sigma in this case, in gradient descent we only had 1 over L. For strongly convex functions and L smooth functions, so we are talking strongly convex functions, not convex functions, unlike gradient descent, where this condition was 1 over L. The average loss that you will get after three iterations. 
+
+Look at this carefully. So this is averaged over all possible images that you have chosen in the first three time steps. We said how this is a random variable. This is a random variable that depends on which images you chose. And this is the average thing that you will get after training many, many times over all the permutations that he talked about. 
+
+You compare it to the gap, to the best value of the loss, l of w star. Whatever the function is or how you minimize the function doesn't change l of w star. That is just a global minimum. So this quantity, we would like it to be small. Is it negative ever? No, because l of w star is the smallest value you can get. 
+
+You can upper bound this quantity as a sum of two terms. The first one is something that depends on sigma 0. The second term is a little bit like our c raised to t term of strongly convex gradient descent. This 1 minus step size times m, which is a strong convexity parameter raised to t times a bunch of stuff that we don't control. w0 is where you began. So you don't control where you began. So this one is not in your hands. It is how far you are from w star in terms of the loss. And this is another constant that you get. 
+
+Now, there is a very important thing to notice in this expression. If we pick eta times m to be nice, if this 1 is less than 1, then this entire thing goes to 0 at large times e. Just like the gradient descent proof. This one never goes to 0. It is always there. So this is very precisely the zone of confusion. No matter how long you train, you will never be closer than this term from the loss. Precisely the point. 
+
+So the only way that we can take this entire thing, the entire right hand side is small, is by decreasing eta to kill the first term. But what happens when you decrease eta to the second term? It becomes more and more close to 1, in which case this term doesn't decrease too quickly now. So you can never beat both these terms. This term is a little bit like the convergence of gradient descent. This term is coming from the zone of confusion. And the first one likes a small eta. The second one likes a large eta. 
+
+That is why there is no one nice value of eta that works both well for both terms if you have to send the entire thing to 0. This is why when you train the network, you start with a large learning rate, which actually decreases this term quickly. And then you decrease the learning rate, which sends this term to 0 at the cost of this. 
+
+It is exactly what we saw here. For small values of step size, he hasn't shown it actually. So that is the-- actually you can see it here. So for large areas of step size, the second term decreases quickly. So you reach close to the global minimum. But the first term is large. So first term is step size times L times sigma 0 divided by m. And so these large movements that you see at the end are coming from the first term. 
+
+If you pick a small step size, then you don't decrease. You don't go close to the minimum at all very slowly. So what people do and what you also did in your homework is that you pick the large step size in the beginning and you went close to the minimum and then you shrunk it and reduce the first term. The moral of the story here is that you need to reduce the step size to 0 in some way. You cannot decrease it to 0 quickly because then you will basically stop away from the minimum. You cannot decrease it to 0 too slowly, because then you will bounce around a lot near the minimum. 
+
+One particular schedule that people use to decrease step size, and this is also fashionable to analyze SGD in this schedule, is that the sum of the step sizes from 1 to infinity of whatever way you use to reduce the step size is infinity. This is time. This is step size. So people will pick a decrease of the step size such that the sum is infinity, but the second moment is something finite. 
+
+And this basically forces the step size to decrease to 0 at some finite time. Because if it never decrease to 0, then this one would be infinite also. So this basically says that learning rate has to be smaller than 1 over t. If the learning rate is smaller than 1 over t, then it satisfies these two conditions. This is one standard kind of condition that people use to decrease the step size. 
+
+Convergence rate of SGD Transcript (52:15)
+So let us now obtain a convergence rate. There is a tiny step to go from an optimality gap like this to seeing how many time steps should I take. This is in terms of time. If my learning rate is chosen according to this, then now how many time steps will I need to decrease the loss? That is the content of the second question. 
+
+So one very classical result in SGD is that let my step size be something like beta divided by t plus t0. It is not important what beta and t0 are. But what that really means is that let my step size be 1 over t. And so this obviously satisfies our two conditions. It decreases with time. If your step size is so and so, then the optimality gap, optimality gap is simply a name given to the left hand side, how far you are from l of w star is order 1 over t plus t0. 
+
+So as t goes to infinity, this goes to 0. Everything is nice. As t goes to infinity, the learning rate goes to 0. The bouncing ball comes to a standstill and it converges somewhere. It converges to a loss that is order 1 over t. So if you wanted this entire thing to be less than epsilon, what t would you pick or how many iterations will you run for? 1 over epsilon. 
+
+For strongly convex functions, if you are doing gradient descent, this is the number of iterations that you were required to use. If you are running stochastic gradient descent, you are running these many iterations. Which one is smaller? Gradient descent, of course. It is much, much, much smaller gradient descent than-- so this is logarithm of 1 over epsilon. Epsilon is 10 to the negative 2. Then logarithm of epsilon is roughly order 2 and whereas this is 100. 
+
+So moral of the story, SGD uses a gradient that is not the exact gradient. And even if it is minimizing a strongly convex function, it is much slower than gradient descent when it minimizes this function. 
+
+Convergence rate of mini-batch SGD Transcript (54:48)
+So this theorem holds when you run SGD with a mini batch size of one. If you run SGD with a mini batch size of b, which is what you typically do-- why do we use mini batches? Why don't you use a mini batch of 1 when you train a network? 
+
+Memory. 
+
+Not memory. Memory is worse for many batches-- of many, many batches. I mean, if you did not know anything about this chapter, we already asked the exact same question many lectures ago. Why should we use mini batch? We use mini batches because then we can use all the linear algebra acceleration that comes from writing down your matrices together. 
+
+So a matrix vector being multiplied many, many times is slightly slower than a big matrix and another matrix multiplied together on the GPU or on the CPU. So we use mini batches because the computers are faster with amortized calculation like this. Make sense? 
+
+So it behooves us to think about what having mini batches does when you write down convergence rate for SGD. Having mini batches doesn't change the first assumption of SGD. The gradient is still unbiased. 
+
+If the gradient of sampling one image from the entire data set is equal to the full gradient on average, then the average gradient of mini batch of b images is also equal to the full gradient on average. Makes sense? I said it in English because it sounds a little easy to remember. 
+
+But in mathematics, this is the gradient of b mini batches that you have sampled in your-- b images that you have sampled in your mini batch. And I am being very horrible in my notation. So I will denote by little b both the number b and the set of images in your mini batch. 
+
+So when I say expected value over b, what I really mean is draw mini batches of size b many, many times and then average them. And so this is actually the gradient of each of those mini batches. So it's a funky notation, but it is much shorter than writing it properly. Makes sense? 
+
+This is the average of mini batch gradients. How many mini batches are there if I have 100 images and I have a mini batch size of 5? How many different terms are there in this expectation? 
+
+The answer is five, right? I am choosing five images randomly from a data set of 100. So this then shows five different things that I could choose. Those are the number of terms in this expectation. For every one of them, there is an average gradient of the mini batch. 
+
+Not surprisingly, the average of this entire business is equal to the average gradient or gradient of the average loss. You can write down this calculation yourself if you want. It is quite a nice calculation to do. 
+
+This is the unbiasedness of the gradient. The second moment condition actually is a little bit more interesting. So again, just like we took the average across the samples of the per-sample gradients norm squared, I can take the average across all the mini batches of the per-mini batch gradient norm squared, which is this term. 
+
+You will notice, or you can convince yourself, that if the constants for a mini batch of size 1 were sigma and sigma 0, then if you are using a mini batch of size b, then those constants will be sigma 0 over b and sigma divided by b. 
+
+Basically, because we are averaging b images, the curvature of the average loss cannot increase faster than sigma over b. This is a slightly longish calculation that you can do at home if you want to, but it is not unintuitive. 
+
+So if you're running the exact same data set, exact same network, if you are running SGD with a batch size of b equal to 100, then we can first calculate these constants for batch size of 1 and then choose those constants to be these values for batch size of 100. 
+
+The learning rate-- so because sigma becomes the effective sigma, now is sigma divided by b, your learning rate was 1 over L times sigma at most. So now you have b divided by L times sigma. 
+
+Before you were taking a gradient step using only one sample. Now you are taking a slightly better gradient with b sample, so you can use a slightly larger learning rate to travel in that direction. Makes sense? 
+
+The one sample gradient could have been very different from the true gradient, so you could not trust it too much. Now the gradient with b samples is a slightly more accurate estimate of the full gradient, so you can trust it a little bit more and travel more in that direction using a larger step size. 
+
+So our expression becomes something like this. Instead of sigma 0 here, you get sigma 0 divided by b. So the first term, the pesky constant term, decreases by a factor of b if you are running SGD. And what happens to this term? 
+
+It becomes worse by a factor of b. Or if you choose the same learning rate and simply have a large batch size, then this term is unchanged. So doing all this extra work for calculating the gradient at each mini batch but without actually doing anything to this part of your inequality, that decreases exactly as slowly as you would if you had a mini batch of size 1. 
+
+This is why, when you have a large batch size, you should also use the learning rate to be slightly larger. And that will decrease this away from 1, and it will decrease faster. 
+
+Another way of seeing this is that we know that 1 minus x raised to t is less than e to the negative t times x. This is just an identity. So if your learning rate is-- if you increase the learning rate by a factor of b, then the effective number of iterations that you need decreases by a factor of b as far as minimizing this term is concerned. Everyone with me so far? 
+
+This is a slightly convoluted argument, but the moral of the story is that this kind of a result holds for mini batch size of 1. If you are using a mini batch size of b, then we should use a learning rate, or we are allowed to use a learning rate, that is b times larger. And that basically means that you have to use b times less iterations to run to diminish this term. effectively, are you doing less or more work? 
+
+Equal? 
+
+Exactly the same amount of work. If you have a batch size of 1, you calculate only the gradient on one sample. You, let us say, run for 1,000 iterations. If you have a batch size of 100, you are doing 100 times more work at each iteration. And now I'm telling you, you need 1,000 divided by 100, which is 10 iterations, but effective amount of work is the same. Makes sense? 
+
+So this is a slightly surprising result, that having mini batches does not let you decrease the loss any faster by SGD-- at least on paper. And that is why you use mini batches more for the linear algebra speedup that you get on the GPU, not so much for the sake of convergence rate. 
+
+ 
+Discussion on the convergence rate of SGD Transcript (01:03:18)
+Yes, it does decrease the zone of confusion. But remember that depends on the learning rate you pick. So your learning rate, if you are going to pick it to be proportional to p, then that is itself quite large. So this factor of b will be gone. So it doesn't decrease the zone of confusion effectively. It all depends on what learning rate you pick. 
+
+Yeah, so the way to understand, this is a very important and interesting point. These are all inequalities on this quantity. If you do the analysis of the previous chapter, we get a nicer inequality than this inequality. And as you observe, if I choose b to be very large, then it is not as if this term is magically going to go to 0. 
+
+But in the previous chapter, we saw that it was 0. But both of these inequalities are true. This one is a loose analysis when it is applied for gradient descent, because you build this analysis for SGD. And while the theorem remains true, if you plug in b equal to n in this, it is not very-- or you have a stronger theorem from the previous chapter. So you would rather use a stronger one. But beyond this constant, the rest of it is actually the same. 
+
+Yes. Totally. This is very funny. So somehow everything that we are doing is really not very fancy mathematics. So people knew or at least knew these results in the early 2000s way before some of you may be born pretty close to the mid '90s I guess. So we knew these results in early 2000s. 
+
+And then when people began to work a lot on deep learning in 2012, '13, '14, '15, somehow the people working on deep learning were not the people who created these results. So when they would train networks with large batch sizes, they did not increase the learning rate like this. And then they would say, oh, my network trains too slowly even if I'm using all these large batch sizes. 
+
+So there's a very funny paper by Facebook. And it is called Training ImageNet In One Hour. They use 256 GPUs and trained ImageNet in one hour. To give you an appreciation for why this was very big, when I was a student, I wanted to train ImageNet also because I was telling my advisor that, look, I'm so good at optimizing neural networks. Let me try it on this big problem. And so we calculated that it will take about $1,000 to train it once and it will take 45 days. So if I use one GPU. 
+
+So this paper came out sometime in the middle of my PhD, I think 2017, exactly when I was trying to do the same thing. But the cool part of this, the only interesting thing that is driving this result is that they chose a learning rate that is proportional to batch size. 
+
+So if I had known this result or even they had known this result, they could have done this five years before what they did. And the only reason that they realized this is because Léon Bottou was at NYU and then he went and also became a scientist at Facebook. So he told them this is a very basic result and why don't you use it to run this. And turns out it is a good idea. 
+
+So sometimes these very basic bread and butter theorems of optimization, if you use them wisely, they do work. A large fraction of them do not work because the theorems are not really nice. But some of the more basic ones just can be applied directly in deep learning. 
+
+No. But this is not about better minimum. This is about how fast you go there. So you should really think of this as something that the entire thing being less than epsilon and then choosing the number of iterations that you need to go there. Better or worse, we don't know yet, at least in terms of generalization. 
+
+When should we use SGD instead of GD Transcript (01:08:110)
+Why would you use SGD and when would you use gradient descent over SGD. And I think we basically know the answers for everything right now. So let's say convex. And actually strongly convex. We said gradient descent for convex functions converges at 1 over epsilon. Rate gradient descent for strongly convex functions. You need 1 over log or kappa times log 1 over epsilon. 
+
+We said Nesterov's method. We did not do this, but it converges at 1 over square root epsilon, which is actually Nesterov's lower bound also. And this one converges at square root kappa logarithm of 1 over epsilon. SGD. We did the strongly convex case. How many iterations do you need? 1 over epsilon. 
+
+For strongly convex functions, we did not do this result, but we need 1 over epsilon square steps. So you see it is actually-- so this is itself quite bad as compared to a gradient descent. But if you have a convex function, then it is actually quadratically worse again. 
+
+And then now let me write down here work per iteration. These are the number of iterations that we need to pump in. And then how much work do you do per iteration of gradient descent? 
+
+All of them, and all the-- 
+
+Depends on all the samples. So it is order n work. If you have n samples, you do n amounts of work. Order n work at each iteration. For Nesterov, how much work do you do per iteration? It's the same thing. It's the same gradient. And then there is a couple of extra calculations for summing up the weights and those are not very important as compared to calculating gradient. How much work do you do for SGD? Batch size. 
+
+So when will you use SGD over gradient descent? Let's say that we are doing convex functions. The total amount of work you do in gradient descent for a convex function is n times n divided by epsilon. The total amount of work that you do with SGD and convex functions is batch size divided by epsilon square. Let's say that the batch size is 1. So that becomes easy calculation. So let's say that we send this to 1. 
+
+So what we are comparing is the total amount of work done by gradient descent, which is n over epsilon, at the end of training to reach loss or to get a suboptimality gap that is epsilon. For SGD, we have to do this much amount of work. So if the epsilon is something that I pick, I am solving a problem. I want so and so accuracy. 
+
+What is epsilon? Epsilon is the average error that I get over my data set. If epsilon is less than 1 over n, then what should I pick? If epsilon is less than 1 over n, which one is smaller out of these two? Gradient descent. If the epsilon that I want is smaller than 1 over n, then I should use gradient descent. If I want an epsilon that is not smaller than 1 over n, then I should use SGD. Make sense? 
+
+What is the epsilon that you want when you train your network? How small? As small as possible. This is the glass half full kind of guy. So let's see. So I am trying to classify images. And let's say that I have 10 to 3 images in my data set. And so he says that, look, I want epsilon that is less than 1 over n. So he wants an epsilon of 10 to negative 3 over here. 
+
+What is epsilon? Epsilon is the average error on the sample. So every sample you want to make sure-- or you want to classify 1,000 minus 1 sample correctly. If the average error is 10 to negative 3, that means you are making only one mistake on the entire data set. Makes sense? So classifying 1,000 minus 1 images correctly. 
+
+If now your data set has 10 to 6 images, if he wants to pick an epsilon of 10 to negative 6, then you're saying, look, I have a million images and I'm still only happy if I make at most one mistake on these 1 million images. And I say that this is glass half full because you can say that, look, I have a million images. 
+
+I made one mistake on 1,000 images. I would be pretty happy with 1,000 mistakes on 1 million images. It would still give me the average loss to be exactly the same. So you could pick an epsilon of 10 to negative 3. And in this case, you will make 1,000 mistakes. In this case, you made only one mistake. The reason you have 1 million images. Now we can talk about his answer. 
+
+So if you have 1 million images from the exact same narrow problem, then it is totally reasonable to expect something like this or to want something like this. Your problem is very narrow. You have lots of data from that problem. And so of course, you demand a lot of training accuracy from your model. 
+
+If for your problem you chose 1 million images from a very diverse data set, let's say 1,000 different categories of objects, then it is also reasonable to only demand this much performance. So it depends a little bit on the problem. If the problem we are solving is diverse, then you would be happy with a average error that does not change with the number of samples you have. 
+
+And this is an important point. So if you're solving a difficult problem, I was sad when you gave me less data points. I'm happy when you give me more data points. But I'm also a reasonable guy and I don't demand too much performance on either case. So if you want epsilon to be a small constant, then what should you pick to optimize? 
+
+If no matter what data set you-- if I don't demand that the error decreases with more samples, if I'm happy with a constant error, constant average error, then I should use SGD. If I demand that my error becomes better and better if you give me more and more samples, then I should use gradient descent. 
+
+This is a very important point. And this is the reason why everyone in machine learning uses SGD and not gradient descent, because for the data set that we use or for the kind of problems that we solve, if Google mislabels one of your photos, it labels one of your photos incorrectly, it really doesn't matter. If you have 1 million photos and labels 1,000 photos incorrectly, would still be fine. If you have 1,000 photos mislabeled one photo incorrectly, you are also equally happy. You don't demand more and more performance when you get more and more data. 
+
+If you are a biologist who gets data from the experiments, then they do demand more and more performance when they get more data. But for machine learning, we don't. 
+
+SGD vs. GD on imageNet Transcript (01:16:48)
+It cannot hurt. Yes. Except that you're doing more work. Remember that it takes a million images. It's a very large data set. So using gradient descent versus SGD is a huge difference. Because this number actually is going to be quite large. 
+
+So let me give you a real example. So when we train on ImageNet, ImageNet has one million images. We demand epsilon that is roughly-- imagine it has about a million images. We demand an epsilon that is something like 0.25, which is huge. So 25% training error is something that we are happy with or order or 10% training error. So this number is 4 times 10 to 6. This number is what is really like 1 over 6, order 1 over 16. 
+
+And there is a big constant here that you don't see. But this can be a night and day difference between the amount of work you do for gradient descent and SGD. In fact, to my knowledge, no one has ever trained on ImageNet with gradient descent yet. For other reasons, but this is part of the reason. 
+
+But it is important to realize that while in machine learning, we are happy with large values of epsilon. There are other problems where you want a small epsilon. Can you give me an example where you want epsilon to decrease with the number of data points? If Tesla makes a car, it goes and collects more data. If the error does not decrease with data, then the Tesla is doing poorly. 
+
+Any other example? Yes. Yeah. You will also see some of them. So if you have ever had a CT scan done on you, a CT scan machine is like, let's say you put your leg inside the machine. And the machine clicks. Let me try to draw a leg. And then the machine is like a little hollow thing. And then it clicks pictures of your leg from different viewpoints like this. And it clicks a few pictures and creates a 3D reconstruction of the bones in your leg or your chest or anything for that matter. 
+
+Now, each image takes, let's say, a few seconds to take. So let's say 30 seconds to take one image. Typically it will take about 10 minutes to get one CT scan. So you are taking roughly 20, 25 images. If you have 50 images, if you sat in the machine for 20 minutes, you would demand a better accuracy of reconstruction of the leg. You would be very unhappy if the clinician says, oh, look, I can see what is happening in your lungs, because I did not demand a larger epsilon. 
+
+So these are problems that are not machine learning problems. They are problems of more classical optimization. Oftentimes when we are optimizing something and you have more samples to optimize it, you want a better accuracy. In robotics, if you are aligning two point clouds together, if you have more point clouds to align, you want a better accuracy for the localization of the object. 
+
+So there are many problems where you want to use gradient descent like methods. For machine learning, we are lucky that we can get away with SGD. And it is really specific to machine learning. For many, many other problems you will need gradient descent. 
+
+Polyak-Ruppert averaging Transcript (01:21:04)
+OK. So next we are going to look at momentum. Now, the important thing to understand about momentum is that we use momentum or momentum led to acceleration of gradient descent, because we trusted the velocity that we were coming from before. We trusted the velocity of the previous iteration. We used it to go forwards. And that is why you get a speed up. 
+
+For SGD, can you trust things like this? No, because the gradient was stochastic. Your gradient was calculated on a subset of images. It is not the true gradient. So why would you trust the past if you don't trust the current gradient to be equal to the true gradient? So intuitively, we should not expect a similar speed up with momentum for SGD, because the past gradient can be exactly as incorrect as the current gradient. 
+
+There is a very nice method, it's quite old also, called Polyak averaging. Polyak is the same guy who did the Polyak heavy ball. And this also was done around the same time. It works as follows. So you run gradient descent on-- or you run stochastic gradient descent as usual on these weights. But you secretly maintain the average of the weights of all your past. 
+
+U is never used in these updates. You are running SGD as normal but simply you maintain another buffer, just like we maintain buffers for batch norm. This one maintains a buffer for the weights, which is the average of all the weights of your past. 
+
+You can ask yourself at the end of training, I am not going to think of w as my answer. I am going to think of u as my answer. This is the average of the weights of all my iterations of SGD. How close am I in terms of the loss if I think of u as an answer? 
+
+And so this series of papers, which are quite surprising back then, they showed that both of these converge at the same rate 1 over epsilon. So it is not as if one of them is much faster than the other. At least not in order epsilon. But this one has a smaller constant. So it is a bit faster than this one. Average is simply averaging the weights is a tiny bit faster in terms of decreasing the loss than not averaging the weights. It is not egregiously faster but a tiny bit. 
+
+So this is one example where there is not momentum. This is just averaging. But averaging leads to a tiny bit of speed up. And the reason this is cool is because it is also pretty straightforward to code up inside your network. You code up SGD using simply a for loop. 
+
+For the third problem in the homework, I would encourage you to not use data loaders and all these things. Just code up SGD by hand. It is going to be much, much, much cleaner that way than using PyTorch data loaders. So SGD [INAUDIBLE] using a for loop. 
+
+And if we do, let's say, exponential averaging of the weights, then we have some hacky version of this implemented using the exponential averaging. And we can expect to get a similar benefit. We typically don't do this in image classification, but you do do this in areas like reinforcement learning where basically without this things will not work well at all. 
+
+OK. So this is Polyak averaging. Ruppert did it first. So it's called Polyak-Ruppert average. So Ruppert did it first, but no one knew this paper. And then this paper is the real one that became very famous. Everyone started calling it Polyak averaging, then they felt bad and they called it Polyak-Ruppert averaging. 
+
+In PyTorch there is also a little trick that implements this exactly. It is called Stochastic Weight Averaging, SWA. And so you can use it when you're training neural networks. It works quite nicely. 
+
+Momentum methods don't accelerate SGD Transcript (01:25:25)
+So next point, momentum methods do not accelerate SGD. And this is just a theorem for the-- the intuition for this theorem is the same that we just talked about, the past gradient was incorrect, so trusting it too much doesn't help you. We will not do the proof and stuff, of course, it's quite complicated. 
+
+Again, one thing that is true is that having momentum in SGD does not accelerate things by a lot, but it accelerates things by a constant factor. For strongly convex functions, we know that gradient descent has an inequality like this. The gap in the weights after t iterations from the optimal weights decreases as something-- e raised to negative t divided by square root kappa with Nesterov's method as compared to the original gap. So this is just gradient descent. 
+
+When you have a momentum plus SGD-- so SGD with Nesterov momentum, the only thing that happens is that this becomes e raised to negative c times t divided by kappa. So you don't-- you lose the square root kappa, you get a kappa in return, which is actually a tiny bit worse. But more importantly, the constant c is a tiny bit smaller than 1, so it is not as if it is much better. 
+
+OK. So moral of the story, acceleration for stochastic optimization is not as easily done as acceleration for non-stochastic optimization. But you can think of ways to accelerate stochastic optimization, and there is only really one way to do it. We will not talk about this, but here is how it works. 
+
+We have a trajectory of noisy gradients, and these are all our weights. So w0, w1, w2, and w3. This is a stochastic gradient. I can imagine that at this location, if I were to calculate a true gradient, I could use that as some kind of momentum at w2. Makes sense? 
+
+That-- because I haven't moved too much between w0 and w2, the full gradient at w0, which is this, I can use it if I'm clever enough to improve the direction of movement at w2. Even if-- so at w2, I'm going to use a combination of the stochastic gradient at w2 and the full gradient at w0. 
+
+If the full gradient was calculated a long time ago, then this is not a good idea because I am basically using a gradient from very different locations in the weight space to take a step at w2. I can also use the gradient w2 to improve the direction. Why don't I do this? It's expensive. 
+
+Calculating the full gradient is very expensive. So we use SGD precisely because we don't want to calculate the full gradient. So variance reduction is a large suite of techniques which basically calculate the full gradient every few iterations, and then use the full gradient to improve the stochastic gradient in between these iterations. And this is really the only known way to accelerate stochastic optimization algorithms. 
+
+So there is many algorithms for this that came around 2010. So it is called stochastic average gradient. Then there is a Stochastic Adaptive Gradient Averaging, SAGA, and then there is the stochastic variance reduction. Then there are things that are-- 
+
+So there was this guy in Microsoft Research and he got really into this. And so he wrote many, many, many papers improving these methods by tiny, tiny amounts. And pretty impressive papers. And so he began naming these things as Katyusha, which is actually a rifle made in the Soviet Union. 
+
+Then there was another one called Natasha, which I don't know if it is a gun. And so I like to joke that he got bored of doing this after a few years, but the one that is really missing is the Kalashnikov one, which will be the mother of all these things and it will be so bad that it will-- OK. 
+
+So moral of the story, there is a long line of tricks to improve the variance of SGD gradients. But fundamentally, they really use the gradient of some past weight to unbias-- to reduce the variance. 
+
+One thing to mention before we stop talking about momentum is that you do use momentum when you train your neural networks in PyTorch. And you can try this at home. Run a network with momentum and SGD, and also run a network without momentum and SGD. And the one with momentum is actually-- will actually be quite a bit faster than the one without momentum. 
+
+And so this has always puzzled me. Mathematically, there shouldn't be too much different, but in practice, they're always quite a bit different. And so it really makes sense to use momentum and PyTorch-- in PyTorch even if you're doing SGD. 
+
+There is a deep reason for this, which is what I worked on during my PhD. And the simple way to understand this is that the images in these data sets they're actually not very different from each other. They're quite similar. So this is a white cat and a white dog, and fundamentally, all the pixels are quite the same even though the labels of these objects is quite different. 
+
+So they will want different kinds of-- the same features will be used to classify these two. It will just be a slightly different classification for the cat and dog. And so what this really means mathematically is that the covariance of gradients taken on two mini-batches or two images is quite small. The gradient of the network on different images is actually not that different. 
+
+You can think of the covariance-- so let's say this is the gradient of image 1, this is the gradient of image 2, this is the gradient of image 3. All of this per-sample gradients point in very, very similar directions, and that is why the correlation is large. 
+
+If they were to point in very different directions then you would get something that looks very stochastic. And so the gradient on one image would be a very poor representative of what happens to the full gradient. But you know that insofar there is 50,000 images, and you use the mini-batch of what? 16? OK. 128. 256. This is roughly the size of the mini-batches that you people used. 
+
+And even with those mini-batches, you are decreasing the loss quite well. So what does that tell you? That tells you that these 16, 256, 128 images that you have chosen are a pretty faithful representation of the gradients of the full data set, and that is very surprising. That tells you that the actual diversity of the data set is not as large as we think. It is all these gradients are pointing the same direction. 
+
+So the stochasticity of SGD when you run it on a neural network is actually not that large. It is very close to gradient descent gradient because all the images are the same. It is-- in one dimension, it is a little bit like our picture here. All the parabolas have the same nature. 
+
+So which ones you pick doesn't matter so much. You're always making progress in the right direction. And this is why you will see that using a tiny batch size works surprisingly well in deep learning, and using momentum actually accelerates things because it is pretty close to the full gradient also. 

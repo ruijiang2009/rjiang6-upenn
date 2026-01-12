@@ -1,0 +1,270 @@
+Conditions for optimality Transcript (00:00)
+So now let us look at gradient descent. We will talk about only gradient descent for a second. No stochastic gradient descent. The loss is our standard loss. It is the average of the loss of every sample xi and yi. And what we are trying to understand is, how many iterations should I run my gradient descent for? 
+
+This is gradient descent, so there is no mini batch. At each iteration, I calculate the gradient of each of these quantities and sum them and average them up because there is a 1 over n here, and take a gradient step. 
+
+What does it mean to minimize a function properly? Well, there are many different kinds of points. You can have a function that looks like this. Is this a convex function? Why? If we apply the definition, I can take two points here and I can draw a cord between them. And there's a bunch of points in the function that lie above the cord. So, by definition, it is not a convex function. 
+
+There are many different kinds of minima in such a function. If our domain was restricted to these points, let's say w and r, then this is the point where the function takes the smallest value. So if this were the gradient loss or someone told you to minimize this function, then this is the point that you want to find. Such a point is called a global minimum. Global minimum by definition is a point such that the value of the function at any other point is larger than the value of the function at this point. Straightforward. 
+
+A local minimum is a similar point. It is a point such that the value of the function locally in a small ball around it is larger than the value of the function at that point. But globally, the function can be lower than that point. So this kind of a point is called a local minimum. And this one is called global minimum. Make sense so far? 
+
+For convex functions, there are no local minima because if there was a local minimum, you can write down an argument by contradiction. If there was a local minimum, let's say then there exists a point, w prime. If w is a local minimum, then there exists a point w prime such that w prime has a loss that is less than the loss at w. This is what it means for w to be a local minimum and not a global minimum. 
+
+If there did not exist any such point w prime, then w might as well be a global minimum. But if there exists a point like this, then I can take some intermediate point in the domain between w and w prime, and then I can write down inequality of this kind. See? The value at v minus l of w is less than lambda times l of w prime minus l of w. This is exactly the definition of convexity that we have given, rewritten in a slightly different way. 
+
+V is lambda w prime plus 1 minus lambda w. So this is the left-hand side of the definition of convexity. Less than equal to l of w plus 1-- or is 1 minus lambda times l of w. Sorry, lambda times l of w plus 1 minus lambda times l of w prime. And then I've written it in a different way like this. 
+
+So what does this mean? Well, since w is only a local minimum, they can always pick lambda to be small enough such that the left-hand side is negative because w is a local minimum. I can pick a v, intermediate point, between w and w prime such that this quantity is negative because that loss at v will be smaller. 
+
+But then this shows that l of w prime is greater than. This shows that l of w prime is greater than l of w because this is greater than a negative quantity. And so this means that if you have a convex function and someone says that there is a point which is a local minimum, then that point has to be the global minimum. It cannot be that there are both global and local minima for the function that are distinct from each other. They have to be the same thing. 
+
+And that is why the picture looks a little bit like this. This is my point w here, which is the local minimum. And we talked about any other point called w prime. And we try to draw a point v around it. 
+
+Understanding multiple global minima Transcript (05:17)
+If we have-- just because local and global minima are the same doesn't mean that there is only one global minimum. This is an important point to appreciate, especially for deep networks. 
+
+The loss function can look a little bit like this. And a modulo in my drawing-- let me imagine that this is a function which is completely flat in some part of the domain. For this function, how many global minima are there? 
+
+Infinite. Any point in this domain is a point such that its loss is the smallest for the entire domain. And there is infinitely many points in between. So there is infinitely many global minima. OK, how many local minima are there? 
+
+Infinite. A local minimum is also-- a global minimum is also a local minimum. So global minima are a subset of local minima. So a global minimum is also a local minimum. There is also an infinite number of local minima for this one, OK? 
+
+So remember this case always because we will see it in deep networks. So this is how deep networks are, in fact. And it is important because it doesn't look like a quadratic. But it looks like a quadratic where we chop off at some point. 
+
+Is this a strictly convex function? No, because? 
+
+The line is not strictly convex. 
+
+The straight line is not strictly convex. So I cannot pull out a quadratic from this. So if a function is strictly convex, then there exists a unique global minimum. If a function is not strictly convex, then there need not exist a unique global minimum. 
+
+But there will exist one loss for the global-- that is the unique minimum loss. Even if there are many points which have the same loss, there is only one value of the minimum loss. I'm saying these things in pictures, and you can write down little proofs by contradiction for each of these statements. 
+
+But they are fairly intuitive statements. You have a quadratic, which you chop off at the bottom. Now there is many solutions for the global minimum. But the value of the global minimum, the value of the function at the global minimum, is the same. 
+
+It will help to be very precise when you talk to your friends or when you think about stuff to distinguish between a global minimum, which is the point w, and the value of the function at the global minimum, which is l of w star. Oftentimes, students or people also will say l of w star is a global minimum. It's not the global minimum. It's the value of the function at the global minimum-- just something pedantic to keep in mind. But it helps to be precise in these things. 
+
+So this is a strongly convex function with m equal to 1. So it has a unique global minimum, and let's say it is somewhere here. Now, depending on what quadratic you pull out-- whether you pull out w squared over 2 or w minus 1 squared over 2, et cetera, et cetera, you can change your solution to something else. OK? 
+
+This is simply you using a different regularizer to select between solutions. It is conceptually very, very similar to your homework problem where you are doing linear regression for a system where you have fewer samples than the number of weights in homework 3. 
+
+So we told you to say that y equal to x times w for all your images in the data set is what you will have to satisfy. But there is not as many samples as the number of dimensions in w. So there are many possible solutions for w that have-- that satisfy all these constraints. Make sense in homework 3? 
+
+How do we pick one of these solutions? In the homework problem, we did not tell you why, but you are doing this, right? Minima is over w such that y equal to x transpose w. And the reason we are doing this is that this particular set of equalities, these are n equalities for n samples in d parameters. There is many solutions if d is larger than n. 
+
+And the entire null space of x-- so w such that x times w is 0-- is also a solution if a particular w is a solution. Out of this, you want to pick one of them. And we told you to pick the one which has the smallest L2 norm. You could have picked any other solution-- let's say the one with the smallest L1 norm. And that is also one other way of selecting one solution out of all these possible solutions. Just like in this particular example, you have many possible solutions, and by adding a weight decay term, you are selecting one solution. 
+
+Yeah, it is not exactly the same solution, if you notice, which is not true in this case. In this case, you are selecting a solution out of all the solutions which satisfy this. Here your new solution may not actually be the global minima of the original function. 
+
+Make sense? So you can think about it later at home. Just because you regularize doesn't mean you preserve the solution set. You pick a different solution set. In some cases, you do preserve the original solution set. 
+
+A global minimum is unique for strictly convex functions. You will have seen this since high school that a point is-- critical points are points where the gradient of the function goes to 0. Just like we took a derivative of a function in high school and set it to 0 to optimize it, this is exactly the same condition where the gradient goes to 0. 
+
+So what it means to be a local minimum or a global minimum-- the gradient of the function has to be 0 if the function has a gradient, if the function is differentiable. If the function is not differentiable, then this is the, let's say, the more general definition. 
+
+But in some sense, we'll always be dealing with differentiable functions. So we'll always think of optimality as being defined by the gradient going to 0. 
+
+Types of convergence Transcript (12:15)
+Now let us think a little more about gradient descent. Our goal is always to solve problems of this kind. Find me the best w that has the smallest training loss, OK. We are not talking about generalization at all for the next five, six, seven lectures. The way all your training algorithms work is that you initialize your network at some weights w0. you initialize your weights at w0. After you take the first step of gradient descent you get w1, after the second step you get w2, so on and so forth. 
+
+Now what does it mean to converge? You can think of two ways of checking convergence. Convergence happens when the function l of w at time t is close to the value of the global optimum l of w star, OK. This is one case when we will be happy with our optimization if we are close to the value of the function at the global optimum. 
+
+In our picture, this is the value of the function l of w star. If you begin here, you fall down at this location. Doesn't mean that you're close to all w stars, but in terms of the value of the function, you're close to the value of w star. And that's pretty good. 
+
+You can also be a little more strict on yourself and say, no, no, no, I want to also find a true solution. For a not strongly convex function the true solution is not unique. So it doesn't make a lot of sense to find the true solution. But if your function is, let's say, strongly convex then there is only one true solution. And just because you are close to-- if you are here l of wt. And just because you are close to l of w star, doesn't mean that you are close to w star, OK. 
+
+And so you may want to be a little more strict on yourself and say I want to be closer to w star itself. I don't necessarily care about the loss being close. Or I'm not satisfied with the loss being close, OK. So there's two different kinds of convergence. One where you track the value of the training error. The second one where you track the distance from w star itself. 
+
+All your homeworks, the two or three homeworks that you've had so far, you've been tracking the first one. You are happy if the training loss is small. You don't really care about whether the solution of w you find is close to some other solution of w or not, OK. 
+
+Anyway, this concept only makes sense for convex functions. For non-convex functions, you can have a loss that looks like this. So you can be close to each other in terms of the loss, but you can be totally far away in terms of the value of your weights, OK. That is why we don't worry about the second thing for non-convex functions. We only care about the first part. 
+
+OK, two different notions of convergence wt minus w star norm and l of wt minus l of w star. Do I need an absolute value here? I don't because l of wt has to be larger than l of w star because l of w star is the smallest l loss for any point in the domain. 
+
+So I can always write down things of the kind l of wt minus l of w star. This is always true. Not just for a convex function, but for any function because l of w star is defined to be the one that is the smallest loss. 
+
+Types of gradient descent Transcript (16:07)
+We have been talking about gradient descent for a long time, but gradient descent is not the only kind of descent. You can have many different kinds of descents that are related to the gradient that are not exactly the gradient. Here is one general way to think about descent algorithms. You have wt plus 1, which is obtained by your current weight, wt, plus some step size times some vector, dt. If this vector is equal to the negative gradient, then you are doing gradient descent. Make sense? 
+
+If the negative is the stochastic gradient, then you are doing stochastic gradient descent. But in general, it doesn't have to be either. It can be some combination of the gradients. Can you give one example of you doing this in the homework? In the homework, too, did people use [? Nesterov ?] momentum to train their networks in the code that I gave? 
+
+There was a term called momentum. If you go and look up what it does, it takes a step-- not using the true gradient, but using some function of the true gradient. So it is a different descent direction, but of course it worked well. So that is also a reasonable descent algorithm. It is not steepest gradient descent. It is some of the gradient descent. 
+
+We'll talk about it in a few lectures. But for now, we like any direction that is negative in our product with the gradient. And don't be surprised by seeing this. Gradient descent has d, which is equal to negative of the gradient. 
+
+Negative of the gradient in a product with the full gradient is actually a negative number. So a descent direction is a good descent direction if it has a negative inner product with the gradient. So it decreases the function in some way. Gradient descent, of course, is an example. 
+
+So here is another way of thinking about this stuff. We have our picture, which is, let's say-- these are the contours of a function. Is this function convex? 
+
+I'm telling you, these are the contours. Is this function convex? I see yes. Why? It's not convex, because I can draw a line here and I can draw a line here. It has the same loss. But if I draw the card between the two, the card has points, which have smaller loss. 
+
+An outer contour has a larger loss than the inner contour, because the innermost contour has the smallest loss. That is how contour plots work. So if you want to check if a counter plot is convex or not, you take any particular contour-- the same contour. You draw a line across that contour. It shouldn't intersect an outer contour. It should always-- convex functions look like this on a contour plot. 
+
+So I can draw a line between any two points on a given contour, and it cannot intersect an outer contour. Make sense? This looks a little bit like a non-convex function. These are the two valleys, and then this part is Like a hill. Does everyone agree with this? Or does everyone visualize these functions accurately? 
+
+OK. So if you are at this location, where is the gradient point? The gradient is always orthogonal to the contour, so this is the gradient direction. If you want to do the steepest gradient descent-- if you look at it-- and let's do gradient descent on this point. You will update the weights in this direction using a small step size. 
+
+If I told you that this location of the loss was the global minimum, can you think of a better way to update weights? Let's say let me draw a tiny pointer here. So when I draw two extra counters here, and then I don't draw any of these contours, that means that these contours are-- this is a deeper valley or a deeper region than this one. 
+
+So this is the solution. This is the global minimum. This is local minimum, let's say. If I take a gradient descent, I move in this direction. Is there a better descent direction? 
+
+[INAUDIBLE] 
+
+Yes. So you can hope that something that points a little bit in this direction is a better descent direction, even if locally, it increases in loss. OK. But if I manage to go all the way across this line, then I reach a region with lower loss, just like in a two-dimensional function. If I descend in this direction, then I get to this local minimum. But if I descend in this direction, with a very large step size, I get into a better place. 
+
+This is the two-dimensional version of this one-dimensional non-convex function. That is what we are talking about. So all this is to convince you that gradient is not the only direction that you can use for descent. There are nicer directions that you can use for descent. 
+
+Here is one more example. Let's say I take one gradient step, and I arrive Here in this, I take another gradient step, and I arrive here. In this one, I take another gradient step-- and so for functions that look like our function, you will see this little zigzagging behavior of the steepest gradient descent. 
+
+Every time you hit a hill, you come back in a slightly different direction, and then you hit the next hill immediately. And you would keep on doing stuff like this. You can imagine that I can run gradient calculations five times from five successive locations, and at each point, I take simply this big step. Does this make sense? 
+
+It's a better direction. If someone could magically tell me what happens to my iterates five time steps in the future, then I could take that direction and call it my descent direction, instead of using the steepest gradient direction. There are many, many variations like this. 
+
+Second-order methods for gradient descent Transcript (23:29)
+You have heard of Newton's method. We'll not talk about this too much, or we'll talk about it in a slightly different sense. Newton's method is designed for functions that look like this, even for a convex function. 
+
+This is the culture of the function. Can you tell me which is the largest eigenvalue of the Hessian, or which is the eigenvector corresponding to the largest eigenvalue of the Hessian of this function? Northeast or Northwest? How many say Northeast? OK, one. How many say Northwest? Only one. The others say what? 
+
+Which is the largest eigenvalue of the Hessian? This one. This is the function in which the loss changes very quickly. The largest eigenvalue of the Hessian is the direction that corresponds to an eigenvector in which the loss changes very quickly. The smallest eigenvalue of the Hessian is an eigenvector-- corresponds to an eigenvector, along with the loss changes very slowly. The Hessian is the curvature. And the eigenvectors of the Hessian tell us the directions in which the loss increases quickly and the directions in which the loss increases slowly. 
+
+For a convex function, the Hessian is positive to semidefinite, so the loss has got to increase away from a global minimum. For these kinds of functions, gradient descent does a few funny things. So let's say that we start gradient descent from this point. You will take a descent direction in this location, and then we will take a gradient descent in this direction. And you do this, then you're going to do this, then you will do this, and then you will do this. 
+
+So it takes a long time. It takes a lot of iterations to go along the small eigenvalue of the Hessian. Make sense? Because every time you try to go along the smaller eigenvalue, if you're not exactly aligned with that eigenvector, then you are a little bit misaligned and you hit a hill on your way. And then you have to turn your direction when you take the steepest gradient descent. If you were to arrive at the same function from this direction, then you wouldn't suffer such a problem. You would just decrease directly along the large eigenvector. 
+
+You will do this in your homework for a computational experiment to check these things. And what we want to appreciate right now is that depending on the ratio of the eigenvectors, lambda 1 and lambda 2, lambda 1 is larger than lambda 2. You can spend a lot of time either descending along the eigenvector of lambda 2 or descending along the eigenvector of lambda 1. 
+
+So moral of the story, if you have a function that is elongated like this, then gradient descent will take a long time to travel this long canyon. If you magically start yourself at this point that is a little bit more aligned with the first eigenvector, then it requires very few iterations. 
+
+Why does it really require many more iterations along this direction? If you were to take a large step size, then you could move much further out, OK? Tiny step sizes let you zigzag here. Large step sizes let you zigzag much more, but you make progress much faster towards the solution. 
+
+So moral of the story, if there is a eigenvector whose eigenvalue is small, the learning rate that you should use should be large. If there is a eigenvector whose eigenvalue is large, then the learning rate that you should use should be small because if you use a large learning rate, you will jump on this side, and then you will zigzag like this. The curvature of the function determines the learning rate that you're allowed to use. 
+
+A one-dimensional example is probably also useful. So this is our w. If you take a small learning rate, you descend like this. If you take a very large learning rate, then what happens? You are allowed to take that negative gradient and then multiply the learning rate by a huge quantity. And you will show up at this point, which is your second iterate. 
+
+If you now, again, take the gradient and have a huge learning rate, you will go on this point and you will show up here. So instead of descending monotonically towards this solution, you can do stuff like this. First, you are here, then you reached here, then you reached here, then you reached here, then you reached here, then you reached here. You don't have to [INDISTINCT]. You will make huge movements to the weights, and your loss need not go down monotonically if you're learning rate is very large. 
+
+This is also something that you have seen before when you train networks. If you have a very large learning rate, the loss is essentially constant, or it can even increase. The point of saying all this is to convince you that the curvature of the function determines the step size that you're allowed to use. If the function is too curved, then the step size that you should use as small. If the function is less curved, then the step size that you are allowed to use is large. 
+
+Functions like this are very flat in some directions, but highly curved in some other directions. So there is no one nice number for the step size that you can pick. If you pick something that is very large and you happen to come down along this direction, then you will still oscillate a lot across this direction. 
+
+If you come down along this direction with a large step size, then you get to make more progress. If you pick a step size that is small, then your life is nice if you come down along this direction. But then you need a lot of iterations to come along this direction. So there is no nice answer to picking the step size for these kinds of functions because the eigenvalues are quite different. 
+
+What Newton's method does-- Newton's method is the same one that you studied in high school-- is instead of using the steepest descent gradient, it takes the gradient descent and then multiplies it by the inverse of the Hessian matrix so that the eigenvalues, which are small, for the Hessian become very large for the inverse Hessian. And effectively, those directions get a very large step size. And eigenvalues that are large for the Hessian become very small for the inverse Hessian. And those directions automatically get a smaller step size. 
+
+Make sense so far? This is just pictures, but this is an algorithm that you have seen in high school for one-dimensional functions, and potentially also undergrad. I keep forgetting that you are beyond undergraduate. But the inverse of the Hessian allows you to take a function like this, and then modify the step size to act differently in different directions. 
+
+It is not exactly gradient descent. It is gradient descent in a different direction. It is the gradient times some positive semidefinite matrix. So it's not exactly the gradient. It's some other thing. But this is another example of a descent direction that is nice. 
+
+Zeroth order optimization algorithms Transcript (31:32)
+After all that motivation, let me ask you this one question. Can you think of an algorithm that does not use the gradient? So this is not gradient descent. But it still uses the gradient. Can you think of something that does not use the gradient? 
+
+OK, so let me draw what he just said. I have w0. I randomly sample a w1. And I call it my next iterate if the loss of w1 is smaller than the loss of w0. Then I, again, randomly sample w2. And I call w2 my next iterate if the loss of w2 is smaller than the loss of w1. In this sense, I decrease monotonically to the global. Minimum this is obviously a very bad algorithm because I am sampling different weights. 
+
+But in some cases, this works quite effectively. So in reinforcement learning, you can Google for something called class entropy method, which is essentially this algorithm with a few bells and whistles. And it is a very nice method to fit reinforcement learning problems. So it is more-- broadly such methods don't use the gradient information. They only use the function value at each location. 
+
+So these are called zeroth-order optimization algorithms. First order optimization algorithms are the ones that use gradient information. Second order optimization algorithms are algorithms that use both the gradient and the curvature. So Newton's method is a second order optimization algorithm. It takes much more work to calculate this one because you have to calculate the gradient. And this is itself a very large matrix. So good luck inverting it at each iteration. 
+
+Zeroth-order algorithms require the least amount of work to run. But they also take the largest amount of steps to converge. So that is a big family of algorithms. For some of you, if you are solving a very complicated problem in mechanical engineering or design will have such things, where taking the gradient of the function is not easy. So you will use zeroth-order algorithms to minimize a function. 
+
+One example is this thing called nelder meld in scipy. Scipy is-- you can sit and study scipy for one year and you will still not finish studying it. It is a really, really beautiful set of algorithms that have been coded up by very clever people. And they work very well. So check out these kind of things. 
+
+I think in general if you read the documentation of scipy.optimize, you will see lots of algorithms of this kind. Line search is simply a way of when you have a gradient, you can choose how much to move in each iteration. You have seen line search maybe in some class in undergraduate. Let's do it like this. 
+
+So I can choose my eta to be fixed. Or I can choose my eta to be such that I optimize it. I stop. I pick a point as my next iterate. Let's say this one. If the loss is small, is the smallest but before the point as compared to after the point. So imagine if this is my first iteration. And I try to go to the right and choose different values of w as my next iterate. There will be a point w some intermediate point where the loss will be the smallest. 
+
+And then I can say I take my step size to be exactly that much. Now, this requires you to solve a one-directional optimization problem along the gradient. So the gradient is this location. Let's say something like this. Maybe I can draw a gradient here. This is a one-directional function now. And you know that if you go here, you have the smallest loss. But if you go somewhere here, the loss is larger than where you began. 
+
+So you can search on this line. This is called line search. And pick this as your next iterate. This is not easy to do because you have to search. It is a one-dimensional optimization problem to solve. There are also methods in scipy to do this. One of them is called bisection search. You try different values along the line and pick the one that is smallest. 
+
+There are many ways to optimize well. In some sense, the nice thing about deep learning is that you don't need to optimize very well and still you can get pretty nice answers. But of course if you optimize better, you will get better answers. So that is why you will not see these kinds of things being talked about in the papers. 
+
+Typical simplifying assumptions on functions Transcript (36:51)
+So we have two goals now. We need to pick a value of the step size that does not overshoot, that decreases the loss, but does not take a step that is so large that the loss increases. That is goal number one. The second goal is to understand how many iterations of gradient descent we should run. When should we stop or when do we hope to stop if you give a new problem? 
+
+So these are the two things that we want to answer. Both of them are pretty useful. The first one is useful because then you get to choose the learning rate nicely. The second one is useful because then you know that whether you should train for 200 epochs or 100 epochs or 50 epochs, which one of them is better. 
+
+And that goes around. So the name that we'll give for this kind of analysis is understanding the convergence rate of gradient descent. Convergence rate in the sense, how much does the loss decrease if I take one extra step? And what learning rate should I use to make sure that the loss does decrease in the first place? 
+
+Just like we restricted the class of functions from convex to strictly convex to strongly convex, we will restrict them even more now and we'll take two kinds of functions. So the first one is simply functions that are Lipschitz continuous. Lipschitz continuous functions are not necessarily a subset of convex functions. They are just a different kind of function. 
+
+That tells you that the value of the function between two points, w and w prime, cannot be much larger than the gap in the two points, w minus w prime, norm times some constant, B. So this function has a very large B. Whereas, this function has a small B. Makes sense? 
+
+This function has also a very small B. But the third one is not convex. So Lipschitz continuity of a function, or it is also called as bounded gradients. And you can prove the second one from the first one pretty easily by simply using the definition of the gradient. The Lipschitz continuity means that the gradient of the function is upper bounded by some constant, capital B. 
+
+If this B is very large, then the function can change very quickly. If capital B is small, then the function is not allowed to change very quickly. Naturally, the functions that don't change too quickly are easier or be easier than the functions that do change very quickly. So this is the first kind of assumption that we will make. Stuff that we-- we'll always write down our results in terms of capital B. 
+
+Second assumption. Second assumption is called smoothness. Smoothness of a function says that this one was about the function being Lipschitz continuous. If I change the weights a tiny bit, my function value doesn't change too much. The second assumption is about the gradient itself being Lipschitz continuous. 
+
+If I change the weights a tiny bit, the gradient also doesn't change too much. So this is like an even stronger condition. This one says that the function doesn't change too much so the gradient has to be bounded. This one says that the gradient doesn't change too much so the second derivative has to be bounded. Makes sense? 
+
+It says, so smoothness is an even stronger condition than Lipschitz continuity. Lipschitz continuity is the Lipschitz continuous function, smoothness is the smoothness of a function or equivalently, it is also called Lipschitz continuity of the gradients. This constant, we'll call L, which is just like this is equivalent to assuming that the gradient is upper bounded by the constant B. 
+
+This is equivalent to assuming that the largest eigenvalue of the Hessian is at least capital L. When I say that a matrix is less than or equal to some other matrix, we know that gradient squared minus L times identity is negative semidefinite. That means that every eigenvalue of the Hessian of L is at least A is smaller than capital L. 
+
+Otherwise, this would not be negative semidefinite. Otherwise, there will be some positive eigenvalues. Makes sense so far? Pretty straightforward definitions, but you will see that it becomes messy quite quickly. So another way of thinking about this definition is as follows. So we know from the Cauchy-Schwarz inequality, which is a fancy way of saying that the cosine of any angle is less than 1. So the inner product between two vectors, u and v, is the norm of the vector, u, times the cosine of the angle between the two. 
+
+It is less than the product of the norms of the two vectors. This is easy to prove by just completing the square. You can write down an equality of this kind. So let us say that our vector, u, is this. And our vector-- let me actually go to this part of the notes. I changed the notation a tiny bit. Let us call this thing, u. And let us call this thing, v. Now this is the inner product between u and v. 
+
+This is just two vectors that I have defined using two arbitrary weights, w and w prime. By the Cauchy-Schwarz inequality, this is less than or equal to the norm of the gradient of w minus norm of the gradient of w prime times w minus w prime. This 1 is less than or equal to L times w minus w prime. So the entire thing is less than L times w minus w prime whole square. 
+
+Do we know a lower bound for this thing? If I change the weights from w to w prime, the gradient of the two weights at the location of the two weights, it is aligned with the change in the weights. We have seen this before under what name? 
+
+Monotonicity of the gradient. We showed by taking the definition of first order convexity twice and subtracting and say that if I change my weights from w to w prime, the gradient also has to change in a way that is aligned with the change in weights for convex functions. So for convex functions, this thing is greater than or equal to 0. 
+
+For smooth functions, what we just showed is that this monotonicity condition is also less than or equal to L times w minus w prime squared. And this is a very powerful way of thinking about stuff. For convex functions, if I move the weights, the gradient also moves in a way that is aligned with the change in the weights. But the inner product between the gap in the gradient and gap in the weights cannot be too large. 
+
+If it is too large, then we know that we are changing-- then we know that the function is quite complicated. But if it is not too large, precisely it is not larger than L times the gap in the weights whole square, then in some sense, the gradient has a simple relationship with the change in the weights. Makes sense so far? 
+
+So remember these two things. This is the easiest way to remember smoothness, the eigenvalue of the Hessian is at least, the largest eigenvalue is less than L. And this is the easiest way to remember bounded gradients. 
+
+Descent lemma Transcript (45:25)
+So next, we are going to do one result, which we will use again and again and again to prove lots of things. And it is called the descent lemma. It is called the descent lemma because it is the first step of showing that gradient descent converges to the solution. And here is how it looks. 
+
+If I take any two points-- let me draw our function again. If I take w, and if I take w prime, you know that if I draw the tangent at w, then this is exactly the gradient of l and w times w prime minus w, right? We said that the tangent drawn to a point lies below the function. What is this called? 
+
+First-order characterization of convexity. In this chapter, to be specific, it helps to remember the names of things. You have two ways to remember all these mathematical expressions. You can either remember it using pictures, just like I am doing it. I say that if I draw the tangent, the tangent lies below this. So now I don't need to know the name of what this concept means. 
+
+And neither do I need to know the expression for the concept, because I can write down the expression, l of w prime is greater than l of w plus the inner product of the gradient times w minus w prime, because this point is above the tangent point. Or you can remember the name "first-order characterization of convexity" and then memorize the expression for it. 
+
+This one-- so l of w prime, we said, in this is greater than some quantity. In the descent lemma-- so we have shown that it is greater than exactly this quantity, right? l of w plus the gradient of w and the gap in w's. This is what this picture is telling us. 
+
+The descent lemma gives us an upper bound on l of w. It tells us that l of w has to be less than this quantity plus a quadratic term, L over 2 w minus w prime all squared. So effectively, what you are doing is you are writing down a quadratic and this, which is l of curvature L of w minus w prime all squared. 
+
+And this is how much the quadratic goes up by the time you move from this location. OK, this is w prime. This is w. This is a quadratic of curvature L over 2. And this is how much the quadratic moves up. 
+
+And what we are really saying is that, look, the value of the function at w prime is equal to-- or it has to be less than whatever the value you get by moving along the tangent plus whatever the curvature of the function is. The curvature of the function cannot be larger than capital L because L is the largest eigenvalue of the Hessian. 
+
+So just like the tangent lies below the function, a quadratic drawn here plus the tangent lies above the value of the function at l of w prime. This is the descent lemma. And we will prove this. 
+
+So now this is l of w plus the gradient of l of w times w minus w prime. We know this part using simply definition of convexity. And this is the interesting part now. 
+
+Cool. So like a lot of proofs that you will also might have done in the homework, a proof of this one will also work like this. We will always imagine w being one point, w prime being another point. And it helps to think in terms of a line joining w and w prime. 
+
+In the one-dimensional case, the line is redundant because you are just traveling on the same real line. But in multiple dimensions, also, you can draw a line between two points, w and w prime, and always make arguments about what happens to the function along this line. 
+
+In particular, you know that if I draw a line between w and w prime, then any point along the line, I can write it down as w plus lambda times w prime minus w. If lambda is equal to 0, then v is equal to w. If lambda equals 1, then what is v? w prime. 
+
+So this is-- you're traveling along the line joining w and w prime. And every intermediate point is called v. The value of the function at the endpoint l of w prime, equals the value of the function at the beginning of our interval. 
+
+The value of the function here equals the value of the function at this location plus the integral of the gradient along this location, from lambda going to 0 to 1. This is, like, the fundamental theorem of calculus. The value of the function at the endpoint equals the integral of the gradient along this. 
+
+The only interesting thing that we have done is in high school, you wrote this as just a scalar function. Here we have integrated this function along a particular direction. We've integrated the gradient along the particular direction. So this is the gradient at point v. 
+
+Yeah. And so what I would like to also write down is Taylor's theorem. Taylor's theorem is like the mean value theorem but applied to this case. We will have the endpoint being equal to some v that is intermediate times w minus w prime d lambda. And we are going to integrate it along it. 
+
+If I subtract this term from both sides, because I know that I need it here, then I get this particular quantity on the left-hand side. So I have moved l of w to this side, and I subtracted this term. This term, I can write it inside-- I can move it inside the integral, and I get to the gap in the gradient, the gap in the gradient at v minus the gradient at w times w minus w prime. 
+
+OK. Now, you can again use the Cauchy-Schwarz inequality. We can say that the absolute value of-- before doing that, we can say that the absolute value of this left-hand side is equal to the absolute value of the right-hand side. How do you go from this step to this step? 
+
+The absolute value of an integral is less than or equal to the integral of the absolute value. Absolute value is a convex function. So the function applied to a summation of points is less than or equal to the summation of the function applied to all the points. So now we can move the abstract value inside the integral. 
+
+What is this thing? Now we can use Cauchy-Schwarz. It is the absolute value of the inner product of the two things, which is less than or equal to the norm of the first vector times the norm of the second vector, [? properly. ?] 
+
+So this one is less than L times v minus w. OK. 
+
+Now, v minus w is what? v minus w is lambda times w prime minus w. Exactly, yeah? So this is equal to L times w prime minus w, all squared, times lambda d lambda. OK? 
+
+And this is why we have a lambda here, and this is a square. Now, this doesn't depend on lambda. So I can pull it out, and the integral of lambda times d lambda over 0 to 1 is just half. And so we have L over 2, w prime minus w, all squared. Make sense so far? 
+
+What we have shown is an upper bound on l of w prime. And the way we will use this upper bound is we will substitute this term as the gradient of L because it is exactly what you have in gradient descent. And we will see that you can show that the loss decreases monotonically with time. 
+

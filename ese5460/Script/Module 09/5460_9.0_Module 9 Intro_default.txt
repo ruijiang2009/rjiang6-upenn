@@ -1,0 +1,7 @@
+[MUSIC PLAYING] The essence of a natural language, in some sense, lies in gleaning meaning across long sequences of words. Imagine reading the entire Lord of the Rings books and then answering a question of the form, why did Frodo have to destroy the ring? The answer to this question is spread across the entire series. 
+
+Attention-based networks are variants of recurrent neural networks that are extremely effective at making long-range correlations come true when you make predictions. These networks are motivated from how the human brain chooses to forget things that don't matter to us and chooses to remember things that do matter to us when we make predictions. 
+
+Another example of this is when you drive on a freeway, you don't pay attention to cars that are very far away from you in different lanes. You pay attention to the ones that are close to you. Attention-based networks are at the heart of the enormous progress that you see in natural language processing today. 
+
+If you have seen or heard of systems that are-- such as ChatGPT, which can converse essentially as well as any human being, then they are all built with attention-based networks. They can converse so well because they can correlate information across very long sequences, sequences that are as long as entire books. ChatGPT can very easily answer the question why Frodo had to destroy the ring. And it can do much more. 

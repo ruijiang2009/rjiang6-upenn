@@ -1,0 +1,138 @@
+Summary of all lectures Transcript (00:00)
+This basically brings to an end the first module. The first module has been about understanding neural architectures. And as you see, there is story to how these architectures have evolved. Maybe before today's class, you thought the story was clean. But then the story is not that clean because convolutions also work well, even if the data does not have any translational equivalence. 
+
+Frontal parallel pictures of objects. Attention also works well, even if it does not look like convolutions. So there is many nuances to which architectures are good and which architectures are bad. Roughly speaking, these are all very big models, so lots of parameters. So they're all quite good. What we are not good at yet is training all these architectures well. 
+
+So the reason fully connected models do not work well-- and this is a paper that we will have very soon. We believe anyway that the reason fully connected models do not work well is because we don't know how to train them well. But in principle, they should also work well. 
+
+The reason convolution sometimes work a little poorly than attention layers is because we don't train the convolutional layers well enough. If you train them well, then they also work exactly as well. So different architectures have very different properties in terms of how easy or hard they are to train. And so module two will focus on how to train well. 
+
+Convexity and examples of convex functions Transcript (01:49)
+The goal of module 2 is to understand optimization.
+
+And we will see how the different complications in deep learning hurt you when you try to train them.
+
+We will begin with a few very basic concepts. The first one is convexity.
+
+Convexity pertains to the shape of the function. If the shape is a parabola, then you know that if you initialize your weights at some location-- let's say you have only one-dimensional weights, so real valued weights. If you initialize them at some location and you do gradient descent, then you will fall down at the right answer.
+
+Convex functions basically look like a parabola. Non-convex functions look like two parabolas. So depending on where you start, you will fall down at different locations.
+
+How is a convex function defined? A function is convex if-- again let us do one-dimensional weight space. We have our loss, let's say. I pick a weight w. I go to some other weight w prime, which is different from w. This is my loss at w. This is my loss at w prime. A function is convex if I draw a tangent to the function at w, so the derivative of the function at w. And the tangent falls below the function. So this is [INAUDIBLE] in principle. If I join l of w and l of w prime, then any point on the line joining them lies above the function. This is what it means for a function to be convex.
+
+So let us draw it a little bit here. So let us do l of w prime prime. Any point on the red line lies above the function. So the way we write this is that for any two points, w and w prime, the convex combination of l of w and l of w prime, which defines points on this line-- so as lambda equals 0-- this equals l of w prime, the right endpoint. If lambda equals 1, then this corresponds to the left-hand side endpoint. So for different values of lambda, you are sweeping the entire line that connects these two points, l of w and l of w prime. This line has to be above the value of the function, which is exactly the convex combination of the weights at that location. So lambda times w plus 1 minus lambda times w prime is some point, which is in between these two. The value of this point has to be below the line joining those two losses. So this is the definition of convexity.
+
+As you can see, this doesn't require the function to be differentiable twice. It is only a property of the function itself. So in this sense, convex functions is a name. A function is concave if negative l is convex. So that is why we will never bother talking about concave functions, because they are simply the negative of some convex function.
+
+If I give you a function, how do you check whether it is concave or convex? Well, you write down this definition. You pick two points, you write down the right-hand side of this inequality, and you try to show the left-hand side. So you know the value of the function at the interior point at, let's say, some point between w and w prime. And you try to show this inequality. If this inequality is true for any value of lambda and any value of w and w prime, then the function is convex. If you can find any, even a single value of w and w prime or lambda where this inequality does not hold, then it is not convex. This is how you will prove that something is convex or not convex.
+
+If you know that the function is continuous-- not all functions have to be continuous-- they can have drop [INAUDIBLE]. So this is a discontinuous function. If you know that a function is continuous, then you can check this inequality, not for all values of lambda, but for only, let's say, lambda equal to half. If it is true for lambda equal to half, then it is true for all lambdas. Can you say why?
+
+Because I can iterate upon it. So if this inequality is true for lambda equal to half, then I can use that to show that it's true for lambda equal to one fourth. I can also show that it is true for lambda equal to 3/4 and iterate upon this argument. And I can iterate upon this argument if the function is continuous. If it is continuous, then you only need to show it for one value of lambda. But you will still have to show it for all values of w and w prime.
+
+Some of you may have seen convex functions. There are many examples. So w squared is convex. It looks like a parabola. w cube is also convex but on the positive side of the origin. So in general, w raised to alpha for w greater than 0. And any alpha greater than or equal to 1 is a convex function. They basically look like parabolas. If alpha is less than 0, it is convex for any w. Absolute values are all convex. Linear functions are also convex. This one is particularly easy to check, so you can check it at home yourself. Try to show a fine function, which is some matrix A times w plus B is convex, using this definition.
+
+One interesting function that it will help for you to remember being convex is log-sum-exp. This function is differentiable, so you can actually use a condition that we'll do in a bit to show that it's convex. But log-sum-exp is a convex function. log-sum-exp, we have seen it before under what name? Softmax. It's the denominator of the softmax layer.
+
+More definitions of convexity Transcript (08:59)
+So we are simply talking about definitions for a second. There is no content being done as such. Strictly convex functions are functions where this inequality is strict. In the previous case, this was an inequality. So that is why a linear function is also convex because the line joining two points is exactly the function itself. 
+
+Strictly convex functions are not like this. Strictly convex functions have the line joining the two points being exactly above the function's value. So that is why you have a strict inequality in this case. If the function is differentiable, then you can use a slightly different condition to talk about convexity. And here is how it goes. 
+
+So we'll again do a one-dimensional example. In this entire module, we'll often be talking about one-dimensional loss functions. This is w. This is w prime. This is the tangent at w. And this is my value at w prime. What is this point? This point equals l of w plus the gradient times how much you move. 
+
+It's a linear function. It's a linear function whose initial value is l of w. And this is the height by which you move. This is equal to gradient of l of w times w prime minus w. So, in a sense, a function is convex if I draw a line between l and l of w and l of w prime and that line lies above the function. But there's another way to think of convex functions. 
+
+If I draw a tangent at any point and if the tangent lies below the function for any w prime, then that is also a convex function. The function curves up, so the tangent lies below. The [? chord ?] lies above. And that is exactly this condition. L of w prime, which is this point, is above l of w plus how much you move plus how much you move when you go away to w prime using the gradient at w. 
+
+And so this is something called as a first order condition for convexity. You can prove that if a function is differentiable, then this inequality follows from this inequality. So if a function is convex and differentiable, for sure this inequality is true. But you can rewrite this inequality as this. 
+
+And it's an easy proof. You can read it here. We won't worry about it for a second. We will simply think of this as the definition. Just like you have strictly convex functions, you also have a first order condition for strictly convex functions. Again, the inequality is a strict equality. Linear function is another example. Linear function is differentiable. It is not strictly convex. 
+
+Monotonicity of gradient Transcript (12:38)
+So when we talk about convex functions, there's many different ways to characterize these functions and use these functions. Some of these techniques are so common that people have given them names. One of them is called monotonicity of the gradient. 
+
+If a function satisfies first order convexity, if it is true-- if this inequality is true for any w prime-- then I can write down this inequality for any w prime. It's the same one that we wrote before. You have w, w prime. I draw the tangent here, and then this is how much it moves up. 
+
+This inequality tells me that l of w prime is above what I reached by the tangent. But it is true for any w and any w prime, so I can also interchange w and w prime and get a similar inequality, which is the first one. l of w greater than l of w prime plus the gradient at w prime times how much I move between w and w prime-- exactly the same inequality, just written after interchanging w and w prime. 
+
+I can now add these two things. And these four terms cancel out against each other. And what I get is a weird condition that looks like this. This condition says that the gap in the gradient, calculated at two weight locations, has the same direction or has a nonzero inner product with the gap in the weights. 
+
+Convex functions are special like this because they say that if I have a weight over here-- let us say w-- if I have another weight over here, the gradient at w points up. This is a very common mistake to make. Everyone thinks that the gradient of the function points down, but the negative gradient points down. The gradient points up. 
+
+So the gradient at w points up. The gradient at w prime points up here. And what this really is saying is that if I move to the left between w prime and w, then the gradient also moves in a way that is a same sign in this case. 
+
+This is a one-dimensional function, so this inner product is simply the product of two numbers. If I move to the right, then the gradient also increases. If I move to the left, then the gradient decreases. That is all that this inequality is saying. Make sense? That is why it is called the monotonicity of the gradient. 
+
+And in a sense, these kinds of inequalities are much more-- are a very abstract way of looking at convex functions. They come from something called as monotone operators, but obviously we will not worry about them. But in simple words, it says that the function is so nice that if I move to the right, the gradient increases. If I move to the left, the gradient decreases, if I'm to the left of the global minimum. 
+
+A two-dimensional function will make this a tiny bit more interesting. So in this module, we will draw one-dimensional functions like this, but two-dimensional functions we will draw using what are called contour maps. 
+
+People have seen these kinds of maps in high school, I guess, in a geography textbook. What they really mean is this is a two-dimensional function of two weights, w1 and w2. And these are all the values, these are all the locations, where f or l takes the same value. 
+
+And this could be, let's say, 0.1. These are all the locations where l takes a slightly different value, 0.2, 0.3. So typically in your geography textbook, people will draw contours that are equidistant from each other in height. That is the function that they are interested. In this case, the loss is the function that they are interested in. So these are the contours. 
+
+Now, it will help to keep some very basic properties of these contours in mind. If you stand here, where does the gradient point? It is always perpendicular to the contour at that location. The contour is by definition stuff where the loss doesn't change. 
+
+The worst direction in which the loss changes, which is actually the direction of the gradient, is exactly perpendicular to the contour. So by definition, the gradient is always perpendicular to the contour. 
+
+So let's say this is our w. If I go to some other w prime, my gradient is also pointing in this direction. Make sense? And what the monotonicity of the gradient tells you is that the vector joining w and w prime and the vector joining the gradient of w and the gradient of w prime are aligned with each other. In other words, I can multiply both of them by a negative sign, and the inequality won't change. The vector joining w prime and w and the vector joining the gradient of w prime and w are aligned with each other. 
+
+So in simple words, if I go towards the solution, the solution would be this one, in this case. My gradient also aligns in the same direction. The gap in the gradient is the same. 
+
+So monotonicity of the gradient simply says that gradients don't cheat in convex functions. If you make progress in one direction, the gradient also is aligned in the same direction. 
+
+ 
+
+Second order condition for convexity Transcript (19:12)
+We saw the definition of convexity. We saw the first-order condition of convexity. How can you check this definition? The same way. Like you calculate the gradient of the function. And you try to show this inequality is true for all locations w and w prime. OK? 
+
+You can, again, do this example for a quadratic function. So take this example, quadratic, and show that the first order condition of convexity is true. You have to use the fact that a is a positive semidefinite matrix. 
+
+Then we talked about monotonicity. Monotonicity uses the gradient of the loss to understand something about the gradients. You will use this business of monotonicity when we want to ask ourselves, how much do the weights move between one iteration and the next? And how different is the gradient between-- across these-- across this movement? We will get some notion of-- by looking at the gradient of these two points, we will get some understanding of how much the weights have moved because of monotonicity. 
+
+Just like there's a first-order condition, there's also a second-order condition for convexity. The second-order condition is actually quite easy to understand. We said that convex functions are like quadratics. Quadratics are functions where the curvature is positive. 
+
+The second derivative of x squared is positive. The second derivative of negative x squared is negative. So negative x square is concave. Positive x square is convex. OK? 
+
+In math, the second derivative is something called as the Hessian. The Hessian is a big matrix, whose size is number of weights times number of weights. Every entry of this matrix, the i, jth entry is the derivative of the second derivative of the loss with respect to the ith weight and the jth weight. 
+
+So the Hessian is a very, very large matrix. For a neural network, we typically have 1 million weights. So the Hessian is a matrix of size 1 million plus 1 million. OK? Most of you have probably never ever seen a matrix this big. 
+
+But if the Hessian is positive semidefinite, what does it mean for a matrix to be positive semidefinite? All the eigenvalues are non-negative. Or in principle, for any w prime, this is greater than zero for all w. This is the definition of a positive semidefinite matrix. The eigenvalue is kind of an easy condition for you to check. If it is true-- if this one is true for all weights, w, then it is positive semidefinite, the matrix gradient of that. 
+
+If the Hessian is positive semidefinite, then the function is convex. So it's a very nice condition to check. You can take the second derivative of the function. Look at the eigenvalues. And you can see it is convex or not convex. 
+
+Now, as I said, the Hessian is a very large matrix. So for a neural network, let alone storing this matrix, calculating the eigen decomposition of this matrix would be even worse. It would take a few days for a 1 million plus 1 million matrix. In some sense, many, many papers I have written in the last five, six, seven, eight years have been about computing the eigen decomposition of the Hessian. I've spent a lot of time doing these stupid SVDs of the Hessians. 
+
+But for convex functions, we know that the eigen values are positive. For neural networks, the objective is not a convex function. You don't know that yet. But we will see it soon. And so the eigenvalues will both be positive and negative. 
+
+You know linear regression. What is the second derivative of linear regression? It is simply x transpose x. OK? x transpose x, by its very nature, because it is the outer product of all the columns in x, it is positive semidefinite. 
+
+Strongly convex functions Transcript (23:43)
+Another kind of convex functions are what are called strongly convex functions. Strongly convex functions are a slightly more stricter restriction on the class of functions than convex functions. And here is how they look.
+
+So a function is m strongly convex. So a function l is m strongly convex if it still remains convex after taking away a quadratic from it. The curvature of the function is so large that even after you take m over 2 w squared away from it, you still get something with a positive curvature. And here is how it will look. So if I have a function with this, I can take away this curvature. So let's say this is m over 2 w squared, and this is my l. If I subtract m over 2 w squared from l, I will still get something that looks like a parabola, right? And this is how strongly convex functions look.
+
+So strongly convex functions, every convex function is 0 strongly convex and can be 0. I can take away nothing, and the function does remain convex. So it is trivially 0 strongly convex. But that is not interesting. So strongly convex functions are only interesting if you take away something that is a non-zero term, non-zero quadratic.
+
+We can do a short calculation. So let's say that l of w is w squared. And what would be the largest m that you can take away from this and still get a convex function? The largest m that you can take away would be 2. If m equals 2, then l of w minus m over w w squared-- actually, let us also call it like this-- is w squared minus 2 over 2 w squared is 0. 0 is trivially a convex function. So I get a convex function if I remove m equal to 2 from this. If I remove m equal to 1 from this, what do I get? I get 1/2 w squared. Is this a convex function? So it is also a convex function. So strong convexity parameter m is meaningful if you remove the largest m you can remove. 
+
+So this function is obviously 1 strongly convex. But the more interesting thing to say about the function is that it is too strongly convex. So you want to pick the largest m that you can pick. Make sense?
+
+Maybe one final thing before we end. Why do I remove a quadratic from the origin? So I could have taken some other definition. I could have chosen something like this, l of w minus m over 2 w minus 5, all squared. I would have said a function is m strongly convex if this particular expression is convex. Why do I say this expression and not this expression? Instead of subtracting this particular function and subtracting this particular function with some different origin. But as you can see, if I take the second derivative, then it doesn't matter. The second derivative of this function is the same as the second derivative of this function. It is m for both. OK, that is right. Doesn't matter where I separate the quadratic from, whether it is the origin or not the origin. So if the function is second order differential, then you can trivially show that these two are identical definitions. So I might as well use the origin to subtract stuff from.
+
+Why do we need a hierarchy of convex functions? Transcript (28:24)
+We are essentially restricting the space of functions more and more. So first, we talked about convex functions. Strictly convex functions are a subset of convex functions. Because the inequality is a strict inequality and you're not allowed to be equal in the definition of convexity. Strongly convex functions are an even stricter set of convex functions.
+
+You can read this for a proof and it's actually a very easy proof, so let us not worry about it. But let's say this is the set of all possible functions. Not all functions are convex, right? There are many non-convex functions. So the set of convex functions is, let's say, a small set. From within this, there is a set of strictly convex functions. And then from within this, there is a set of strongly convex functions.
+
+As you can expect, if I show a result for a convex function, then it is true for everything under it or everything inside it. So result, if it is true for any convex function, then it is also true for a strongly convex function, but not vice versa. So if I prove a result for a strongly convex function, then it need not apply to all convex functions.
+
+What you will also appreciate is that the set of strongly convex functions is a smaller set. So proving this result for strongly convex functions is often easier. And this is why we introduce the concept. So if you want to ask yourself, how many iterations of gradient descent does it take to arrive at a training error of 1%? This question is easy to ask if the function under consideration is strongly convex. It may take a little more work to prove for the larger case, and this is why we introduce these quantities.
+
+So in this module, we will basically worry about strongly convex functions, because the proofs are easy and they still give you most of the argument. In some cases, we'll talk about the result for the convex functions without actually proving it. OK? So the more you stick the class functions, the easier often proving the result gets, but the more narrow your result becomes.
+
+They are two totally different concepts. Strong convexity means I take off a quadratic. Trick convexity is just the strict inequality. I can take off a quadratic or just because I have a strict inequality doesn't mean I'm allowed to take off a quadratic.
+
+This one. This is a strictly convex function. And the way I created this function is that I took a quadratic and changed its curvature parameter to also depend on the norm of w itself. So as you get closer and closer to the origin, the function becomes weaker and weaker convex or the curvature becomes smaller and smaller. So there is no nice quadratic with m not equal to 0 that I can pull off from this function that lets the function remain convex.

@@ -1,0 +1,679 @@
+Introduction to GANs  Transcript (00:00)
+Roughly speaking, in the previous lecture, we said that we wanted to build a model for how z is as a function of an input image, x, the latent factors given the images, and then how you draw an image given these latent factors that you have hypothesized. Both of them you need to fit. And this is an ill-post problem because we don't know what z's there are for the images that we wish to create.
+
+ 
+
+So we can make mistakes in guessing the z's that corresponds to making a mistake in the encoder. We can make mistakes in reconstructing the image x using the z that corresponds to making a mistake in the decoder. And both of them need to be correct. And this is-- you can make both of them very large, in which case you will overfit to the data samples. But you will not get good reconstruction on new images. And we have talked a lot about these things.
+
+ 
+
+GANs are a very different kind of model. They will simply create a function that looks like this. There is no probability distribution. There is no nothing. I give you a z, and you simply run a function, g we'll call it. This is called a generator in the world of GANs. And it's called a generator because it simply takes in as input the latent factors and gives an image x.
+
+ 
+
+There will be no meaning to these latent factors anymore. We will not be able to attribute any meaning to them. So you can think of z as just some noise that is some input. It need not even be an explicit input for the function g. The moral of the story is that it will create an x. And we would like this x to be similar to the images in our training data set.
+
+ 
+
+In the previous chapter, we had a legitimate way of saying that there is a distribution of nature of p of x given z and p of z given x. And those are the ones that we want to approximate. Here there is no such thing. There is no probability distribution. We simply know that we have a machine that creates an x. And we would like to check whether the X created by the machine is similar to the X that we have in the data set.
+
+ 
+
+Statisticians have very nice ways of thinking about such problems. And this is a very classical 200-year-old statistical theory. And that is how we are going to study GANs.
+
+Parallels between discriminator and a two sample test  Transcript (02:39)
+So here is a typical way people will formalize this problem. Consider two data sets that are coming from two probability distributions, p and q-- p and q have nothing to do yet with the natures p and [INAUDIBLE], et cetera. These are just two arbitrary probability distributions. They give us two data sets, D1 and D2, x1 to xn sample, from pn x1 to xn sample from q.
+
+ 
+
+Our job is to look at these samples, look at these data sets, D1 and D2, and check whether p is the same as q or not. OK? This is what is called a hypothesis testing problem-- a very, very central thing in statistics. They teach it to you in the first chapter, essentially, if you take a stats class.
+
+ 
+
+So here is one hypothesis. This is called the null hypothesis, which is just a name for the hypothesis that p and q are equal. This would be a distribution that says there is people in this, class some of them are PhD students-- although, I don't see a single one-- some of them are under-- oh, yes-- you're still an undergraduate. So some of them are masters students, some of them are undergraduate students, let's say.
+
+ 
+
+I believe that the height of undergraduate students is a tiny bit larger than the height of masters students. If this is my hypothesis, I can measure the heights of different people, let's say this is the undergraduate student, these are the masters students and PhD students, and I can check whether my hypothesis is really true. That would be the null hypothesis.
+
+ 
+
+The alternate hypothesis is the case where I am incorrect, and the two distributions are different, or actually the case that I'm correct and the two distributions are different. And that will be the alternate hypothesis. So the name of the game in decision theory is to check which one of these hypotheses hold.
+
+ 
+
+So when are two distributions equal? Well, if I knew the parametric form for p, and the parametric form for q, I could simply compare the parametric form. I can say that this is a Gaussian with so and so mean, and this is a Gaussian with so and so other mean. And they are the same, because the means are the same, or they are different because the means are different.
+
+ 
+
+I could say all these things if I knew the parametric form. But I don't know what p and q are. I only know samples from p and samples from q. Right? So I can do the next best thing-- I can estimate some quantity that lets me use these two sets of samples and distinguish between the two distributions.
+
+ 
+
+Can you give me an example of a quantity like this? I have n samples from here, n samples from here-- how will you check that they come from different distributions? And I already told you, you can just look at the mean, let's say, right? I can calculate the mean of these two sample sets, and if the two means are different, then you can say, look, I believe that the two distributions are different.
+
+ 
+
+If the two means are the same, does that mean that the two distributions are the same? No, because the variance could be different. So you can calculate the variance, also.
+
+ 
+
+Does that mean-- if the mean and the variance match, does it mean that the distribution is the same? No, you can calculate the third moment. And you can do many such things.
+
+ 
+
+You can calculate many functions of these samples. We know that we need to check an infinite number of moments-- moments are simply expected value of k, for all k equal to 0 to infinity. If all the moments of a function match, then we know where the expected value is taken over the distribution q, p and the distribution q, then we know that p and q are the same distributions. OK, this is a theorem in probability.
+
+ 
+
+So you can create-- can measure the moments empirically using your samples. And say like, these moments match. So I believe that the distribution is the same, or distribution is different. That is one way of doing it.
+
+ 
+
+Mathematically, a statistician will say that they want to construct what is called a statistic. This is exactly the same thing that we said in chapter seven, when we said we want to learn a sufficient statistic of the data. In this chapter, we will denote it by t hat.
+
+ 
+
+T hat is some function of my inputs, x1 to xn. I calculate t hat for data set D1, which will be t hat of D1. I calculate t hat for my data set, D2, which we already had of D2. And I would like to say, if these two are different, then the distributions are different. If these two are the same, then the distributions are the same.
+
+ 
+
+Here is one particular statistic-- actually, sorry, here is one particular quantity, the mean-- the difference in the means of the two data set. And I define my statistic, t hat, to be the gap between the means, the absolute value of the gap. And if this gap is large, I know that the distributions are different.
+
+ 
+
+This is just one example of a statistic that lets us distinguish between two distributions. I can have any other statistic-- in particular, the big vector of all the moments, expected value of k, for all possible values of k-- that could also be used in here. And I could measure the difference in the two vectors-- the norm, let's say-- and say that is my statistic.
+
+ 
+
+Statistic is a machine, or statistic is a quantity that lets us distinguish between two distributions, given samples from the two distributions without having access to the parametric form.
+
+Using a statistic to distinguish distributions Transcript (08:42)
+Obviously, we would like to use this statistic to say useful things. So here is one way to think about the statistic. The level of a test-- the test meaning, does the null hypothesis hold? Null hypothesis being p equal to q, or the alternate hypothesis or p not equal to q. This is the test that we want to perform.
+
+ 
+
+And the quantity called level is a parameter, or is a number alpha, such that if D1 is sampled from p and D2 is sampled from p, then the probability that the statistic that you calculate being greater than some threshold that I define is smaller than alpha.
+
+ 
+
+OK. So let us say I want alpha to be less than 0.05. Let's say that smoking causes cancer is the hypothesis that we want to check. We are going to calculate two-- we are going to take two sets of people, people who smoke and people who do not smoke. Those will be our D1 and D2. The level of a test says that the statistic that I choose to discriminate between these two sample sets, t hat, I will calculate that t hat but when D1 and D2 are sampled from the same distribution.
+
+ 
+
+So let's say people who never smoke. If for these two sample sets-- people who never smoke-- the probability that t hat is greater than some threshold, I will define this threshold-- let's say that this threshold is 1. The probability that my statistic is greater than 1 over random draws of these two data sets, all for the people who smoke, if that is smaller than some quantity, then I know that smoking doesn't cause cancer. Make sense?
+
+ 
+
+This is a slightly complicated concept to understand. So statistic t hats will be distributed normal. Let's say if you have-- by the central limit theorem. And so this property t hat being greater than t-alpha is simply saying, how large can t hat be? If I think t hat is my way to discriminate among things, how wrong can I be if there was nothing to discriminate and my statistic was large?
+
+ 
+
+This is the probability of me being wrong, the level of a test. So we want alpha to be small. Make sense? So when "New York Times" writes an article saying broccoli causes you to live five years longer-- or eating broccoli every day causes you to live five years longer, it's debatable which one is better-- they will run, or they should run, a test like this, and choose alpha to be some reasonable value. Typically in a lot of scientific literature, people will choose alpha to be 0.05.
+
+ 
+
+Some people might choose alpha to be something smaller if you are solving a more important problem. Let's say alpha equal to 0.001. And for that value of alpha, you will decide upon a particular threshold. And there are ways to calculate such thresholds. So t-alpha and alpha is something that you pick. You first pick alpha. You say I want to be wrong by not more than probability alpha. And that defines this threshold, t-alpha.
+
+ 
+
+And then you calculate a statistic. That is also another thing that you choose. And then you check the statistic. You calculate the level of a test. So this is the level of a test. A slightly unusual concept for those who haven't seen it before. For us, D1 and D2 will be the samples created by the generator-- the machine that creates new images. And one of them will be samples from the real data set. So we will use a test like this to say these two samples come from the same distribution.
+
+ 
+
+What does it mean to be a good generative model? You're a good generative model if there does not exist a statistic that can say that the two samples come from different distributions. I said it very easily, but this is really the crux of the entire chapter. Right now, we said we will choose a statistic.
+
+ 
+
+So let's say we choose a statistic. We choose many different statistics. A generator would be good when alpha is-- this defines the quality of a statistic, the definition. And the generator will be good if under this statistic you can always say that p equal to q.
+
+Power of a test Transcript (13:36)
+The second concept is something related to false negative, which is called a power of a test. So the power of a test is the probability of rejecting the null hypothesis when it is actually false.
+
+ 
+
+So if the null hypothesis is actually false, the thing actually comes from the same distribution. The null hypothesis is H0 is p being equal to q, H1 is p not equal to q. So if H0 is false, then H1 is true, that things are different. If the distributions are really different and your statistic told you that the two distributions are the same, then you would make a mistake, right?
+
+ 
+
+So the power of a test is when the two data sets are drawn from two different distributions, p and q, and your statistic is large. You want this to be very large. You want the power to be very large, right? If the two things are really drawn from the different distribution, then your statistics should be able to discriminate very well. OK.
+
+ 
+
+So alpha defines our level. Alpha defines the quality of a statistic. Power defines the two things, when we do not make mistakes in rejecting the null hypothesis. And so with these two definitions, this is what we already talked about.
+
+ 
+
+The KL divergence is also one way to distinguish between distributions. If the KL divergence is large, you would say the two things are different, but we cannot calculate such things. The test we can always calculate because we only need access to samples. So long as we have samples, you can calculate it.
+
+ 
+
+You could take the samples, fit a distribution. So let's say that this is the distribution, two distributions, and I give you some samples drawn from this distribution. You could take these samples. You could fit a distribution to this and run your KL divergence estimate. You could do this thing for p. You could do this thing for q. Why is this a bad idea? This is a one-dimensional example.
+
+ 
+
+And if you fit a density estimator, which is basically a histogram, for one dimensions, that's easy. Everyone has done it. But if I give you a bunch of images from CIFAR-- the images are a large vector. It's a 3,000 dimensional vector for CIFAR.
+
+ 
+
+So fitting a histogram in 3,000 dimensions is not easy, and you will make mistakes in creating the probability distribution, p, given the samples, because there would be large parts of the domain where you don't see any samples in this high-dimensional spaces.
+
+ 
+
+So this is why you cannot simply just fit a p and fit a q, and then use KL. A two-sample test is much more natural when the dimensionality of data increases.
+
+ 
+
+OK. Let's take an example. So a two-sample test is simply a name given to checking when two distributions are the same or different. It is called a two-sample test because, at the very least, you need one sample from p and one sample from q. Of course, you will be very incorrect when you make guesses about p and q being the same or different using just one sample. That is the bare minimum.
+
+ 
+
+The more the number of samples, the easier it is to discriminate between the two distributions. So to run a two-sample test, you need three things, a statistic-- someone chose a statistic. Let's say that it is simply the empirical mean.
+
+ 
+
+--a level alpha that you do not wish to be wrong more than that, and a threshold for the statistic. As I said, the threshold for the statistic is something that you can just find closed form expression, given the probability distribution of the statistic.
+
+ 
+
+OK. So let's say that we pick alpha equal to 0.05. Now if there are two Gaussians with two different means, then we know that we can distinguish the two sample sets by looking at the mean and the standard deviation of the empirical mean and the empirical standard deviation of the two sample sets.
+
+ 
+
+So we'll define a statistic that is a vector, which is mu hat, and that is mu hat 1, and then sigma hat squared hat 1. And then, similarly, it will be mu hat 2, and then sigma squared hat 2. And then, take, let's say, the difference between the two, and then square it or whatever. This could be one example for a statistic. This is not the only one. You can come up with many other statistics.
+
+ 
+
+If you have two Gaussians with different variances, then you need both the dimensions, the mean and the standard deviation, to distinguish. If you only use the mean, then you would make a mistake. OK. Similarly, in this case, these are not even two Gaussians. They have the same mean.
+
+ 
+
+But if you use the variance in your statistic, you will notice the difference between the two distributions, given enough samples. The green line is what is called a Laplace density, and the red line dotted red is a Gaussian. The two are different distributions.
+
+ 
+
+But you can appreciate that under some statistic, even if you chose both mean and standard deviation squared as your statistic, there may be instances when you can confuse the two to be the same thing, depending on the samples.
+
+ 
+
+If I give an infinite number of samples, then of course, you will be able to discriminate. But with a finite number of samples, you can make mistakes in selecting the null hypothesis, or the alternate hypothesis, even if the two distributions are different. The samples might look the same.
+
+ 
+
+So this is how two-sample tests work. They work by looking at two sets of samples and checking the discrepancy between them.
+
+Learning a statistic Transcript (20:13)
+Like it is the theme of this entire class, someone told you that you need to pick a statistic. You are going to say, I don't want to pick a statistic. I learn a statistic. And that's it.
+
+ 
+
+So finding two-sample test statistics for arbitrary distributions is very difficult. This is what people in statistics class will spend a lot of time building. They will come up with statistics for certain kind of distributions. If you think the arrival of buses at your bus stop is Poisson, but if you want to think of it as a Gaussian distribution, how much off are you if you sat and measured it for this entire semester? And then there is ways of saying this is a good statistic for distributing a Poisson and a Gaussian random variable.
+
+ 
+
+But it is very difficult to come up with good statistics for arbitrary distributions. There is really no nice way analytically. So we are in an even bigger soup because the images that we want to discriminate against, discriminate from each other are high dimensional, so it is even harder to come up with high-dimensional statistics. And this is why we are going to learn a statistic.
+
+ 
+
+So the key idea behind the GAN is to learn a statistic. What makes a good statistic? How do we define a good statistic? The level of a test, we want to pick a particular alpha, and we're going to say, my statistic is so good that it doesn't make mistakes with probability more than alpha if the two things come from the same distribution. This is one constraint that defines a good statistic.
+
+ 
+
+The second one that defines a good statistic is the power. We want to say, my power is a lot. So if the two things really are coming from a different distribution, then my statistic is very large. So these are the two qualities that we want in a statistic for a given-- it needs to have a small level, which means alpha. And it needs to have a large power. Or we need to be able to satisfy a small level with the statistic, yes.
+
+ 
+
+So let's say D1 is a bunch of samples. I can think of my estimate for p hat, which is a sum of Dirac deltas-- x equal to xi. This is a legitimate probability distribution. It sums up to 1 and everything. It is just a bunch of Dirac deltas for every sample. You could imagine I do the same thing for q, and then I can calculate q hat of x integral log q hat p hat of x. Can anyone tell me why this will not work?
+
+ 
+
+So this will just be 0. So let's say these are your p's. These are your samples from q. This is my distribution for q hat. This is my distribution p hat. Now, the support of p and the support of q is infinite, but it is actually-- the support of p and support of q are disjoint. So every time you take this ratio, things will blow up to infinity or be 0.
+
+ 
+
+So this will not work. This will either be 0 or infinity with basically probability 1 because the two things will have equal support exactly only when the two sample sets are equal, in which case, of course, you will say that the two distributions are the same because the sample sets are the same. Delta of x is a distribution that is called the Dirac delta distribution, and it is defined in this funny way. So delta of x equal to xi is-- defining a Dirac delta is very hard. So it is infinite at xi and 0 everywhere else, but such that it integrates to 1.
+
+ 
+
+So I think one nice way to define this is 1 over z, which is some constant, times e raised to x minus xi divided by tau. And the limit now tends to 0.
+
+ 
+
+This is a probability distribution because I define z of p, z of tau to make sure that it is a probability distribution. And so it becomes increasingly sharper and sharper as tau goes to 0. And in the limit, it goes to infinity. This is just one way to define it. You can define it in many ways. Anything that integrates to 1 and goes to infinity will converge to the Dirac delta.
+
+ 
+
+So we said we are going to learn a statistic. And here is one very, very powerful way of learning a statistic. At the end of the day, a statistic that we want is a binary classifier. It says when the two distributions are the same, or it says when the two distributions are different. So we can use this to our advantage and actually fit a binary classifier.
+
+ 
+
+So we are going to fit a binary classifier. I will denote it by d. It will have weights u again just because we again want to fit a parametric model. It will take in as input something that is x. That is one of your samples. And it will predict a 0 or a 1 as the likelihood of this sample coming from p or this sample coming from q. So this is literally back to chapter 2, where we are fitting a binary classification model with weights u this time.
+
+Discriminator for a GANTranscript (27:21)
+Now, let me draw a picture and that will make it very clear. I have my data set D2, which presumably came from the distribution q. I have my data set minus-- this data set D1, which presumably came from p.
+
+ 
+
+I can do the following thing-- I can take all the samples that came from D1, someone told me they came from D1. I can label them minus, and I can take all the samples that came from D2-- people told me that these are samples from a different distribution, right? Or potentially a different distribution.
+
+ 
+
+Take all the samples D2, and label them pluses. A discriminator that discriminates between these two sample sets is any which model that has classification boundary that lives like this.
+
+ 
+
+Using this model, this is your D2-- du, I purposely drew it to be a nonlinear function, because we can fit a non-linear function now with our networks. Using this model, du, I can check when any new sample, as to which side it lies, and say that, look, I think this lies on the q side. So it looks like D2. This lies on this side, so it looks like D1.
+
+ 
+
+What does it mean-- if the two distributions were really equal, then I will not be able to separate the data sets like this. So if the two distributions were really equal, my points would look a bit like this. Right? And there would be no way I would be able to fit a model that discriminates correctly or well on these data sets, on these two data sets.
+
+ 
+
+OK, so we have changed the question from this finding a statistic and et cetera, et cetera, to this very simple case, where we fit a model between to discriminate between D1 and D2. If you can fit the model well, then I know that the two distributions are different. If we cannot fit the model well, then we know that they are the same.
+
+ 
+
+And this is why this particular binary classifier is called a discriminator-- it discriminates between samples drawn by the generator, and samples drawn from the true data set that you have. That is its only job-- it's a binary classifier.
+
+ 
+
+So again, from the top-- actually, maybe before that. So you should think of the discriminator as the decision boundary of this classifier, as the difference of the test statistic and the threshold.
+
+ 
+
+If the difference lies on one side, then you say that this is p, and then this lies on the other side, you say that it is q.
+
+ 
+
+From the top, let us play the same game now. We have our two data sets coming from p and q. We are going to create fake labels for these two data sets. I will label all the images in D1-1, all the images in D2-0, and now I have a joint data set D1 union D2. Bunch of images came from D1, bunch of ones come from D2, some labels one, some labels zero.
+
+ 
+
+And I can now fit a logistic regression to discriminate between the two. I can fit a non-linear logistic regression, because I get to do that. This is simply the binary cross entropy loss written in a slightly special way. Some samples in our training data set have labels plus 1. So that is the y I times logarithm of du part in the binary cross entropy loss.
+
+ 
+
+Some samples in our data set have labels 0. So that is the 1 minus y I times logarithm of 1 minus D part in our binary cross entropy loss.
+
+ 
+
+So this is exactly the binary cross entropy loss being used to discriminate between samples from D1 and samples from D2. And this is a very, very general thing-- I think I have lost track. I have this co-author who really loves this. His name is Alex Muller. So you may know him as the-- he did a lot of very good work on SVMs and kernel machines in the '90s, so among the more famous people in machine learning.
+
+ 
+
+So he really loves this business. This paragraph really like gets him excited somehow. And so we have used this in so many papers, and I'm getting very bored of it.
+
+ 
+
+Like I said, everything-- like once you begin to think like this, every problem where you are saying anything about changes in distribution or stuff, this is essentially the way to solve those problems. Any place where you want to discriminate between two distributions, and many would argue, if you go to the Wharton part of the campus, that is the most fundamental problem of all statistics-- you can solve that problem with this.
+
+ 
+
+The statistician couldn't solve it so far, because they wouldn't want to create statistics that they can write down analytically. But if you just let go of that desire and say that I want to learn a statistic, then essentially, anything is doable now. OK?
+
+ 
+
+So we have used this in many papers with good effect. I think. But so this is how we fit our discriminator. It is simply a machine that splits the samples between D1 and D2.
+
+ 
+
+So that is a very beautiful question, and the answer is that we want things to overfit in this case. You are happy to let the discriminator overfit as much as you can, because that will force the generator-- so let's say that these samples were created from the generator. And these were our real data set.
+
+ 
+
+What does it mean to overfit? It means that if you fitted a discriminator on some samples of the generator on the data set, and I gave you some new samples from the real data set, and the generated data set, then the discriminator wouldn't work well. That is what it means to overfit. It would make mistakes.
+
+ 
+
+But we want things to overfit so that we can tell the generator that, look, you need to improve upon things. The generator is happy when the discriminator cannot fit things well. This is the thing that we want.
+
+ 
+
+This is something that we do not want. We like the generator when it creates images that cannot be distinguished from real images. So the discriminator can be as powerful as it wants, and that will only force the generator to become better and better. So we are completely happy with overfitting.
+
+ 
+
+And that is, I think, somehow like in a very pragmatic sense, this is the real idea behind a GAN. It is not about-- you never have to talk about generalization. Which is a pretty cheeky way of sidestepping a lot of questions.
+
+Optimal Discriminator Transcript (34:59)
+This is the discriminator that we fitted du star. What is the best discriminator? Well, the best discriminator is the one that minimizes the expected value of the loss. The logistic loss is a loss over the samples in our training data set, D1 union D2. So the ideal discriminator is the one-- or the population risk of this problem is exactly this expression-- samples coming from p, samples coming from q.
+
+ 
+
+Logarithm of d of x is the log likelihood of d of x predicting 1, and logarithm of 1 minus d of x is the likelihood of you predicting a 0. We label samples from q as 0. You label samples from p as 1. Be careful when you implement it. Don't make a mistake and say the opposite thing. And this is the population likelihood. So this is the ideal discriminator.
+
+ 
+
+Now, I have written this a little implicitly where d, I think of it as a function. And this, I think of it as a functional. d is, of course, a function. d is a function of x. And so just like we did in the previous chapter, where we took a variational derivative of a functional with respect to a function, we said things like this, dF/dp, which is when I perturb my function by epsilon and then how different the functional does.
+
+ 
+
+The function is, again, a real number here. So I can do the same thing. I can take this objective. I can differentiate it with respect to the discriminator's function, set the derivative to 0, the variational derivative to 0, and then find the optimal discriminator. It is the one where this thing is 0. This star is such that this one is 0 when evaluated at this star.
+
+ 
+
+Now, you don't know how to take functional derivatives yet very well. So let me just write down the answer for you. This one, this term, is written down as like this. So if we write it as an integral, we will say logarithm of d of x times p of x dx is the first term. And we would like to take the derivative of this thing with respect to d of x.
+
+ 
+
+So here is a formula. If you have a functional which is log d times p of x, the variational derivative of this function, which returns a real number, because it's an integral, with respect to d is simply p divided by d. It is easy to convince yourself of this. So functions are nothing but large vectors, infinitely large vectors.
+
+ 
+
+So functionals are nothing but functions of very, very large vectors. So you can think of L as a real number and d and p as very, very large vectors. And the logarithm is operating on the vector element wise. And so you can convince yourself this is indeed the correct expression for the derivative.
+
+ 
+
+Similarly, the derivative of log 1 minus d times q is defined to be q divided by 1 minus d. People who use this kind of variational calculus regularly will know many more derivatives. You only need to know these couple of them.
+
+ 
+
+So we can take the derivative of this entire business with respect to d, set it to 0. What will we get? We will get something like this. You'll get p of x divided by d of x, plus q of x divided by 1 minus d of x to be 0. And you can solve this now to get d star, which is equal to p divided by p plus q.
+
+ 
+
+And this is a pretty nice expression to think about. If p and q were really equal, then it is 1/2, 1/2 for all x. If p and q are really the same distribution, then no matter what x you plug into here, you get 1/2. And that makes total sense. If p and were equal, then the sample sets would be like this.
+
+ 
+
+Discriminator is something that predicts-- the error of the discriminator would be 50%. It wouldn't be able to classify the samples. So instead of getting 0 or 1, it would predict 1/2 because that is the one with the 50% error on everything. No matter which sample set you have, you would get 1/2. This is the population discriminator, remember. This is not the one that we actually fit. We fit the sample-- fit the estimator on the data set.
+
+ 
+
+If q was near 0 when p was large, then this discriminator would already predict something that is close to 1 because it is p divided by p plus q. In that case, it would correctly predict-- remember that the labels that we assign to samples that we think came from p are 1s. Then the discriminator is predicting 1.
+
+ 
+
+So if p and q have this joint support-- if p and q really have this joint support-- then the discriminator would fit correctly. And it just shouldn't be surprising because they actually fit the discriminator anyway. So it would predict 1 when samples came from p. It would predict 0 when samples came from q.
+
+ 
+
+Now you will ask-- yes, we spent a bunch of time talking about statistics. Then suddenly this binary classifier shows up. What is the statistic that is really built by this classifier? Well, the statistic is actually just this one. So all the places where D is greater than 1/2, that means that things predicting that data came from p. All the places where D is less than 1/2, that means the data came from q.
+
+ 
+
+If there is no difference in the two, then the statistic will be close to 0. And so the threshold that we really are using implicitly when we build such a statistic is 0. And the statistic that we are building is precisely this function. Statistics are always functions of two sample sets-- D1 and D2.
+
+ 
+
+And so these are functions of two sample sets-- sum of all the predictions on set 1 minus sum of all the predictions on set 2. Check whether the two are different or not. If it is larger than 1/2, then we know that it should predict a 1. If it's smaller than 1/2, we know it should predict a 0.
+
+ 
+
+So you can read this very beautiful paper that sets things like this for a GAN using a two-sample test. So now, there is a tiny bit more technical details.
+
+ 
+
+It can be shown that if the two distributions are not the same, then the power, which is the probability that the statistic is larger than the threshold given that the two samples come from different distributions-- that is what is called the power. You can think of it as the power of discriminating is large when the two things are actually different, and you'd do a good job-- is an increasing function of the statistic t hat. This is just a theorem.
+
+ 
+
+So if you want to maximize the power, which is what we want to do-- we want things to be distinguishable if the two images come from different-- the generator and the real data set are different. If you want to maximize power, then maximizing the test statistic of the discriminator is a good idea. So you have the discriminator, and you would like to maximize this quantity. And that is what it means to have a large power.
+
+Building a generator for a GAN Transcript (43:12)
+So now, let us build the generator. We built a discriminator. Discriminator checks things when they are different. It is like an advisor, who says something is good or something is bad.
+
+ 
+
+Now, you can try to build a generator, which is you, who actually does something. This is actually quite easy at this point in the class. A generator is any network that creates an image as the output.
+
+ 
+
+You can pretend that it takes as input, something. But it's just a fake input anyway. So think of it as a machine that every time you switch on, it spits out an image.
+
+ 
+
+We can build a convolutional neural network that takes in something called as z. This no longer has any connotation, which is what I keep on saying. Or at least not yet, anyway, and predicts an x-hat.
+
+ 
+
+And since here, you can plug in your favorite architecture. You can put CNN. You can put attention. You can put more fancy variants of attention and CNN, et cetera. But it can be any model.
+
+ 
+
+Given a few samples created by the generator, you take a look at your real data set. These are your actual images. And the discriminator uses samples from the generator and samples from the data set to check, to say whether the two are the same or not.
+
+ 
+
+Discriminator likes to create statistics that are very powerful, like the pun intended. They can distinguish even tiny discrepancies between the two distributions. The generator has the job of making sure that it creates excites, such that the discriminator cannot distinguish them easily. And this is really what people call the game in a GAN.
+
+ 
+
+The adversarial part has nothing to do with an adversary. It is just a way of fitting a distribution using samples. In the previous chapter, we fitted a distribution while knowing the distribution. That is why we are using things like KL divergence. Here we are simply fitting a distribution without knowing the distribution, because we have only access to samples.
+
+Putting the discriminator and generator together Transcript (45:46)
+This is what a GAN looks like. The loss of a GAN is actually is what? What do we want to minimize or optimize when we want to fit a GAN? The probability the exactly the logistic loss of the discriminator, right? The only difference now is that one of these D ones is going to be your real data set that, of course, doesn't get optimized. And this other thing D2 will be the generator.
+
+ 
+
+So there were two parameters in a GAN, u star and v star, where Du is a function of v itself, OK. These are the images created by the generator. And this is the loss that we are optimizing when we fit. Of course, the gradient goes through the entire loss for both the discriminator and this generator.
+
+ 
+
+So let us write that down. Putting the discriminator and the generator together. Let me write the expected value version of this loss. This is the same expected value, except now, I have-- actually, it is exactly the same expected value, except that I am saying that I would like to do-- this is Cu and let me say this is Qv, OK.
+
+ 
+
+This is, let us say, my true distribution of data. This is the distribution that I generate using the generator. And the weights of the discriminator, they are the ones that are maximizing this expectation. It is the negative of the logistic loss, so that is why, just like we minimize the logistic loss, we are maximizing the negative of the logistic loss.
+
+ 
+
+And the generator is trying to make sure that the discriminator cannot maximize this loss, OK. Generator likes a large discrepancy. Sorry, a discriminator likes a large discrepancy. Generator makes sure that this entire thing is not large, OK. Loss is large when the discriminator works well. Loss is small when the discriminator does not work well. Generator generates images that makes the discriminator not work well, cool?
+
+ 
+
+And so now, we just have to write the sample version of this business, and we are done, completely. So if you imagine that the generator takes in as input samples between from 0, 1, every time you switch on the machine, it creates a random variable z, and it creates an output x corresponding to that z.
+
+ 
+
+Then I can rewrite this expectation, using something like a reparameterization trick but not quite, as me taking samples from the generator for different latent variables z. The x that is sampled from q, I have a name for it. It is simply g of z. G of z meaning being the output of the generator given a z.
+
+ 
+
+So this is the objective that we would like to now optimize. It's a very unusual objective. You haven't seen these kinds of things before in the class. It is both a minimum and a maximum over two different variables of one objective. But fundamentally, it is pretty straightforward. It's a logistic regression loss where positive samples come from the data set negative samples come from the generator. That's it. This is a GAN in one sentence.
+
+ 
+
+And so when you want to optimize this using SGD, you will sample a few images from your training data set. You will sample a few images from the generator, which will estimate this expectation, and take a mini-batch update on both the parameters of the generator and the discriminator.
+
+ 
+
+There is no issues with backpropagation in this case, because both of these are just deterministic functions of our weights. So no longer all the score function estimator trick or reparameterization trick kind of things. This is much more straightforward to implement. Much harder to get good results with but much easier to implement, yeah.
+
+ 
+
+The reason it is very hard to get good results with GANs, is because the loss function looks a little bit like this. If you imagine that the generator wants to reduce the loss, so if you imagine that this direction corresponds to the parameters of the generator v, and then this direction corresponds to the parameters of the discriminator u, so this is a discriminator, this is a generator, then the generator wants to reduce things the discriminator wants to increase things.
+
+ 
+
+And so solutions that are like this that are saddle points, are the solutions of our problem. Now, this is a very bad thing because in order to reach exactly this saddle point, you have to make sure that the discriminator and the generator are balanced in some way.
+
+ 
+
+So one step by the discriminator, will immediately cause the loss to-- actually, cause the loss to increase. So it will fall down. One step by the generator, will cause the loss to decrease. So it will fall down this way.
+
+ 
+
+So you cannot fight this battle between the two variables very easily. And that is why such points are very unstable. Even if you perturb the discriminator or the generator a tiny bit, you can either go up or down, OK. So reaching them is very hard. In fact, it is a zero-measure set, the basin of attraction for such problems.
+
+ 
+
+If you are doing gradient descent, this is what you argued back then. Now it is not exactly gradient descent, it is gradient ascent and gradient descent for two different variables. So you can imagine that what is the learning rate of the discriminator or how many steps you update the generator for, are very critical things when you train a GAN. Because our job is to find common points like this, and these points are very hard to find.
+
+ 
+
+If you end up falling on this side, then either the discriminator or the generator will be very good, and the other one will be very bad. And this doesn't help you because, in some sense, the generator has a more difficult job than the discriminator. It is very easy to say when two things are different. It is much harder to come up with a thing that looks like the other samples.
+
+ 
+
+So for you to paint is harder. For me to say that your painting isn't as good as Monet is very easy. So and this is why training a GAN is hard.
+
+GAN vs VAE Transcript (53:07)
+GANs are different models than VAEs. They are two means to the same end, yes. GANs tend to give very nice images, mostly because VAEs tend to give slightly worse images. The diffuse-- we are fitting probability distributions in VAEs. And depending on the entropy of the prior over the latent space, you can get some diffuse images. So you will get a photo of a person, but it will be a little bit diffuse on the edges because those are the small scale features that may not be learned, given the prior distribution or the rating factor.
+
+ 
+
+So VAEs come with a deep problem that we don't know how to pick the latent factors, distribution of the latents correctly. GANs are another way of fitting generative models. GANs come with a problem that we don't know how to optimize them well. But basically, people have figured out enough number of tricks to fit both of these kinds of models. And maybe like 2018 or so VAEs were quite poor in how they created images. We didn't know those many tricks. GANs were a tiny bit better. Now, essentially, they both-- we know enough tricks on both of them to make them work essentially as well.
+
+ 
+
+But then now there are these other kinds of models that people have discovered called diffusion models that work a tiny bit better than both of these. And diffusion models, we didn't do it yet in this course, because we ran out of time. But diffusion models are basically infinitely deep VAEs. So VAEs with encoders and decoders that are just very, very long and deep networks.
+
+ 
+
+But in any case, this is a fair question. And the answer is that they both work essentially, equally well, but they both have their own problems. For some applications, it does make sense to use one or the other. If you are doing causal inference, or fairness, or stuff like this, then you can get much more freedom with VAEs. GAN is not very malleable in the sense that the generator is just one thing which you switch on, and then it gets an image. It's very hard for you to control what it creates.
+
+ 
+
+You can build things like a conditional GAN and stuff that will give you some notion of control, but then now you get into the same kinds of problems that VAEs have, that you don't know how to pick the priors or the conditioning variables, et cetera. So they're not that different models from each other. One of them uses the KL to distinguish stuff. The other one uses a two-sample data test to distinguish stuff.
+
+ 
+
+There is no big-- there is no deep way to pick Z. You will pick a Z, which is, let's say, a dimensional thing, usually, and simply set it to be a normal 0 comma identity. How you pick Z is really not important, because there is no meaning to the Z that we have assigned yet. If you did what he is doing, or what you wanted to do, then you could assign some meanings.
+
+ 
+
+But then the way you train the GAN will also be different. You will have to impose a loss on all the dogs for the Z sample from this part against all the real dogs, and then you impose another loss for all the cats sampled from this part, or all the images created from these Z's against the cats in the data set, and then this will be like giraffes, and this will be-- I don't know-- people, I guess.
+
+ 
+
+So you will impose slightly different losses. They will all look very similar to the logistic loss. It will just be an average over all of these things. So the same thing we said. We would like the latent space to be big, because it can accommodate diverse images. But we cannot have it be too big. Otherwise, we will get gaps, because these samples will have a good discriminator. These samples will have a good discriminator, but these may not have a good discriminator. And they will be unrealistic.
+
+ 
+
+So at test time, just like you sample the decoder only, you will only sample the generator at test time. So if at test time you happen to sample this image, you will get a bad image. This is what is called overfitting in a generative model, where if you sample parts of the latent space that are not likely under the training data set, then you will get unusual images.
+
+ 
+
+Everything that we have talked about in VAEs applies when you think about GANs. It is just a different model.
+
+Strong discriminators hinder learning Transcript (58:09)
+The next thing, I think, to think about is a very harsh discriminator inhibits the training of a generator. This is like an advisor who never likes anything you tell them, so you will not learn much if you have such a negative reinforcement. And this is happening like in a mathematically precise way here.
+
+ 
+
+The way to think about this is to note that the gradient of the second term in the objective-- this is our objective. This is the second term of the objective. The gradient of the second term of the objective, with respect to parameters of the generator-- v are the parameters of the generator-- is equal, just by the chain rule in this case, to the derivative of the discriminator applied to images created by the generator divided by 1 minus the same thing.
+
+ 
+
+Now, if you draw this function, this is the gradient of a function divided by 1 minus that function, it will look a little bit like this. So if this function-- if d of g of z is small, the gradient is quite flat. So this is our-- we are drawing the gradient with respect to this.
+
+ 
+
+So we are drawing the gradient of d of g of z divided by 1 minus-- and this is my variable on the X-axis here. You will notice that the gradient of the generator coming from the second term-- the first term don't get any gradient for the generator, right? It doesn't depend on the parameters of the generator. So the first term gradient is 0.
+
+ 
+
+But the gradient of the second term is quite flat in this part. That means that if the discriminator is predicting something that is pretty close to 0, that means that the discriminator is very sure that the samples are not from the same distributor-- not from the true distribution. Remember that it predicts a 1 when samples are from the data set. It predicts a 0 when samples are different from the data set.
+
+ 
+
+So if it is very happily predicting that samples are different, then the generator doesn't learn much or doesn't learn-- it cannot learn easily, because the gradient is small. When the discriminator actually is predicting something close to 1, the generator learns very quickly. This is just a mathematical fact. And there is nothing terribly deep about it.
+
+ 
+
+But it will prevent us from training the model well. At initialization, the discriminator has a very easy job. If you just even initialize the discriminator to be the mean, forget a trained neural network, it will still learn very well because the generator isn't generating anything meaningful.
+
+ 
+
+But that means that it is going to predict stuff over here. And that means that the generator will never get a good gradient to learn with. So people have started using instead of the logistic loss, which is logarithm of 1 minus d, they noticed that if I replace logarithm of 1 minus d by simply the logarithm of d, by the negative logarithm of d, then things work a tiny bit better.
+
+ 
+
+Now, this is a different objective. It is not quite logistic regression. And this is also in the original paper. But the gradient of this new objective, with respect to the parameters of the generator, v, looks a little bit like this. So it doesn't work well when the discriminator predicts something that is 1. But we don't need the discriminator to predict something that is 1. We are happy to have the discriminator predict up to 0.5.
+
+ 
+
+We don't want the discriminator to predict 1. We want the discriminator to predict until like half or so when it is unsure. But we want a good gradient when the model is here. So you can now do many combinations of this. You can use this loss function at the beginning and then switch to this loss function at the end. And you will train a slightly better GAN. But this is just one of the good one dozen tricks that you need to use to train GANs well.
+
+ 
+
+In fact, this particular trick has nothing to do with the saddle point stuff. It is just-- it is just that one of the parabolas is a little too flat at the beginning of training.
+
+How do we evaluate GANs? Transcript (01:03:11)
+So we've talked about how to fit the model. How would you evaluate it? What makes a good GAN? Under what model?
+
+ 
+
+There is no true model. Our entire chapter began with us not knowing the true model. Yes, so we began the chapter by saying, we know how-- we don't know how to distinguish things. So you could imagine that checking when a GAN works well or not is equivalent to you building a discriminator that can distinguish between real and GAN generated images, right?
+
+ 
+
+Of course, the one that you have after training is exactly a discriminator that could be as well as good as you can get. But then it also was the result of your training process. You would like something that is a little more like 0, 1 loss to look at the discrepancy and not just the discriminator of a GAN.
+
+ 
+
+Typically, what people notice at the end of training GANs is that the discriminator is the ideal value of the discriminator at the end of training should be what? 1/2, right? If the generator is working perfectly, then the discriminator should not be able to discriminate between the real and the fake images. So it should tend to predict 1/2 all the time. That is a solution.
+
+ 
+
+But that's not quite true. So often, people will notice that the discriminator predicts something that is close to 1 at the end of it. And those are all overfitted GANs. So to understand-- and this is basically like us not training all the way down to zero training error. And that is why we have a slightly larger 0, 1 loss, not that different from that, OK?
+
+ 
+
+And that is why people have invented slightly different ways of evaluating generative models, in general. This is not specific to GANs. You can also do this for other images.
+
+ 
+
+And here is how they will think about it. They will take images that are your original images x. They will take images that are images x hat. They could be coming from a GAN. They could be coming from VAE or any which model, so let's say, a diffusion model.
+
+ 
+
+You will pass these images through some network, OK? And at the end of it, you will get h of x and h of x prime. Not the outputs, but think of it as a feature generator. And you will get two different features, h of x and h of x prime.
+
+ 
+
+Now if the two features are different, then you know that the images are quite different. Exactly by everything that we said in this class, a statistic is nothing different from a feature generator. Feature generator is one particular statistic, namely, this one, the one with these weights.
+
+ 
+
+So you can ask yourself, instead of looking at the distribution in the space of images, which is what we did in this chapter, you can look at the distribution in the space of features, and again, play the same thing. If you can distinguish the two distributions in the space of features, then clearly, the two images are different. If you cannot distinguish them in the space of features, then that doesn't mean that the two are the same, but that just means that for this particular statistic, you couldn't distinguish them, OK?
+
+ 
+
+So the nice thing about doing all this business is that you can take-- the feature space can be quite small, even if the images are quite large. So people will create a feature space that is, let's say, 200 dimensional or 100 dimensional or so. And in that space, you can actually fit a distribution, or you could attempt to fit a histogram, OK? So at the end of this, they will get a distribution p hat. They will get the distribution q hat, which is the empirical distribution of real or fake images distribution of features, not of the actual images.
+
+ 
+
+And once you have this distribution, then you can use any distance to measure the discrepancy, KL divergence, for instance. This one particular distance became quite popular. I'll tell you why. It is called the Frechet Inception Distance. It is the distance between two Gaussians with mean mu and variance sigma.
+
+ 
+
+So mu p and sigma p are the mean and the covariance of this one. Mu q and sigma q are the mean and the covariance of q hat, empirical means and empirical covariances. And it is simply this formula. Mathematically, it is something called as the Wasserstein distance between two densities, p hat and q hat, which is nothing very different from the KL divergence. It is just another distance between two distributions, OK?
+
+ 
+
+Because the things are Gaussian, we know a closed-form way of calculating the FID or the Wasserstein distance. Just like for two Gaussians, we also know a closed form way of calculating the KL divergence. So you could have used the KL divergence also to measure the discrepancy.
+
+ 
+
+This is what people started using. And that became kind of popular in all the papers. I think the only reason that it became popular is because people think there is something very special about these Wasserstein distances. I don't think there is anything very special about them. They are just another distances.
+
+ 
+
+But if you ever write a paper on a generative model, this is the one that people will tell you to use. A small value of FID means that, at least as measured by this particular statistic, that features are the same, OK? So up to this statistic, the distributions are the same.
+
+ 
+
+Now, of course, you need to pick a neural network, right? We spend the entire lecture training the discriminator to distinguish in the most precise way possible. To do a quick test, people will simply choose a neural network that was trained on ImageNet. So you can take a pre-trained model on ImageNet and use that as a feature generator to create the features to check the discrepancy.
+
+ 
+
+This is not the greatest idea on the planet. But it is one particular feature generator that is rich, OK? On one particular statistic, that is easy to get because you can just do [INAUDIBLE] [? Torchvision.ResNet-18. ?] It's actually a ResNet-50.
+
+ 
+
+OK, so this is one way to evaluate generative models. And this is-- it has its drawbacks, of course. But it is a nice way to evaluate because it gives you a metric of the goodness of images that is different from how you train the model. If you fitted a different discriminator on the images created by this generator without training the generator again, then that could also be a good way to evaluate things, OK?
+
+ 
+
+So you finished training GAN, freeze the generator, and then reinitialize the discriminator to something else, then now just distinguish between the images of the generator and the real images. Whatever loss you get, if that is 1/2, then that's a good way to check the discrepancy, OK? This is how images of a GAN look like, pretty impressive.
+
+ 
+
+They were created by a model. Nowadays, you will get-- so this is maybe two or three years old at this point-- you will get way more interesting images. Interesting pattern about computer generated images is stuff like this. In the background, they will usually be a little off. So even if the features of the faces are quite distinctive, in the background, they will not work that well, mostly because the background has a lot of variability in the training data set. So the discriminator doesn't really know whether something is different or not different, OK?
+
+ 
+
+But the image-- but the features will be quite good. Some of them will obviously look fake. But I think all the images here look pretty reasonably realistic.

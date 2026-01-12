@@ -1,0 +1,19 @@
+[MUSIC PLAYING] When we train large neural networks, each weight update involves one forward propagation to get the loss of the mini batch and one backward propagation to calculate the gradient of the loss with respect to the weights. Larger the number of weight updates to fit a given data set, more time it takes to do the training. 
+
+For large networks, things can get very expensive. The largest neural networks being trained today requires tens of millions of dollars to simply train. So it would be nice if we can reduce the number of weight updates that it requires to train a neural network. We can save all this money and time. 
+
+In the first lesson, we will calculate the number of weight updates we need for gradient descent to converge to a solution. A more formal way of saying the same thing is that we will calculate the convergence rate of gradient descent. This will typically depend upon how complicated the training objective is. For instance, if the parabola has very high curvature, then we'll have to take tiny steps towards the bottom, much like you descend down a hike slowly if it is very steep. 
+
+Imagine a ball that descends down a parabola to find the minimum. As the ball loses height, it gains in speed. And this speed allows it to travel quickly, even if the parabola is somewhat shallow. In other words, the momentum of the ball allows us to travel-- allows it to travel quickly, even in regions where the gradient of the objective is small. This is a very powerful idea to speed up training. 
+
+Today's neural networks are trained on very large data sets, millions of samples, even more than that sometimes. It feels wasteful to calculate the backpropagation gradient over all the images in the training set and move along this direction only using a small learning rate. Why do all this work if you don't want to move a long distance along that direction? 
+
+Stochastic gradient descent-- SGD for short-- addresses this issue. It calculates the gradient only on a subset of the images in the data set. This is an approximation of the true gradient, and hence the name stochastic gradient descent. 
+
+SGD sounds like a great idea, but does it reduce the amount of work that we need to do? Each approximate gradient is cheaper to calculate, yes, but it is also an approximate gradient. It might cause us to take a longer path towards the bottom of the parabola. 
+
+This is exactly the question that we will address in this module. We will calculate the number of steps of SGD that you need to do in order to minimize a convex objective. We will see that in many problems-- in particular, for most machine learning problems-- SGD is preferable to gradient descent. 
+
+But there are also problems where running gradient descent would require fewer flops. This is the benefit of our mathematical description of these algorithms. Without these mathematical formulae, we would have to do a ton of experiments on a large number of different problems to ascertain which method works better, and that is not very easy to do. Training a neural network is not a convex optimization problem. For instance, there can be many local and global minima where the algorithm could converge, depending on where it begins. 
+
+So although we have gained a lot of understanding about how different training algorithms in deep learning behave in the past few lectures, the reality in deep learning is slightly different. 

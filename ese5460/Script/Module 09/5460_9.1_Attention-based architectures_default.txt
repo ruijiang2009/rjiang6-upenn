@@ -1,0 +1,182 @@
+Attention in the human perception system Transcript (00:00)
+Now let us talk about attention. And there is a very simple way to understand attention. When you drive on the road, you have a mirror that lets you look at the cars behind you. Right? You don't remember. You don't keep watching that mirror all the time. You actually watch what is in front of you when you drive. 
+
+So you have some part of your brain that is acting as a kind of a memory or attention at specific parts of the physical world around you. But it doesn't pay attention to them all the time. It only pays attention to them when it needs to pay attention to them. You know that there is a person walking on the sidewalk. He will cross at some point of time. So you watch him when he is about to cross. You don't keep tracking him all the time because you want to put your eyes on the road. 
+
+OK. So when you do decision making as humans, you always have a large amount of sensory information around you. You do not have the capability to process all the sensory information all the time. I have two eyes, ears, and everything. I'm not processing all the information from all my sense all the time. But I'm selecting the right amount of information or the right kind of information depending on what I'm doing. 
+
+OK. When you ask me a question, I listen to what you're saying. I don't get distracted by what my eyes are doing. OK. And in simple words, this is attention. Attention, just like a sufficient statistic, is about taking all or it's a function that uses information from all the past data, but it can throw away some information that is not relevant to predicting the future. 
+
+So if your correlations in the data were only very local, then while a sufficient statistic would use all the past information or will have access to all the past information, it will not use this. And this is precisely the notion of attention. Attention is a way of mimicking how we utilize only a small subset of the information available to us to make some predictions. 
+
+In the brain, it actually happens in a very clever way. So there is something called you have your eyes. You get features that look like our double filters or the features of the first layer from the eyes. Now there are certain types of cells. Let me try to draw the eye a little bit. OK. So this is your optic nerve. And then like there is many photons that come and impinge upon this. 
+
+Now the way attention works in your brain is that-- or one way, one place where it works, is right after your eye it is a region called as the visual thalamus. And what it really says is that if this neuron is active all the time, that means I see something moving all the time. But by the time stuff goes through the brain and comes back, I don't really need to use this neuron. So imagine that some person here is like moving his hands all the time but I don't want to get distracted by these inputs. Then my brain will say, this neuron is active all the time but don't listen to it even if it is active. 
+
+OK. So attention is created by this little block of neurons called the thalamus. And they are connected to the rest of the brain or all the way back to the brain. And they are connected to what comes from the eyes. And it is a little bit of a shut up signal that the larger brain sends to the early visual processing pipeline saying you are active but I am not going to pay attention to you. OK. 
+
+So this is one place where it is implemented. It is implemented in many different parts of the brain, audio processing or even deeper insight. But this is the simplest version. Moral of the story, we always have access to lots of information from our sensors. We don't usually have the computational ability to process all this information in real time. So we build something that looks like attention that selects the right information and only processes that information. 
+
+Weighted regression estimate Transcript (04:44)
+I will introduce attention in a slightly unusual way. But you will see why and you will see how it becomes quite straightforward, once you think like this. Let's look at the following problem. 
+
+So let's say that the orange line is the true function. This is a one-dimensional prediction problem. The orange line is a true function that we are trying to predict. X-axis is x. This is y. 
+
+We have data that looks like these blue points. So we have five data points. And we are trying to make predictions everywhere in the domain using these five points. 
+
+What is one simple prediction you can make? You can predict the green line. The green line is the first point everywhere in the domain. Or, it is the mean of all your blue points. 
+
+This is a prediction. It is a very bad prediction because the green line is very different from the orange true function. But let us write down the green line. So the green line is y hat equal to the average of all my data points, all the targets of my data points, simply, the mean output. 
+
+Now we know that if we are near these points, then we could have taken a more local average and given that as the output and we would be a little more accurate. With any of these points, we could have calculated a local average and given that as the output. We would be a little more accurate than the green line. 
+
+So the issue with the green line is that it is calculating the average across all the points in the domain. And that is why it gets a huge bias when it makes predictions. If we go a little bit closer, if we imagine building a slightly different kind of average, a local average, then we will get to make better predictions. 
+
+There is one simple way to do this. You can say that y hat of x at a new location x, my y hat is some weighted combination of all the yi's in my data set. The weights, in this case, is how close my test datum is to one of my input data points. If x is close to xi, then I average that yi with a larger weight. So far, pretty straightforward stuff-- instead of using a global average to make predictions, we are using a local average to make predictions. 
+
+We can imagine that k is some kind of a kernel. It checks when x and xi are similar to each other. If they are similar, it has a large value. If they are dissimilar, they have a small value. So yi gets a small weight, if that is similar. 
+
+It is useful to use normalized kernels. Because that way, at least on average, y does not become too different. Y hat does not become too different from the yi's. Let me give you an example. 
+
+So let us look at a Gaussian kernel. So k of x comma xi is a Gaussian kernel. So in this case, these are our data points. These are our five data points. 
+
+This is one kernel, the purple one, which is centered at this point. It is k of x comma x1. This one is k of x comma x2. I'm just plotting the kernels. 
+
+When I take the weighted combination of these kernels, I will get these kind of objectives. So the purple line here is this. When I multiply it by yi-- so we cannot match the target values using-- oh, the second panel is a normalized kernel. It is k of x comma xi divided by k of x comma xj for all the other J's. So the purple line, which was like this, has now become something like this. 
+
+The green line, which was here, becomes a little bit like this. Because it is actually close to the average in the first place. So these are simply the normalized kernels. 
+
+And now this is the average of yi's where the weights are the normalized kernel values. And what I'm drawing here is f of x. The curve that we are drawing here is the green line, which is our output. And you will notice-- sorry, the orange line is f of x. 
+
+You will notice that the f of x, which is the weighted sum, is not the true function, obviously, because we have a finite amount of data points. But it is still much, much better than the average that we did before, the completely flat, unweighted average. So all this is to say that if you do a local average, you can get a very nice prediction of points everywhere in the domain. 
+
+If you don't have training data points in this part, you get a very bad answer. You get a huge discrepancy, as compared to the true model. But places where you have data points, your weighted average matches the true function. Because you're averaging locally. 
+
+So this has a name. This is called the Watson-Nadaraya estimator. This is a very old thing, like a good 150 to 200 years old estimator in statistics. It simply takes your data set, calculates local averages, weighs the local kernels, and normalizes them appropriately. And this is your output. It is consistent in the sense that if I have an infinite number of data points, then I will get exactly the true function. Make sense? 
+
+It depends on what kernel I pick. If I pick a complicated kernel, it can get answers with fewer data points. If I pick a very simple kernel, it will need slightly more data points to get close to the true function. 
+
+Now attention mathematically can be simply thought of as learning the weights of these kernels. In this case, we chose a Gaussian kernel. And attention is literally learning the weights of this kernel. 
+
+Attention in neural networks Transcript (11:40)
+So let us see how attention is built in neural networks. And as is traditional, we are not going to learn very complicated kernel. We will learn a simple kernel but parameterized by weights so that the weights can become complicated and tuned to the data, but the function of the kernel will be quite simple. 
+
+In this case, it will simply be an inner product kernel. So k of x comma x prime is x transpose x prime. OK. Let me change the notation slightly, so follow a little closely. What we are going to do is imagine that there are two matrices. 
+
+The first one is called a key. So think of your sequence in your recurrent model. There is capital T, different inputs. Similarly, there are capital T, different case. Each of the case is of p dimension. So k is a matrix of capital T cross p dimensions. It is called the key, just to name again. 
+
+There's another matrix called v, which is of the same size, capital T cross p. So for every time step, you have a p dimensional vector, which is your v. And that is called the value matrix, or a value. OK. 
+
+Given some vector q, just like we did in the Watson-Nadaraya estimator, we say that the output corresponding to this q is the weighted sum of how close this q is to each one of the keys times their value. OK. 
+
+Value is v is like y in our previous example. q is like the test datum x. ki is like the training datum xi. And vi is like the output yi. With me so far? In the previous page, we were taking a weighted sum of the outputs, yi. The weights were the similarities between the test datum x and the training datum xi. 
+
+In this case, we are taking a weighted sum of the values. The values are vi's. And we are using the weights to be the inner product between the keys, ki, and the query, q. OK. These are just names, but the mapping is pretty clear. Keys, values, and-- what is it called? Queries. OK. So with me so far? 
+
+I can calculate this expression for any given q. What will it do? It will select for me the weighted sum of values, where using the keys that look like the q, where this inner product is large, depending on what sigma is. But let's say that it will pick the elements with a large inner product and then average those values v. 
+
+So for a second, let us not worry about how to learn ki's. Let us simply see how it is calculated. We said that we like the weights in the Watson-Nadaraya estimator to be normalized. Similarly, for the same reason, we will take a softmax over all the keys as our nonlinearity. 
+
+So when you do a softmax over all your keys ki, what you are saying is find me the most similar key, ki. I will give it probability 0.9, or I'll give it a weight 0.9. Find with the second-most similar key, ki. I'll give it a weight 0.1, et cetera, et cetera. OK. 
+
+So this function here, it was a Gaussian for our previous example of regression, or a normalized Gaussian. Here it is usually taken to be a softmax. It doesn't have to be a softmax. It can be some other function, so long as it is nicely normalized across all the keys. 
+
+OK. So this is called as a self-attention operation, when the query is one of the keys itself. OK. We have a bunch of keys. Let's say k1, k2, et cetera. These are a bunch of-- so think of it as a dictionary. A dictionary has a bunch of keys. 
+
+Every key has an associated value stored inside the dictionary. I use a query q. I check which one of my keys is similar to q and average those values. OK. 
+
+If I have my query q as one of the keys of the dictionary itself, then the inner product with that particular key will be the largest. And that is why it is called self-attention. It is using the key-- the query is set to be one of the keys itself. 
+
+Key, query and value Transcript (17:02)
+There is a big abstraction, or a big difference, between the what's another i estimator and attention. I introduced it using the estimator, but the estimator is used for making predictions of data. Attention as an operator implements ideas of the estimator, but it has nothing to do-- so keys, queries, and values have nothing to do with the data points. They are functions of the features. But the operation does look similar. 
+
+Any other questions? OK, so as you said, all these quantities are learned. Again, we believe that something looks like a key, or something is a query, or something is a value, and then we hope that there is some semblance to giving them these names. 
+
+But at the end of the day, mechanistically speaking, you have your features h. You have-- you're creating keys using some weights called wk's. You're creating queries using some weights wq, for values using some weights wv. And here is how it will look. 
+
+So let me-- so this is hl. This is hl1. This is hli, let's say. And these are our features of the next layer. And let's say hl plus 1-- OK. 
+
+What am I doing? I am creating a bunch of keys from this, a bunch of queries from this, and a bunch of values from this. And as we said, "self-attention" refers to the case where the queries are also the keys. So each query is chosen to be one of the keys itself. OK, again, just to name. 
+
+Each edge L plus 1 j is created using a combination of the values of the previous case, OK? Imagine if each of these weights were exactly equal to identity. These are all matrices, so let us say that all of them are identity. Let us say that this function, sigma, is also identity. 
+
+So k equal 2. So in our new world, k would be equal to hl. q would also be equal to hl, and v would also be equal to hl, OK? So let's do a simple case. 
+
+If we calculate hl plus 1 using this expression, what do we get? We get hli, which is the i'th key, times hlj, which is the j'th query. And then, the combination is of hl i's. 
+
+So if the j'th feature over here, if it is similar to the i'th feature, then this term is quite large. So that particular feature gets upgrade in [INAUDIBLE], and we set its value to J. So if all the weights in your attention module, or your self-attention module, are equal to identity, then hlj is simply the feature that is the most correlated, or it is the combination of all the similar features in the lower layer. 
+
+Is this clear to people? Maybe it will help to write it again. hl plus 1 j is summation over i equal to 1. And let us say, this is equal to m features. Softmax hli times hlj and hli. OK, so we are really doing-- just checking how many features, which features are similar to the j feature, and writing this value as hl plus 1 [INAUDIBLE] j. 
+
+Now, as you can imagine, if you have learned weights, then things are a tiny bit more interesting, but fundamentally not that different from this expression. You are checking which features are correlated to each other and then writing their values in h. Questions? Does this remind you of something-- of a convolutional kernel, to be specific? 
+
+When we have a convolutional kernel we said that there is, let's say, a star inside your image. And if your filters are something that detect the star, then the output of the convolution of the image and the filter that detects the star is large at the location of the star. A convolutional filter is using pixels or features in the lower layer, in the local neighborhood of hj over here, and then writing down the value of hl plus 1j to be so and so if it matches the filter, OK? This is the convolutional filter. 
+
+A self-attention layer is selecting features from very far away-- much, much further away than the receptive field of a standard convolutional filter. So it gets to look at-- it is similar to a very large convolutional kernel. It doesn't do any convolution. It actually does cross-correlations. So it is quite a different operation, but conceptually, it is looking at faraway pixels. And that is why it is more powerful or more interesting than a convolutional kernel. 
+
+Attention in recurrent neural nets Transcript (23:31)
+Look, you told me that you want to build a recurrent architecture because the sequences can be very long. That is the fundamental reason why we were building recurrent architectures, right? We could have also done this same trick of taking the entire sentence and then feeding it in without using recurrence, but we said let's do recurrence. 
+
+Attention versus fully connected networks Transcript (27:19)
+Look, you told me that you want to build a recurrent architecture because the sequences can be very long. That is the fundamental reason why we were building recurrent architectures, right? We could have also done this same trick of taking the entire sentence and then feeding it in without using recurrence, but we said let's do recurrence. 
+
+And then it's saying now you're telling me that you don't want a recurrence. Fine. But why should we use attention? Why not simply use an MLP? An MLP would also have a very short path from the output to the input. So it would also not suffer from vanishing gradient, just like a standard MLP does not suffer from vanishing gradients if the number of features is very large. 
+
+If the depth is very large, then it can still suffer from vanishing gradients. But if the number of features is very large, then an MLP won't suffer from vanishing gradients. So can anyone guess the answer? 
+
+A fully-connected layer is a general matrix W or S in our notation. A convolutional layer is a more restricted class of matrices. Like we said, it's a Toeplitz matrix for one-dimension signals, a circulant matrix for two-dimension signals. So convolutions are a restrictive set of weight matrices as compared to fully-connected matrices. 
+
+Attention-like layers, or self-attention-like layers, are another kind of restriction applied to fully-connected layers. So the surprise is not so much that the attention works so much better than fully-connected networks. So attention works better simply because it has fewer parameters, you need to use slightly less data to train it. 
+
+And the power of the fully-connected layer, just like it is not used for convolutional networks, you may not need it for doing these kinds of calculations for text-based data also. So that is why-- you can imagine that attention-based networks work well than fully-connected networks. 
+
+Whether this is the only way of implementing attention, that is also not true. We said how attention is fundamentally just about looking at something like your local neighborhood or features, of similar features to you. So you could have implanted some other kind of restriction, some other kind of attention model, and that would work just fine. 
+
+More broadly, we talked about convolutional layers in this course as a way of doing translational equivariance. And there is obviously a merit to doing this. In problems where you don't need translational equivalence-- if, say, your data set has pictures of objects that are essentially in the middle of the image-- so they don't move very much-- most people, when they click a photograph of their dog, it is not as if the dog is in the top-left corner of the image, right? The dog is usually in the center of the image. 
+
+So this is the kind of images that you will see on the internet of dogs and people and everyone. So the translational equivariance of the CNN is not really being utilized too much, anyway, for making predictions on these kinds of data sets. What is really helping for data sets like so far is just the fact that you have your parameters. 
+
+There are, of course, other data sets, like driving, where there will be people in different parts of the image where you will use the translational equivariance. And there, you actually do see a huge benefit of CNNs versus data augmentation. 
+
+The story of self-attention is basically identical. It is a restriction of the fully-connected matrix and it is one reasonable restriction that is relevant to these kinds of problems. But it is not the only way you can restrict it. 
+
+Transformers Transcript (31:18)
+One of you, like last time, wanted to know more about attention. So roughly speaking, people are very excited by attention over the last two, three years because, in 2015, just like everyone was excited about convolutional networks, they said, oh, convolutional networks work for every problem, these days people think attention works for every problem. 
+
+Personally speaking, I'm not a very big subscriber to this kind of philosophy because if attention is the right architecture to use today then convolution exactly was the right architecture to use five years ago so it's not as if there is one unique answer to what is the right architecture to use. It depends a little bit on the problem. And because all these architectures are quite large, they tend to learn similar kind of things when fitted on the same kinds of data. So this is some of my research also. But the fact remains that many, many people, either in the industry or in research papers, will use special kinds of attention layers to build models. 
+
+So transformer, this word is a very popular architecture that you will see basically everywhere today. So I promise you if you go to any interview, people will ask you about transformer because they think it is complicated and then they want to check if you know this complicated stuff. But anyway, so let me spend a few minutes on basically capturing how the nodes relate to this architecture. We talked about attention a little more abstractly. And this would be the implementation of attention for a real model. 
+
+Let us say that the problem is something like this. I have a sentence in French. And I would like to output a sentence in English. This is what Google Translate does when you put it inside. And I promise you again that a transformer is running Google Translate right now. So it's a model that falls into a family of something called a sequence-to-sequence models. You input a sequence. You output another sequence, not that different from your word prediction models where you input a sequence, you output one word, then you output that word again. You get the next word and thereby you get the entire sequence one after the other. OK. 
+
+A transformer has two parts. The first one is something called as an encoder. The second one is something called as a decoder. And roughly speaking, the job of the encoder is to summarize the sentence in French using some kind of feature vector. And the job of the decoder is to use this feature vector to synthesize a sentence in English. 
+
+We will do these kinds of models in the later part of the class. But we will do it from a very different lens. But fundamentally, it is about capturing the essence of a sentence in French and then mimicking that essence in English. Again, not surprisingly, the encoder is not one layer. It's a bunch of layers. Each of these layers is something like an attention layer. In particular, it looks like this. So let me-- [INAUDIBLE]. 
+
+Yeah. 
+
+So let's look at two words like this. Let us say that these are our input words. I know the input was French in the example before but let's say these are the two words, thinking machines. The way each of these little layers inside the encoder works is that it will first create an embedding of the word thinking. This embedding can be a fully connected matrix that uses simply the different characters to create some feature vector. 
+
+So the green vector is some feature vector that you are creating. The keys, queries, and the values like we said are created using the green vector as the feature. OK. The size of the feature vector is typically quite large so the green vector is typically, let's say, 500 dimensional whereas the keys and the values tend to be quite small, something like 60 dimensions, 64 dimensions, or 32 dimensions. And like we said, we would do a correlation of keys and queries, k1 times q1 or k2 times q1, and calculate the different scores. 
+
+The output z1 and z2 are the summations that we did when we calculated our features hl plus 1j. That is exactly equal to the summations except that, typically, people will-- so when you say this divided by 8, the reason people like to divide by 8 is that this particular outer product, what is the average value of this inner product? There is let's say m different dimensions for keys and m different dimensions for queries. So this is a product of-- this is a summation of m products. Right. 
+
+So on average, its value will be something like square root m. If you imagine that this is a random vector being-- a random Gaussian vector, then the magnitude of a random Gaussian vector is square root the number of dimensions. So if both of these were random vectors then, on average, the inner product will be square root n. So people like to divide it by, in this case, 8 because the number of dimensions of the queries is 64. And this is simply to normalize the inner product. 
+
+So think of it as just like you calculate the cosine distance and you normalize it by the length of the vector, they normalize it by the number of dimensions square root. It's not very important. It is just a nice thing to do to make sure that the gradients are well conditioned especially if one of the keys is being set to a very large value by the weights of that key. 
+
+OK. So this is how you create the outputs using our two words. Now all these pictures are basically the same thing that we said. There is weight matrices. And then there is division by the denominator, which is the square root of the number of dimensions. In typical architectures, people will use not one set of keys, queries, and values but many, many sets of keys, queries, and values. 
+
+Just like people use not one filter in a convolutional network but many filters, there are many channels and many filters corresponding to these channels, similarly, in an implementation of a self-attention block, people implement what is called a multi-head attention. And what they simply mean is that there is many sets of keys, queries, and values. Typically, there is something like eight sets or 12 sets. There is nothing fundamentally important or different than what we did in the lecture notes. It is simply many different keys and many different values. 
+
+And just like he was saying, you could have used a fully connected matrix as your weight vector. You chose to do an attention. Now if you don't like one attention block or if you don't one set of keys and queries, you use multiple sets of keys and queries. But fundamentally, you are not doing a different operation. Think of it as different channels in the CNN. These are the different channels of an attention layer. OK. 
+
+Given all these different heads, the output of the model, just like our recurrent model-- it was one particular word, in this case, in a sequence to sequence model where we want to take the sentence in French and create some kind of a summary or a feature vector of this sentence, we have that as the output. OK. So on the left hand side of our architecture-- yes. 
+
+So look at the picture here. The left hand side is the encoder. After passing through a few layers of encoder, of attention blocks and such, the output of this will be a feature vector. Now the fundamental reason why keys, queries are different from each other and they don't have the same name-- I never said that yet in the lecture notes-- is that the decoder is also an attention layer. And the decoder has its own keys and values. But it uses the queries from the encoder. 
+
+Roughly speaking, what it is saying is that I have a feature vector that I learned on French sentences. Is this feature vector similar to the feature vector of my English sentences? If it is similar, then I write down the value of that particular feature as hl plus 1j. 
+
+So keys and queries are similar in-- are the same in a self-attention block. The reason people give them two different names is because they first built this architecture where, in the decoder, they are using the feature at the output of the encoder, so the top layer of the encoder, as a query to query the keys of the decoder. 
+
+OK. With me so far? This is sounding a little vague but if you read this blog again, you will see that what we did in the lecture notes is very, very similar to what people implement. They will just implement a few bells and whistles on top of it. 

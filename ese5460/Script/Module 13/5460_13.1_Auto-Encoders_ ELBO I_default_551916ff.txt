@@ -1,0 +1,180 @@
+Now, with all this understanding, we can do a generative model. So we are going to next look at something called as an evidence lower bound. Actually, I see a very interesting answer here, that both the objectives were being used to fit these three functions.
+
+ 
+
+And he has a point. You would not know a priori which one of these objectives was used. p, q would give you similar answers. And everything that I said would be true even for p, q. These are three local minima of the problem p, q.
+
+ 
+
+So this is our goal now. We would like to say that-- let us say for images that you see in Nature x, let z given x be Nature's posterior over the latent factors. OK? There is some set of latent factors, color, shape, size, viewpoint, et cetera. And z given x is Nature's posterior.
+
+ 
+
+Our job is to approximate z given x with respect to Nature's posterior. Our job is to find the q of z given x that is as close as possible to Nature's z given x. We are going to search from a nice set of family-- a nice set of distributions, capital Q, in this to find such an object, OK?
+
+ 
+
+So let us write it down. The best z given x that we could find-- the best latent factors conditional on the image x that we could find are the ones that minimize the KL divergence between our choice q of z given x and Nature's distribution p of z given x for all the input images xi in my data set.
+
+ 
+
+For a second, imagine that the latent factors are fixed. There is 10 latent factors in the world. OK? p of z given xi is something that you don't know. Let us say Nature knows.
+
+ 
+
+So for every image, there is a certain posterior of what latent factors could have generated that image. Make sense? This is equal to what? It is proportional to p of xi given z times the prior over z.
+
+ 
+
+How likely is Nature to pick one of these latent factors for drawing the image? Whether it drew this image using those latent factors, that is equal to the posterior by the Bayes law. So it is this object. We don't know it Nature knows it. Our job is to approximate that object. And we are going to approximate that object. This object is a distribution over z, right? If z is a 10-dimensional latent variable, then it is a probability distribution over 10 dimensional things or 10 dimensional vectors, OK.
+
+ 
+
+p of z given xi, for every value of xi, it is one distribution. So I'm going to say I will optimize the average KL divergence of all images over my training data set. Make sense? This is nothing different than minimizing the cross-entropy loss on average over the entire training data set. It is, as we said, literally the cross-entropy plus the entropy.
+
+ 
+
+Cool. So if you are with me so far, what we will now use is a very special property of the KL divergence. The KL divergence is always non-negative. This is something that we did not say in the class. But it is true. The KL divergence between any two distributions is non-negative.
+
+ 
+
+It is a distance. But it is not symmetric. So it is not a metric. OK? But it is a distance. So it is non-negative. So every term of this summation is greater than or equal to 0. OK?
+
+ 
+
+So now let us write down the definition of KL divergence. KL divergence is the integral of q log q divided by p dx. So I'm just going to write it down as an expectation. It is expectation over z sampled from qz given x, which takes care of this first term here, times logarithm of q divided by p, which is exactly this term here, OK? So I've simply written down the integral as an expectation. So it is the expectation over z sampled from our choice q and the log likelihood ratio or logarithm of the likelihood ratio between q and p. OK?
+
+ 
+
+Now we can expand this. So logarithm of q divided by p is equal to logarithm of q minus the logarithm of p. So I can write it like this. It is expectation over z negative log p plus expectation over z positive log q. Nothing has happened. It is just algebra.
+
+ 
+
+And now we are going to expand this one. So p of z given xi is equal to p of z, xi divided by p of xi by the definition of conditional probability. And so I can always-- I can again pull out the negative log p of xi here. OK?
+
+ 
+
+Does p of xi depend on z? No. So I can pull the entire thing out. And I get logarithm of p of xi. The minus minus becomes a plus. Make sense? And now I get this term written as this, this term again written as this. OK?
+
+ 
+
+Now we know that all this entire thing is greater than or equal to 0. So we can pull p of x on one side and keep all the others on the other side and get an inequality of this kind. The logarithm of p of xi, which is the probability of this image being constructed by Nature-- you don't know this. This is the left-hand side-- is lower bounded by this term, which is the expected value of your hypothesized latent factors z.
+
+ 
+
+The joint likelihood under Nature's model. p is Nature's model. q is our model. You hypothesize certain values of z using your q. And suppose you could ask Nature, you ask Nature, how likely are the images and my latent factors under your model? That is what this term is, right, the first term.
+
+ 
+
+The second term is again your hypothesized q's. But how likely your q's are with respect to your own model, what is the likelihood of the z's under your model, OK? This stuff, you can calculate yourself. There is-- you don't need to ever ask Nature. This one, you cannot calculate because p depends on what Nature does. OK?
+
+ 
+
+So this is just an arithmetic manipulation of the non-negativeness of KL divergence to obtain a lower bound on logarithm of p of xi. Now, in statistics, people give this a name. This is called evidence. And that is why this entire expression is called the evidence lower bound.
+
+ 
+
+In deep learning, people will call this ELBO, OK? It is just a lower bound for Nature's likelihood of creating images. We don't know Nature's likelihood. We cannot calculate the lower bound yet. OK?
+
+ 
+
+Another important thing to realize is that the ELBO depends on our choice of little q. It depends on what image you are talking about, xi. And it also depends on p. I've just not written it here because we will remove it later, the dependence, OK?
+
+Maximizing ELBO using gradient descent  Transcript (08:57)
+If you wanted to find the best q given z, your job is to minimize-- you could, instead of minimizing-- what is it called? Instead of minimizing the KL-divergence between q and p, you could minimize-- you could maximize the ELBO, OK? Or you could minimize the negative ELBO, OK?
+
+ 
+
+And that will be one and the same thing because your maximum-- because we rewrote the KL-divergence using ELBO itself. So instead of minimizing this quantity, you minimize this quantity, which is equal to maximizing this quantity, OK? Over q. Q is the stuff that we get to choose.
+
+ 
+
+So creating a generative model amounts to me maximizing ELBO over all samples x I, using q as my object. This is not that different from the optimization problems we have been writing down all semester, where we have a surrogate loss, function of some sample x, in that case, also sample a function of the labels of x, and the weights for all those cases. Now we have the distribution q.
+
+ 
+
+And so just like you have been solving these kinds of problems with stochastic gradient descent, we can also solve this problem with stochastic gradient descent. We will see how. But you know that you can sample a mini batch of inputs, x I, calculate the gradient of this entire business, with respect to weights all this while, but with respect to q now, and then optimize q, OK?
+
+ 
+
+So in the next couple of sections, we are going to look at how to implement SGD for a formula, for an objective like this. So let us do a simple example first. Let us imagine that this q of z given x that you cooked up somehow, lets say I gave it to you, is close to nature's distribution z given x, OK? In that case, the KL-divergence will be near zero, and this entire objective will be near zero. OK?
+
+ 
+
+So if we do a good job of maximizing ELBO, if we do a good job and find some q star that is close to p, then the samples that we get from this q star are also like nature's samples of p, of z given x. This is just a tautological statement. But we still don't know how to create an image given these factors.
+
+ 
+
+So if I have a machine that creates z given x, I told you-- or I am imagining that this machine is also a good machine at creating the latent factors. But having the latent factors is not very useful to me if I want to create images, right? I want x and not z, OK?
+
+ 
+
+So we should also do something to get q of x given z. Given this z that we think is good, that matches nature's z, how should we create an image? So this would be the generative part of the model, OK? Given a latent vector, it draws the image. The first part is, given an image, it creates the z. It creates the latent vector.
+
+ 
+
+This is something like an encoder. This is the decoder, OK? Now we'll write the decoder in this space. OK? So let us write the ELBO again. The ELBO is the expectation over the hallucinated latents, joint likelihood between z and xi minus the likelihood under your distribution q. And in this case, we are going to write down z given xi using the different definition of conditional probability. It will be written as p of xi given z times p of z, OK?
+
+ 
+
+This is, again, exactly the definition of conditional probability. This is something that we could cook up, OK? This is something that we can imagine to be a prior distribution on the latent factors. So let us say that we write it like this. Now what I'm going to do is keep this term here. And this is identical to this term.
+
+ 
+
+And I'll take the log p of z and plug it in this expression. So I will get a term that looks like KL-divergence between z given xi and p of z. Does this make sense? It is just algebraic manipulation. The KL of q of z given xi comma p z is the expectation over z is drawn from the first distribution, log of the first distribution, minus the log of the second distribution. And so there is a minus here. So this is a negative KL, OK?
+
+ 
+
+So it is nothing else other than arithmetic manipulation, but something cool has happened. What I have done is rewritten ELBO, which was, in terms of the joint likelihood under nature's model, as something that still depends on nature's model, p of xi given z, and the KL-divergence between my latent variables, z, and nature's prior over latent variables, p of z.
+
+ 
+
+Z-- this p of z doesn't depend on x anymore. It is like the marginal over all the latent factors that nature used to create all its images. Makes sense? This is something pretty important to realize, why we write it like this, OK?
+
+ 
+
+And now we are going to use this one. And forget the fact that this p is nature's p. We will cook up our own p to replace nature. Let me look at this expression again. So when this ELBO is maximized-- remember that we are maximizing the ELBO. We are maximizing this entire thing.
+
+ 
+
+When this ELBO is maximized, the KL-divergence is minimized, right? The posterior z given x that you create is closer and closer to nature's prior p of z. So we like-- this looks like a condition that you could impose on what kind of latent factors z your q creates.
+
+ 
+
+The latent factors z that your q should create are the ones that are also likely under nature's prior because the difference between the two is small, OK? You should not be selecting unusual latent factors to draw your images. You should be selecting latent factors that are also being used by nature for drawing many other images. That is what this term is telling us.
+
+ 
+
+This one is easier. It simply says, given a latent factor, how should I draw an image p of x given z? P of z you can never estimate, in fact. You don't know because all you see are images. The latent factors are in our head.
+
+ 
+
+We imagine that nature has something called as latent factors and this is how it draws things. We have no idea. So p of z is just our-- is an artifact of the model that we are using for how nature creates images, OK? And that is a very cool point because now we get to assume something on-- now we get to think of p of z as our prior for nature's generative model. We couldn't measure it anyway, so we are going to call it a prior.
+
+ 
+
+So this one is saying that, for every image xi, the latent factors that you hypothesize should be close to the prior that you are using. In some sense, it is like a regularizer for how the likelihood function is. So think of K means again. And these Zs are the centroids. OK?
+
+ 
+
+This is the likelihood term of the K means problem, OK? I can create-- given any dataset, I have a dataset like this, I can create many different centroids. And for different samplings of the centroids, this one will tell me how likely my data points are under those centroids. Makes sense? How far away the square distance is between all the points and my centroids are.
+
+ 
+
+Of course, I shouldn't be creating any which number of centroids. You know that you should first try K equal to 2, then you should try K equal to 3, and look at when the cross-validation increases. So this second term is telling us that there is some restriction, or there is some natural restriction on what kind of centroids you should use.
+
+ 
+
+If most images, if most datasets have K equal to 3, then the same centroids that you should be sampling is not too different from three. That is what this KL-divergence tells us, OK? It is a regularizer on how complicated our latent factors are allowed to be.
+
+ 
+
+So in that sense, it looks a lot like our loss plus a regularizer. The loss is simply the likelihood of images xi. These are something that we cook up in our head. This is how we imagine that these-- are created from x. We will say that this is how we are going to draw the images x given the z. So instead of this being nature's now, they will say that this is our rendering machine.
+
+ 
+
+So this is the data [INAUDIBLE]. This is how well the images fit. And this is the regularizer term. This is how rich our latent vectors are allowed to be. If they're too rich, then we will basically get a variance term that says, for every image, you need to use a different set of latent factors to explain it.
+
+ 
+
+If they're too narrow, then you will not get good reconstruction because all the images are being represented by the same kind of latent factors. And just like the K-means problem, you cannot have too many centroids. You cannot have too few centroids. You need the right one. And this is one way of ensuring that you do not have too many.

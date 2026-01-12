@@ -1,0 +1,7 @@
+[AUDIO LOGO] In this module, we will study architectures that are designed for processing natural language. Our first model will be a recurrent neural network. 
+
+Suppose you want to predict the next word in a sentence. You would obviously find it useful to look at the past few words to make such a prediction. As you see more and more words of a sentence, your understanding of its content, and thereby the likelihood that you will guess the next word correctly, improves. 
+
+Recurrent neural networks are designed to capture this idea of building a representation that is updated as you see more and more words in a sentence. Some people have a habit of talking in long, winding sentences. I remember when I was quite young and I read J.R.R. Tolkien's Lord of the Rings books. And I was constantly lost due to the long sentences in these books. Recurrent networks also have a difficulty in making accurate predictions in such cases. 
+
+LSTMs, which is short for long short-term memory networks, are variants of recurrent neural networks. They can process long-term dependencies. In fact, LSTMs are, in a way, the oldest deep learning models that we still use. They are being used for language translation for almost 30 years now, since well before the modern era of deep learning began and was deemed successful. 

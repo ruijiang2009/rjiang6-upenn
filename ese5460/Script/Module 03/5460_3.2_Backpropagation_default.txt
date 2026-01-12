@@ -1,0 +1,178 @@
+Overview of backpropagation in neural nets Transcript (00:00)
+We started the previous lecture by motivating the fact that, once we have an objective, now we would like to take the gradient of this objective to find the correct w. w, if you are just fitting a linear function, then you would just take the derivative of this and then squared it up in your sgd, and you would be fine. If you are doing this multiple layers and stuff, then taking the derivative is a little bit more cumbersome, because you have to call it up by hand for every architecture you create. So back propagation is a very neat way to take the derivative in an automated way. 
+
+And we are going to do this using a very simple example, a one-dimensional neural network and a regression model. Just to refresh your mind, x is a vector in the dimensions. Let's say the image and dimensions w is another vector in d dimensions. The hidden layer has one neuron only. So w is not a matrix. w is also a vector. 
+
+And then v is the weight of the second layer. It is a scalar, and that gives you an output by hat. We would like a y to be close to the output y hat, and this is the regression error. 
+
+This is our loss. Loss is a function of w and v. I don't care about the dependence on x and y, so I have ignored them. And the name of the game is to be able to calculate quantities like dl by dw and dl by dv, so that we can update w and v to reduce the loss. Make sense? 
+
+You see this as an expression, a computer sees this as a computational graph. The computational graph takes in w and x as input. It does some operation, which let us just call it layer one, it calculates z. What is z? z is w transpose x, the first little bit of computation. 
+
+Using this z you apply the nonlinear function sigma, you get an h. So this stuff is h. Think of it as just writing dummy variables in your code, and these would be the names of the variables. v times h is another dummy variable, and then the loss is y minus v times h all squared. OK? 
+
+This is what is called the forward computation graph. Every single operation that you can think of can be written down in its elemental form, like this. And the derivative that you wish to calculate, dl by dv, you can write it down using change rule. 
+
+And as we said in the last time, if you look at this expression, suppose you already ran through the forward graph, and you have calculated all these quantities, v, h, z, l, et cetera. And these quantities are stored on your hard disk or stored in your memory. While calculating this derivative, dl by dv, you notice the same quantities showing up again and again. 
+
+So this tells you that you can kind of reduce your work by not calculating them again and then using your stored values from your memory. This, in a nutshell, is back propagation, how to cleverly cache the right quantities, so that you don't have to do extra work during taking these chain rule derivatives. OK. So caching computations for computing the chain rule is the purpose of back propagation. 
+
+Now, another interesting thing to notice is that the stuff that you save, z, h, v times h, are all the outputs of every little bit of computation that you do. So every step of the forward graph takes in something as an input and then create something as an output. You always store the output. 
+
+So in this expression, you will see w transpose x. You will see sigma of w transpose x. You will see v of sigma of w transpose x. These are all stuff that are stored as the output of one of your little operations in the forward graph. 
+
+So forward graph is a set of steps. The output of every step is what is being stored. The output of every step is also what is being used in the backward pass. 
+
+The irony here is that I'm not saying anything very deep. It is very tautological. What else would your store-- use if not the output of the step? Output of the step is the only thing that is created. I think the joke is lost on most. 
+
+OK. So another thing to notice is that the derivatives of this kind show up. So sigma prime is the derivative of the nonlinearity sigma, with respect to its arguments. You will always see the derivative of the operation performed by the layers show up, and you will see how it is connecting the derivative of the inputs and the outputs, and we'll see in a bit. 
+
+Understanding backpropagation with an example Transcript (05:28)
+So we are going to use a very clever notation. So this has some very beautiful roots in pure math, but let's not worry about it. This notation looks as follows. So every time we want to write dl by dv, we will write it as v bar. 
+
+This is the equivalent of v, and this is just a symbol, for all intents and purposes. It will make our life ridiculously easy, and you will never have to use your brain to do backpropagation again. The name of the game, as we said, is to calculate dl dw, dl dv, which in our notation is w bar and v bar. These are the two quantities that we wish to calculate. 
+
+Our forward graph can be written down as these four equations. w transpose x creates z. Sigma of z creates h. v times x creates e. y minus e1 squared divided by 2 creates l. 
+
+So these are all the steps of our forward graph, and as I said, we should think about caching the output of each of these steps, so z, h, e, and l. Until now, there is nothing very complicated happening. And now let us do the following. dl by dl is what? 1, because it is a derivative of the symbol with respect to the same symbol. 
+
+I can write it as l bar. It's all very redundant at this stage, but l bar is 1. Next time-- so this is the output of the last step of my forward graph. l bar is something that I want to calculate. 
+
+Now, what I'm going to do is try to calculate e bar, which is equal to dl by de, using l bar. So let us write it out. I would like to calculate e bar, which is equal to dl by de, which is equal to dl by dl times dl by de. 
+
+There is not-- there is no poetry in writing this. It is very boring, but we can write it like this-- e bar is l bar times dl by de. We know the value of l bar. It is 1. 
+
+How do you calculate dl by de? From here-- l is the output of your fourth step of forward graph, so dl by de is what? y minus e times minus 1. It is simply the derivative right-hand side of the fourth step with respect to e. Make sense? OK. 
+
+Now, notice something very important, and this is really the crux of that [INAUDIBLE] that happened here. l is the output of the fourth step. E? Is one of the inputs of the fourth step. e is, of course, the output of the step preceding it. Right? That is what is being used as one of the inputs of the fourth step. 
+
+I am after calculating e bar. I am after calculating the bar version of one of the inputs on the right-hand side. I can write it as the bar version of whatever is created as the output, l bar, and the derivative of how l is created from e. 
+
+In simple words, I would like to check how sensitive the loss is to one of my inputs. So I first check how sensitive the loss is with respect to the output of that particular operation, and then multiply it by how sensitive the output is to the input that I care about. It is the English version of chain rule. OK? This is a very important pattern to remember. Bar versions of right-hand side variables equal the bar versions of the left-hand side variables times how the left-hand side variable is created by the right-hand side variable, or the sensitivity of it. 
+
+Let us do a few more examples. Now, we have e bar. What is y bar? y bar is, in our notation, it is dl by dy, which is what? 
+
+Which is y minus e. Right? You can calculate it, but we don't care about it, because y is something that is fixed. We never take an update on y or something like this. Right? 
+
+OK, next one. Now, we have e bar, and we are going to calculate v bar and h bar. So every time you have the bar the version of one of the variables on the left-hand side, you use that to calculate the bar version of the variables on the right-hand side. 
+
+What is v bar? v bar is the bar version of its output, e bar, times how e is created by v, de by dv. This is using the chain rule again, but if you want to be very precise or you want to be elaborate, you can write it down. dl by dv is v bar, which is equal to dl by de, which is e bar times de by dv. 
+
+So this is just a very simple identity, but the reason we gave these things name, e bar, is because then we get to talk about this Jacobian very clearly. So this is our v bar. The value of e bar we have calculated here. So we need not calculate it again. 
+
+de by dv is what? h, right? It's from here. de by dv is simply h. 
+
+Similarly, what is de by dh? It's simply v. These are all scalars in our simple example, so we don't care about [? transposing ?] and stuff. But de by dh is v. 
+
+So v bar equals e bar times the de dv. e bar is minus 1 times y minus e. So minus 1 times y minus e times h. 
+
+Next one. So we have e bar now. We have calculated v bar. Now, we are after h bar. h bar and v bar are not that different from each other. So h bar equals e bar times de by dh. 
+
+How was the output e created? By the input h. This is de by dh. We know the value of e bar, which is exactly this. 
+
+de by dh is v, as you just said, so it is v times e bar. Now, you have h bar. Now, you're finished with this particular step. You have h bar here. 
+
+Using this h bar, you would like to calculate z bar now. So can you tell me what z bar is? dh dv is the derivative of sigma with respect to its argument. 
+
+So if it is a [? value, ?] then you will get times, it is 1, if z greater than 0, or 0 else. OK? So the derivative of the nonlinearity-- if you know the nonlinearity, then you also the derivative of the nonlinearity. If you know the derivative of the linearity, then you can write down backpropagation across it, like this. 
+
+Cool. So this is, as I said, z bar is h bar times sigma prime. Now, we are done with the second step of the forward graph. Using z bar, you can again calculate w and x. Now, you have some vectors being multiplied against each other, so you want to be careful about the-- let's write down w bar. 
+
+w bar is what? z bar times dz by dw. z bar is a number. dz by dw is a vector. w is a vector. 
+
+So what is this? z bar times x. You can also write down x bar, which is z bar times dz by dx, which is equal to z bar times w. w and x are both vectors of the same dimensions, of course, so this is true. 
+
+Notice that we got w bar, which is what we are after. In this particular step, we also got v bar, which is what we are after. So by first running through the forward graph, from the left to right-- you first run through this graph from the left to the right, and you will notice that the stuff that you cached is all the stuff that you need to use to calculate these quantities. 
+
+So h is something that you had cached before. So you simply plug in the value of h that you had cached, multiply it by e bar. e bar was created by your previous little step of the backpropagation. Forward propagation goes from the inputs to the outputs. Backpropagation goes from the outputs back to the inputs, and at every step, each step of backpropagation uses the result of the backpropagation from the previous step. 
+
+And whatever was cached by the forward step, forward propagation, at that location. This is a very important thing to remember. It's easy, but it is something that you should remember. 
+
+Backpropagation takes the output of the previous step, just like forward propagation takes the output of the previous little step of forward propagation. But backpropagation also takes in one more input. It uses stuff that was cached there by the forward prop. So backpropagation will [? work ?] like this. 
+
+Gradients from backprop and adversarial samples Transcript (16:10)
+At the end of backpropagation, you get the derivatives of the loss, with respect to every weight in your model. So w and v are the only two weights of our model. So you get the derivatives of every weight of your model. What else do you get? 
+
+We only wanted the weights to take the gradient. What else do you get? What is h bar? Is it h bar something interesting? 
+
+h are my features of the first lab. h bar is how does the loss change with respect to features? If a part the feature is a little bit, how does the loss change? You may want to watch this sometime and see how the loss is sensitive to some of the features. So you'll get many, many quantities as extra fallouts of backpropagation that you can use for debugging, for checking, for doing some research, et cetera. 
+
+Can we calculate w bar without calculating h bar? We don't need h bar, because we only need w bar and v bar. Can we calculate w bar without calculating h bar? How? 
+
+So this is another important thing to remember. Just like in the forward graph, to calculate this variable, you need to go through all the stuff that comes to the left of it. Similarly, in backward prop, we calculate any bar version here. 
+
+You have to go through all the stuff from the right-hand side. You cannot like a short circuit the chain rule. I mean, you can't short circuit the chain rule on paper, but you will have to do the same amount of work to calculate it. 
+
+So one way to think about this is, if you are trying to save some memory, then people try to not calculate features of some layers whose features are easy to calculate. The nonlinearity is typically something that is very quick. So it is an application of a sigmoid or application of a ReLU or something. So sometimes people will like not store the output of the nonlinearity, and then only store the input of the nonlinearity, and then calculate the output on the fly, while coming back from back. So this is stuff that people do to save memory. 
+
+OK. One more thing that you get from backpropagation is x bar, which is a very useful quantity. x bar is dl dx. How sensitive is the loss to perturbations of the input? We don't care for it, in general, because we want to train the network. But you can watch this and say whether this image is being classified robustly or not. 
+
+What happens to the loss, if I change the image a tiny bit? If the loss increases by a lot, then my model doesn't really understand this image very well. It understands-- or the neighbor of this image very well. 
+
+So one example of this, you will see it in Homework 2 also, is what are called adversarial inputs to neural networks. People noticed, a few years ago, 2015 or so, that you can take a trained neural network, and let's say this was a network that was predicting 1,000 classes. It's an image of a panda, and so the network is predicting that this is a panda with let's say 60% probability. What is the probability of predicting correctly for a random model, if there are 1,000 classes? Which is 0.1%. Right? 
+
+So if you are predicting a panda with 60% probability, then you are a pretty confident model and a pretty good model. So even if it looks as bad as 60, it is much, much better than the base version of a random model, which is 0.1%. So this is a good model. It predicts a panda, when I show it a panda. This is our x. 
+
+We can use dl by dx to take gradient ascent on x. So when we train a model, we move in the direction of the loss reduces, because we want to improve the loss. But you can take dl by dx and perturb x in the direction that the loss increases. So I can do something like x prime equal to 2 plus some alpha times dl by dx. 
+
+This is graded ascent on x, and what is this going to do? This will increase the loss on that particular x. So this is what he is calling epsilon, but this is let's say dl by dx that you can calculate just by backpropagation. And if you do this a couple of times, if you take a couple of steps of gradient ascent, like this, then the image that you create doesn't change that much. 
+
+But the image changes in a way that the loss changes by a lot. So to you and I, this looks like a panda. None of us would be fooled. But to the network, it looks like a gibbon, and it is not as if the network is very conflicted about it being a gibbon. It is 99% confident that this is a gibbon. A gibbon is a kind of a bird, so clearly not a panda. 
+
+So this is one example of how you can-- actually, no. Gibbon as a monkey. Sorry. Am I right? Yeah. Gibbon is a kind of monkey. 
+
+So the perturbations to the input that you make can often be very small, and they can create large changes in the loss. That tells you that dl by dx is quite large. For most inputs in the network, this will be the case. 
+
+And so there is a large field of research now that tries to study why such adversarial samples arise or how to fix them. Because it is easy to take a trained network and make it pretty garbage by showing it inputs that are just a tiny bit perturbed or just a tiny bit antagonistic. Right? It's like you getting a headache if I show you a troposcopic image, or if I show you some optical illusion. You don't get a good understanding of geometry. This is the neural network version of it. 
+
+The moral of the story is that you can do this experiment in basically five lines of code, just by running backpropagation. You'll get it for free, dl by dx, when you run backpropagation You don't have to do anything special to calculate it. 
+
+Alternate view of backprop Transcript (23:21)
+One very important thing that I like to think about around backpropagation is that think of an operation like this, in the forward graph. w1 times x1 plus w2 times x2 gives you something called z. OK? Now, as we know, w1 bar is what? Is z bar, which is the output of this operation, times vz by vw1, which is x1. 
+
+So w1 bar is z bar times x1. w2 Bar is z bar times x2. The way to remember this, or the thing to appreciate about this, is that the gradient that w1 gets back is split-- is the gradient of z, which is the output. And it is split equitably between how w1 created the output. 
+
+So think of this as two terms. Both of these terms together create the output z. There is some gradient z bar, which comes in from the upper layers of back propagation, and now your job is to divide this z bar in some way between w1 bar and w2 bar. 
+
+If x1 was very large, then w1 gets a larger share of the gradient, because w1 bar is z bar times x1. If x2 was very large, then w2 gets a larger share of the gradient. So w1 and w2 share the incoming gradient from z in such a way that, if one of them played a larger role in creating the output, it also gets back the larger share of the gradient. 
+
+This is a very important thing to remember when you create neural networks. So tomorrow, you will create new neural networks of your own, and then sometimes, you will see that-- let's say, this is your h1, the weights of this network are w1, and then there is another big network here whose weights are w2, and its output is, let's say, h2. This is my x1, and this is my x2. Maybe there is a nonlinearity in between. Let us not worry about it. 
+
+If x2 is very small, as compared to h1, then this network, even though it is very big, will not get a large share of the gradient. The gradient it will get back from z will always be quite small. And so when people build very large networks, what can often happen is that this is a very large network sitting here, but it is getting such little gradient in to train that the weights of the network are not moving very much. 
+
+The weights of the network, how much updates you make to w2, are a function of how big the gradient it gets. Right? If it is not working, if it is not predicting a high magnitude output, then it may not get something back in return, and it will not train. So you have to be very careful when you combine large architectures or create new architectures of your own, because you can get these kinds of inconsistencies. 
+
+And often, when people say, oh, neural network, deep learning is just hyperparameter tuning or deep learning requires me to train lots and lots of hyperparameters, what they're missing is this kind of thinking. If you design your networks in such a way that they're well-conditioned, if you think about how the gradient flows back and check whether the weights are being updated properly, then you don't really need to tune hyperparameters very much. I like to say that, in most of my papers, we use one setting of hyperparameters. That's it for all experiments of the paper. So if you are cognizant of how back propagation works, then you can help your life a lot and reduce all the grief that comes from fitting networks. 
+
+What is h1?
+
+h1 and h2, I wanted to call them the outputs of these two models. OK, and let's just say that this is a linear map for now, and so h1 is w1 times x1 and h2 is w2 times x2. 
+
+Abstractions for implementing backpropagation Transcript (27:44)
+As we said, we have a forward computation graph, and a backward computation graph. Now, when you create your own architecture, you don't want to do all the steps again and again. So one very clean abstraction to think about is that every step, every individual layer, whether it is a linear layer that multiplies by some weight or whether it is a layer that applies simply a nonlinearity to it, it comes with a particular forward function. 
+
+A forward function is something that takes in the output of the previous layer as one argument, and it takes whatever the weight matrix of that particular layer as argument. OK? Its job is to create the output of that layer. This is one little step of our forward graph, written down in code. 
+
+Every layer you have-- let us say if it is a Python class, then you can write down a forward function for that particular class, like this. You can also write down a backward function for that particular class, because backward computation also has the same number of steps. It only like runs back through them in a different order. 
+
+What does the backward function take as input? It takes in d loss by dh^(k). It takes in hk bar as input. 
+
+It is the bar version of its output, that particular layer's output, so this is one of the arguments. It also takes in h^k, which is the output that it created during the forward pass. This is a [? cast ?] thing. OK? 
+
+And of course, it takes in the weights that it has for that particular class. So every layer, whether it is a fully-connected layer or a nonlinearity, will have two such functions. 
+
+A forward function that creates the output of that layer using the weights of that layer, and the inputs to that layer as to arguments and a backward function, which uses hk bar, the bar version of the output of that layer, as an argument, the actual forward graph output of that layer, hk, as the argument, and of course, like the parameters as the argument. 
+
+What does it give you? It gives you two things. It gives you w bar, which in my language here I have called it sk bar, the bar version of the weights of that layer. 
+
+This is something that is very important to appreciate. The backward function is something that takes in the bar version of the output of that layer and it returns two things. It returns the bar version of the weights of that layer, and it returns the bar version of the input of that layer, hk minus 1 bar. OK? 
+
+To give you a slightly better visual picture, let us say that we had one layer that does this, e equal to v times h. So our forward function is easy. It takes in v as input and h as input and returns e as the output. 
+
+The backward function is exactly this step. It is this two steps. It returns v bar and h bar as outputs, and it takes in as inputs e and h. OK? 
+
+Try to write this down for a linear layer, the forward and backward, and you will see exactly how to plug in these things together. In your homework, you will write two kinds of layers, a linear layer like this, w transpose x, and a nonlinear layer like this, sigma, actually a third layer, which is the loss. Life would be very hard if you had to write down both of these functions for every complicated operation you wanted to perform in a neural network-- convolutions, fancy nonlinearities, et cetera. 
+
+The biggest benefit of PyTorch is that you only have to write this forward function for your layer. If you want to create a new layer that is not inside PyTorch, then you only need to write down the forward part of the function, and then PyTorch will automatically complete the backward version. It will automatically write this def backward for you, internally, so you don't have to write it. 
+
+You don't have to write the chain rule steps. And this is the biggest reason why everyone can do deep learning so easily, because they don't have to write backward functions. If you see papers from research papers by fancy professors, in the mid 2000, out of 10 pages, basically 8 pages will be about doing the chain rule and writing these kinds of functions. We can do all of them in one line now. 

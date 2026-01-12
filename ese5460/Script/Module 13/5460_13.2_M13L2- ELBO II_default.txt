@@ -1,0 +1,384 @@
+Encoder & decoder Transcript (00:00)
+Let us now see how to implement ELBO. Well now, we have these functions p and q. And we do the standard thing that we always do, think of a neural network that defines all these functions and then optimize the weights of the neural network. Of course, these are probability distributions. So these are slightly unusual objects that we haven't seen before.
+
+ 
+
+We will say that q of z given xi is a normal distribution with so and so mean and so and so standard deviation. This, as I said before, is a function of xi. So the mean is a function of xi. And the standard deviation is also a function of xi. You could have plugged in many different things here, many different probability distributions. Using Gaussians is nice because these are only two parameters that you need to worry about. The others are functions of these parameters.
+
+ 
+
+And it also will give us some nice ways to do calculations later. The Laplace approximation of a Gaussian is very easy. It is just a Gaussian again. So when you think of implementing the encoder, you should think of something that takes in an image as an input. It does a bunch of layers. And then it creates two kinds of outputs, mu and sigma.
+
+ 
+
+Mu is an m-dimensional vector because z is an m-dimensional vector. Sigma squared is the diagonal of the covariance matrix of this Gaussian. It is also an m-dimensional vector. All this-- and I write it as sigma squared simply to tell you that all the entries of this vector have to be positive.
+
+ 
+
+So this is an architecture for the encoder. And we'll call the parameters of the encoder u. For the decoder, it's the same business. Now, we have to parameterize p of xi given z. Depending on the kind of inputs that you are interested in reconstructing, someone may be interested in reconstructing images, someone else may be interested in constructing the letters in your DNA, which are discrete things, not images, could be continuous things.
+
+ 
+
+Someone may be interested in constructing binary images versus images that take values between 0 to 255. All those different things will give you different ways to write this distribution. So let us take one example.
+
+ 
+
+For MNIST, you know in your very first homework that these are grayscale images, size 28 cross 28. They're grayscale because every pixel takes values between 0 and 255, so 256 different values. I can think of this as a probability distribution that takes 784 dimensions and 256 values for every one of the pixels.
+
+ 
+
+So just like we have a binary cross entropy loss over, let's say, 10 classes, each element-- each logic can take two different values, 0 or 1 for the binary cross entropy loss. This is really the same thing, except that there is 784 different values-- different outputs. And each of them can take 256 different values. So you can write down a binary cross entropy loss-- sorry, let me rewind a little bit.
+
+ 
+
+If we-- instead of having the images be dependent on 0 to 255, if we binarize the images, you can binarize them in many ways. If the pixel is less than 128, you call it a zero. If the pixel is larger than 128, then you call it a one.
+
+ 
+
+Suppose we have such binarized MNIST images, they will look very sharp because we are binarizing it and thresholding it. Every pixel of such a binarized image takes only two values, either a 0 or a 1. So I can use my binary cross-entropy likelihood to guess what the likelihood of the image is.
+
+ 
+
+784 outputs instead of 10 outputs for when you did [? the VC ?] loss for MNIST. And every output takes two different values. So the likelihood of us reconstructing an MNIST image, which is the likelihood under the decoder, xi given z is a product over all these pixels, 784 such pixels.
+
+ 
+
+The likelihood of us reconstructing the pixel 0 or 1, which is simply a logistic distribution. So this is one way to write down a probabilistic model for constructing the data. If you have 256 different values, if you are interested in synthesizing MNIST images that were a little more rich than the binarized images, then you would have to cook up a slightly different distribution. It would be, let's say, multinomial distribution over 256 values.
+
+ 
+
+A nicer way to do it, however, is to just forget the fact that pixels have a quantization and just imagine the pixels to be real numbers between 0 and 1. So let's say divide the value of the pixel by 255. So it would-- and imagine that the pixel is just a real number now. And then you can say that this will be a Gaussian whose outputs are lying between 0 and 1.
+
+ 
+
+So you can think of any way to write down the likelihood for each of your pixel. It is your choice. The choice you make defines the kind of images that will be reconstructed. So in your homework, you will actually be using this one. You will binarize the images first and then use the logistic loss-- logistic likelihood to fit the decoder. And that is easy to use. If you use a Gaussian, you will also get nice answers. OK.
+
+Prior Transcript (06:00)
+The decoder is a machine that takes in z as the input. It has z as the stuff that we condition over. And it creates x. How does it create x? Well, it creates-- if you are doing the logistic loss, you would create one real number, which is the log likelihood ratio for every pixel. So effectively, you would create an image of size 28 cross 28. And in this, it will be the logarithm of p of yi-- actually, sorry-- of xij, which is the [? ij-th ?] pixel, being equal to 1, divided by, let's say, xij equal to 0.
+
+ 
+
+This is how we fit the logistic loss. You don't necessarily have two [INAUDIBLE]. You have just one [INAUDIBLE]. And that is the log likelihood ratio. So if you create simply an output image, the output of the network is a matrix of size 28 cross 28. Any elements of this matrix can be interpreted as the logarithm of the ratio of the probabilities. And using that, you can calculate the logistic loss.
+
+ 
+
+So now we have a decoder. We'll say that the parameters of the decoder are v. So these are the weights of our decoder. And the decoder could have any which architecture. It takes in a vector in n dimensions as input. And it creates an image as an output. You can use whatever architecture you want to do this. The encoder is something that takes in an image as an input and creates a vector as an output, or a two vectors as an output, the mean and the standard deviation for z.
+
+ 
+
+And these are the two weights that we'll be fitting. The prior, as I said, is really our choice. And it is very important what prior you pick. Certain priors make things easy to do calculations with. There are very many priors on p of z. Neither do we know a nice way to choose the number of dimensions of z, nor do we know a good prior on z. In some sense, the centroids of k means are in our head. Nature may not really care for creating the k means data using centroids of Gaussians.
+
+ 
+
+Similarly, the latent factors are our way of how we think nature could have created images. Nature could not care about it. So the prior is our choice. The z is our choice. And so we have to be very careful with all this freedom.
+
+ 
+
+One classical kind of priors that people use are what are called mean field priors. And they have some older-- or some nice-- the reason they are called mean field comes from physics, but we don't worry about that here.
+
+ 
+
+The probability of z is equal to the product of the probabilities of each element of z. So if z is an m dimensional vector, then these probabilities actually factor out over the m dimensions. All that really means is that the m dimensions of z are independent of each other. This is something called as a mean field prior.
+
+ 
+
+The distributions of each of these elements could also be the same. It could also be just a Gaussian. So this is a p of z. Written like this, it's a multivariate Gaussian, where each dimension of z is independent, and it is also normal 0 with a unit variance.
+
+Variational auto-encoder  Transcript (09:51)
+It's a really simple distribution. We are not making any complicated assumptions on what the prior is. The reason we can do good reconstruction in deep learning of images, even with such a simple prior over the latent factors, is because the encoder can be very complicated. Even if the image is a very complicated object, by the time the encoder works on it, the latent factor can become simple.
+
+ 
+
+So color is one dimension. Shape is one dimension. Size is another dimension. And so these are all unit normal random variables. And the decoder takes this information, which is rather simplistic, and creates a complicated image as the output. The encoder takes a complicated image, and then maps it to the simple distribution as the output.
+
+ 
+
+So this is how our-- this entire business is what is called a variational autoencoder. It is called an autoencoder because it takes in images as input. And then mu sigma squared as output. That gives you a z, which is a sample from these two distributions. And this is your decoder. And that takes in-- that reconstructs an image x hat as an output.
+
+ 
+
+So because you take an xi and try to reconstruct xi again, this is an autoencoder. This is just a name. It is a variational autoencoder, because unlike the k means problem, where the centroids are just numbers, there is no distribution over the centroids. Here we have a distribution over the latent factors. And we are really like a-- we said that we wanted to have q of z given xi. That was our fundamental object that we were trying to approximate of nature as a variational approximation that we use to fit.
+
+ 
+
+You could not have a variational autoencoder. You could have a simple autoencoder that would just be a standard vector z that is created as an output of the encoder. And that simply goes to the decoder. And it would be like maybe an hourglass kind of architecture that takes in an xi, and then returns an xi again, and this is simply some feature that is called z. This is a non-variational autoencoder. We saw this when we talked about linear deep networks.
+
+ 
+
+And we said if the size of the hidden layer is small, then the features that are learned by the linear deep network are the principal components of the input dimensions. And you saw that the output of the linear deep network could-- we chose it to be anything. It could be xi itself. So a linear deep autoencoder would first compress the images using the principal components, and then reconstruct the images, which basically would mean reshape them in this case to get them back again. So it will remove the small eigenvectors in the data.
+
+ 
+
+This is a non-variational autoencoder. What we are trying to build in this chapter is a variational autoencoder. That will do more complicated things than just the linear deep network.
+
+Reparameterization trick  Transcript (13:07)
+This is the full objective that we are trying to maximize, the parameters of the encoder and the parameters of the decoder. The prior is something that we chose. It doesn't have any parameters. It is just normal 01 projected over all the m dimensions. So that doesn't have any parameters, and you are maximizing the weights of the encoder and weights of the decoder, the average ELBO, across all these images. Makes sense so far?
+
+ 
+
+Now the issue with this entire business is that if you take the gradient, with respect to the weights of the encoder, u, of this entire objective-- so we want to do SGD on this. So you take a few images, take the gradient with respect to u. You don't really know how to calculate the gradient. So the reason for that is that if you think of this term, the stuff that you are taking expectation over depends on u. OK?
+
+ 
+
+The distribution, q, depends on the weights of the encoder, u, and there is a sampling that is happening. Z is a sample that you will use to calculate this integral. So we cannot simply use backpropagation. Backpropagation only works when u creates the quantity inside in a deterministic way.
+
+ 
+
+In this case, u is creating the quantity inside the expectation in a non-deterministic way because we are sampling z. OK? This is very different from how we thought backpropagation, where every output is a deterministic function of the input, and that is what we are going to do next.
+
+ 
+
+And this is something called the reparameterization trick. So let us write down the first term of the objective in this slightly simple form. We don't worry about what the integrand is. The integrand doesn't depend on u. It depends on v, which are the parameters of the decoder. Right?
+
+ 
+
+If you want to take the gradient with respect to the parameters of the encoder, u, then the integrand is a constant. It is not a constant, really, because it depends on z. Z depends on u, but it doesn't depend on the parameters, u. OK? So we'll simply write this entire function as some function, p of z, without worrying about what the phi is, just to write down the mathematics. OK?
+
+ 
+
+So we would like to take the derivative with respect to u of the functions that look like this. And what is this? It is equal to the derivative with respect to u of the integral of p of z times q of z, given xi, dz, and q is here. OK? This is the derivative that we want to take.
+
+ 
+
+We don't know how to take this derivative because you will have to push the derivative inside, and then sum it up over all the here samples, z, to do it. Instead of that, we are going to do a slightly different way to calculate the derivative, and that is called the reparameterization trick.
+
+ 
+
+Using the things that we have seen before, the reparameterization trick is simply the Laplace approximation of q. Here is how I will write it. I know that the z that I sampled as the output of my decoder, before I calculate phi, is a sample from q of z, given xi.
+
+ 
+
+If I know that my q is a Gaussian distribution, this is equal to mu of xi, sigma squared of xi times identity. I can also write down z as mu of xi plus sigma of xi times epsilon, whereby this circle and a dot I denote the element-wise product, the Hadamard product, where epsilon is a random variable with 0 mean and unit covariance. OK?
+
+ 
+
+This Is the Laplace approximation of this distribution, q, and we can write it down so easily because we chose q to be a normal distribution. If you had chosen q to be something else, then we would have to calculate the derivative and set it to 0 and calculate the mean, et cetera. But we chose it to be Gaussian, so we can just write it down like this. OK?
+
+ 
+
+Now, you get a very cool thing, where this entire integral, it now becomes-- so I can set z and I can substitute z in here. And this integral, instead of being an integral over z, it becomes an integral over epsilon, right? Epsilon is the only variable left.
+
+ 
+
+So I can write it down as phi of mu plus sigma times epsilon times q of z, given xi. If the samples are coming from this distribution, q, then I can say that my samples are simply the epsilon, where epsilon is sampled from 01. OK.
+
+ 
+
+So by rewriting the Laplace approximation, I simply substituted this z by this expression. And now, instead of calculating the expectation over z, I calculate the expectation over epsilon, and it's one and the same thing. Yeah? And so people in deep learning give this a name. They call this the reparameterization trick because they think of it as writing z using mu and sigma and epsilon, reparameterizing z.
+
+ 
+
+So in a slightly more formal words, the derivative of this expectation that we wanted to take, we couldn't take the derivative in the standard way because the distribution that the expectation was calculated over depended on the parameters that you are trying to differentiate with.
+
+ 
+
+We rewrote it as an expectation over the noise epsilon by Laplace approximation of the integrand. And now, you can push this derivative inside the integral because the expectation doesn't depend on u anymore. OK.
+
+ 
+
+So what do you have here? You simply have an expectation over epsilon of the gradient of phi. Now, this is a standard gradient. This is not a stochastic gradient because phi-- this argument epsilon is fixed once you go inside the expectation. And now, phi is just a neural network that has parameters, u.
+
+ 
+
+So this gradient you can calculate using standard backpropagation. Makes sense? Well, you cannot do this expectation exactly, anyway. So you draw some samples from it. And for every one of these samples, you calculate the average. So this is the empirical estimate of the expectation. OK?
+
+ 
+
+So this is something called as a reparameterization trick to calculate the gradient of the expectations when the distribution depends on the parameters. This is what you will implement to take the gradient of the first term. OK?
+
+ 
+
+There is another way of implementing this gradient. It is something called a score-function estimator, and we don't typically use it for VAEs because it has a slightly larger variance. By variance, I mean, the difference between this one and this one, it depends on how many samples you use.
+
+ 
+
+So the reparameterization trick has a slightly smaller variance than the score-function, especially if you have neural networks that are very large. In some areas, like reinforcement learning, where the network is small, you can use the score-function estimator to calculate the gradient for exactly the same reason in policy gradients.
+
+ 
+
+But I've written it here, but we won't do it, and we definitely don't need it for a variational autoencoder, so you can just read it later.
+
+Gradient of remaining terms of ELBO  Transcript (21:32)
+Moral of the story, we know how to take the gradient of this, the first term of ELBO with respect to the parameters of the encoder, that we just did. The gradient of the first term with respect to parameters of the decoder, which is what p depends on, that is easy. It is the standard gradient. OK?
+
+ 
+
+So you simply implement this objective in PyTorch and call dot backward, and it will give you the gradient with respect to the parameters of the decoder. Good?
+
+ 
+
+The second term of ELBO, I have just written it out now. It is the KL divergence of qu. It depends only on the encoder parameters. It does not depend on the decoder parameters. So the gradient with respect to the decoder parameters is 0 for the second term. The gradient with respect to the encoder parameters now we will have to take. OK?
+
+ 
+
+OK. So we said that the encoder creates an m dimensional output. This m dimensional output is a Gaussian distribution. It also has a diagonal covariance matrix. So it is also a bunch of independent univariate Gaussians, m independent univariate Gaussians, right?
+
+ 
+
+So the first element of mu and the first element of sigma squared gives you the first Gaussian. The second element gives you the second Gaussian, et cetera. So q of z, given xi, I can write it down as a product of the probabilities of each of my univariate zi's. OK? Nothing special is happening so far.
+
+ 
+
+Now, this is a product of all my probability of zi's. Actually, let me write it a little bit better.
+
+ 
+
+[INAUDIBLE]
+
+ 
+
+What?
+
+ 
+
+[INAUDIBLE]
+
+ 
+
+No, the m is the number of latent variables, the dimensionality of the latent variables. And so we said that q creates a Gaussian. An m dimensional Gaussian is what it creates. And the prior is also an m dimensional Gaussian. Do you see? We are making all these choices and these choices are made very cleverly.
+
+ 
+
+Q is also an independent Gaussian. So m univariate independent Gaussians, each of which depends on xi. This one, the prior, is also a product of m univariate Gaussians. None of them depend on xi, of course. That is the prior. It is all univariate, 0,1. OK? So I will write it down like this. It is equal to normal mu i x-- Let me write it using j.
+
+ 
+
+And this pzj is simply the prior. So it is simply 0,1. OK? So this is the KL divergence of a bunch of Gaussians, of two Gaussians, both of which are factored distributions. So both of these m variate Gaussians factor over all the m dimensions. It is a very special distribution.
+
+ 
+
+Now, the nice thing about KL divergence-- and you can show this very easily. --is that if you have a distribution over two variables and the two variables are independent, then it is equal to the sum of the KL divergences of each of the univariate distributions. OK? So the KL divergence of product of two distributions is equal to the sum of the KL divergence of each of the individual distributions. This is a nice identity to show.
+
+ 
+
+The same holds for also entropy. Entropy of a bunch of independent variables is equal to the sum of the entropies of each of those variables. This is what we want to calculate and we can write down. So if you will search Wikipedia, you will get an expression of this kind, the KL divergence for a Gaussian with mean mu and variance sigma squared.
+
+ 
+
+Both of these are scalars now. Both of these are scalars. With respect to normal 0,1, has an explicit closed-form formula. Obviously, as you can see, if sigma is close to 1, or sigma is 1 and mu is 0, then the right-hand side is exactly 0. It is logarithm of 1 plus half minus half, which is 0. OK? So KL divergence is 0 for normal 0,1, common normal 0,1.
+
+ 
+
+If the normal on the left-hand side is a general normal distribution, one dimensional, then this is the formula for those two. OK? And so we have this identity where the KL divergence of a factor distribution with another factor distribution is equal to the KL divergence of the sum of the KL divergences of each of the factors with respect to each other.
+
+ 
+
+And we can, therefore, write our q and the prior, which factor out, as the sum of all the little KL divergences of each dimension. Each dimension is independent and we chose it to be independent, in order to write this expression. We could have used some other distribution for the latent factors, and we wouldn't be able to use this identity, or we would have to do a little more complicated calculation. OK?
+
+ 
+
+So both the prior and the output of the encoder was chosen precisely, so that we can write down this formula. It is equal to the KL divergence of our encoder's output and the prior is equal to the sum over all the dimensions. And it is exactly this formula that I've written down for each dimension. OK?
+
+ 
+
+So now we know all terms of the ELBO. This entire business is a function of u. You can differentiate this with respect to u. It is a standard derivative that you always do in backpropagation. The derivative with respect to v, which are the parameters of the decoder, is 0. Makes sense?
+
+ 
+
+So maybe from the top again, these are the two terms that you would like to maximize. This is a mistake that you will often do in the homework. This is the ELBO. You have to maximize the ELBO, or you have to minimize the negative ELBO.
+
+ 
+
+The gradient with respect to this term, you will implement using the reparameterization trick. The gradient of this one and this one with respect to v, you will just implement using the standard objective.
+
+ 
+
+So in your homework, if you are doing problem two, you will write down a class that has the encoder and the decoder inside it. And when you do dot forward on the class-- so when you inherit from nn dot module and you call dot forward, it will take in x, it will create mu and sigma squared. It will sample z once or few times to estimate--
+
+ 
+
+It will sample z a few times to estimate this summation, the empirical expectation over epsilon. And once you have all those samples, you will pass them down through the decoder to calculate the likelihood for each of those samples. You will calculate this entire expression, which will now be calculated inside dot forward itself. It doesn't matter what dot forward is, right?
+
+ 
+
+So dot forward creates the output. It also can output the loss. In this case, instead of your cross-entropy loss being calculated outside, it will calculate the ELBO inside dot forward itself. And once you have this loss, you will call dot backward on it, and everything will be fine.
+
+ 
+
+It is happening because inside the forward itself, you are doing the reparameterization trick, and then everything becomes a standard derivative. So implementing this in code is actually much more straightforward than what we wrote in the mathematics, but there is a reason why we wrote it in the mathematics to make the implementation easy.
+
+Generating images using variational auto-encoders (VAE) Transcript (30:19)
+So I said this, although the mathematics is complicated, it's actually quite simple to implement. And if you always keep K means in the back of your head, you will never go wrong. Everything that we are talking about in this chapter can be understood in terms of K means, and centroids, and the EM algorithm. EM algorithm is variational inference.
+
+ 
+
+So variational inference is much more general than for reconstructing images. Expectation maximization is exactly variational inference. And you will be able to also write down it in this language. Samples from big variational autoencoders look pretty cool.
+
+ 
+
+So these are reconstructed images. The way you reconstruct images, now actually, I should have added a new section. So after you train the encoder and you train the decoder, the decoder constructs xi, and encoder takes in xi, it creates mu and sigma squared. And that samples a z. And that is fed back to the decoder.
+
+ 
+
+Giving an image as an input and getting it back at the decoder as an output is pretty stupid. Why would I ever want to do this? So if I create a generative model, I better create new images from my generative model. So how should I create new images? If I have this, how can I create new images? How do I get mu and sigma to sample from?
+
+ 
+
+So you throw away the encoder at test time. And you just sample z using the prior. The prior is what z's are sampled from. So natural images when you want to select or draw samples from the natural set of natural images, you select z. That is a normal 0 comma identity, m-dimensional Gaussian variable. And then just run the decoder. And you will get an image as the output. These are those outputs.
+
+ 
+
+Now, if you imagine how things are happening, let us try to draw the latent space. So we are going to say that I have a two-dimensional latent space, m equal to 2. I am the encoder. I will create z's. My mu and sigma of xi, let us say that there is only two kinds of images in our data set. These are the cats and these are the dogs.
+
+ 
+
+My mean and standard deviation for the cats better be distinct from the mean and standard deviation of the dogs. Because otherwise, the decoder will think that I am trying to guess a cat. And it will create a cat, even if I want to create a dog. So these are the mu. Or these are the samples z from normal mu and sigma squared.
+
+ 
+
+All the samples for cats will be here. All the samples for dogs will correspond to here. And when we feed in images from the training set, what the VA is essentially doing is it is creating these clusters in the latent space that correspond to different ways of-- different visually dissimilar images. Visually similar images get collapsed into the same cluster because the same latent factor can be used to explain all of them, just like our ghost, and gravity, and apple, and et cetera.
+
+ 
+
+Visually dissimilar images get separated out as clusters because that way, the decoder can handle them differently from each other. When these clusters start overlapping, that is when the decoder starts making mistakes. And you feed in a cat at the encoder. And the decoder might still create a dog if the cat and the dog cluster overlap.
+
+ 
+
+In practice, you will see it as a cat that looks like a dog or some weird mixture of the two. So the way people study these things, they will create some samples from the cat space, create some samples from the dog space. Then draw a straight line between the two. And then they walk along the straight line and create new samples.
+
+ 
+
+And you will get mixtures of cats. In the beginning, it will look like more or less cats. Here, it will look like more or less dogs. And between, you will see combinations. So you give it an image of a girl wearing glasses and a guy without wearing glasses. And these are the two clusters. And as you walk along them, the glasses will go on the guy instead of the girl. So this is how you can interpolate in the latent space and create new images out of these interpolations by running simply the decoder all the time. The encoder is not useful after you have fitted the decoder.
+
+ 
+
+The encoder is useful for what I said before, to say something about the latent factors and study the latent factors. If you want to use only some attributes, like color, or shape, and size, and not the others that say weight and height, then you would like to use only-- then you can censor off those attributes. But that's pretty hard to do.
+
+ 
+
+These images are constructed from very, very big decoders. So many, many millions of weights, which is very hard to do. So you will see that the MNIST model that you are using will construct kind of decent looking digit images, that is because this is a particularly simple data set for constructing. And that is why you can use a small network. These will-- to get images of this quality in very large networks.
+
+Complexity of the encoder and decoder  Transcript (35:56)
+If your decoder is poorly trained, or if your training data set had very diverse images, then the latent space will also be mushy. The problem with autoencoders is that-- is exactly what you said. You can never control the memorization in an autoencoder. The encoder always wants to pump in as much information about x into z. So it is happy to copy x into z, and it is not that clear to you yet.
+
+ 
+
+But even if the input image has 28 [INAUDIBLE] pixels, and z is, let's say, four-dimensional, it is possible to copy x into z. This is precisely what we do when we create a JPEG compression of your image from a camera. We take the image from the camera and we compress it in a few bits.
+
+ 
+
+These are the four dimensions, and you can compress these images. These are real valued variables. And so there is many ways of pumping in the training data set, 50,000 images of [INAUDIBLE] four dimensions into a four-dimensional space.
+
+ 
+
+Those would all be your little clusters. So the encoder has a tendency to keep memorizing the input data, because the decoder has a very easy job. If all the information of x is inside z, the decoder will simply decompress it. So a JPEG encoder and a JPEG decoder, or the zip file of your folder, is exactly an autoencoder. It is not a variational autoencoder because it is a deterministic algorithm.
+
+ 
+
+But zip is a lossless encoder. Because you know that when you unzip your file, you will get all the data back exactly without any loss. That is because there is redundancy in the data. Similarly, there is redundancy in the images. But there is obviously better bang for-- or there is obviously better reconstruction performance to be had if you copy the input image. So if you use very large encoders and decoders, then you can get screwed because the encoder does not learn any reasonable latent factors.
+
+ 
+
+It simply learns the input image, and the decoder doesn't learn anything of how to draw images. It simply learns to copy images. And so this is a huge problem. So in many, many papers where you will see people using very large autoencoders, you should be very deeply suspicious of these things. We have said that variation inference is difficult if the variation family is very large.
+
+ 
+
+The variational families of neural networks are quite large. If you use gigantic neural networks, the variation family is even larger. So there exist solutions that will memorize the training data set, and that is why you'll get perfect reconstruction on the training data set. If you play this game of moving between clusters for such models, you will not see good answers. You will see very weird images in the center, even if the images of both these clusters look perfect.
+
+ 
+
+So you should always-- in general, you should always try to fit a small model-- a small neural network-- before you move to a large neural network, even for classification. For variational inference, even more so. And so this was actually my first paper after I came to Penn. And I had this idea while teaching this lecture in a few years ago in [? 546 ?] of how the decoder memorizes stuff so badly, and how you can control the amount of memorization that goes on.
+
+ 
+
+And the one nice way of thinking about this is the way you measure memorization is whether you can use z to classify the image of an object. So now z has two roles to play. It both has to be a good classifier feature, and it both has to be a good feature for reconstruction. If the encoder is memorizing everything into z, then it cannot possibly be a good classifier, because then the classifier would have to also be very complicated.

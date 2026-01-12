@@ -1,0 +1,12 @@
+---
+:id: 335605792
+:submitters:
+- :name: Rui Jiang
+  :email: rjiang6@seas.upenn.edu
+:created_at: !ruby/object:ActiveSupport::TimeWithZone
+  utc: 2025-06-01 02:38:50.197194000 Z
+  zone: !ruby/object:ActiveSupport::TimeZone
+    name: America/Los_Angeles
+  time: 2025-05-31 19:38:50.197194000 Z
+:status: processed
+:score: 79.0

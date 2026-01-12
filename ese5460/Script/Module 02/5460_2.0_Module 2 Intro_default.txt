@@ -1,0 +1,13 @@
+[MUSIC PLAYING] So much for simplistic models built using straight lines and hyperplanes. We will next look at perceptrons. This will be the first of many different neural networks that you will see in the course. It is quite similar to linear regression, but instead of fitting a straight line through a bunch of points, the perceptron finds a straight line that separates two sets of points, the red points on one side and all blue points on another side of the line. It was the first artificial network that we ever built in Cornell University in 1958. And as Frank Rosenblatt, who built this network said, this is the first time a machine was capable of having an original idea.
+
+ 
+
+We will next look at kernel methods. These are techniques that can separate two sets of points in more complicated ways. Think of a wiggly line that charts its path through a scatter of red and blue points, but always keeping the red ones to its left and the blue ones to its right. This is more complicated than a straight line, and kernel methods build more complicated models than linear models.
+
+ 
+
+Even today, many problems ranging from setting the price of an airplane ticket, deciding which advertisement to show you on YouTube, identifying the address that you write on top of a letter when you send it to a post office, these are all problems that are solved using kernel methods. These things work great, but kernel methods are also more tricky to build than linear models.
+
+ 
+
+To help us, we will draw inspiration from how the human eye works. The neurons in our brain record the photons that arrive at the retina, billion of tiny little charges that bombard the cells in your eye every time you see something, and they create patterns. These patterns are similar to how you identify your friend from just the silhouette in the dark, their edges, their combinations of different colors, more complex combinations of edges and colors are built as the signals propagate across successive layers of neurons all the way to your brain from the eye.

@@ -1,0 +1,271 @@
+Batch-normalization Transcript (00:00)
+Batch normalization is another operation that is very weird, not unlike dropout. And what I'm going to tell you is both how people started to think about it when it came about, in roughly 2015, and how we think about it now. This is an insanely, insanely popular mechanism-- even more popular than dropout. 
+
+Dropout used to be very popular a few years ago. These days, not a lot of people will use it, but it doesn't mean that it doesn't work. It just-- things go out of fashion. It's like the kind of boots that people wear. OK? 
+
+So I put in this picture here, but this number is, right now, about 40,000 in 2022. I checked a couple of days ago. And for everyone in the room, to give you an appreciation of what 40,000 citations means, most professors would be lucky to die with these many citations. Most people will be lucky to finish their career with 1/4 the number of citations as 40,000. OK? 
+
+So this paper, this one paper, has 40,000 citations in seven years, which means that at least 40,000 other LaTeX things-- doesn't have to be publications, but LaTeX reports, or projects, or stuff-- use this and cited it. So it is very common. And usually, when people cite something so much, it is usually a signature of something working well. That is how you should read citation. Citation doesn't mean it is great. Citation simply means that, OK, this is a mechanism that many people are finding it useful to train their models. 
+
+So let's see what it is. The title of the paper is Accelerating Deep Network Training by Reducing Internal Covariate Shift. So everyone was very upset-- I was a student at this time-- when this paper came out that there were these words called "internal covariate shift." Internal covariate shift doesn't mean anything. No one knew what it meant back then. Even the paper does not really clarify what it means. 
+
+Covariate shift Transcript (02:20)
+Before we talk about internal covariate shift, let us talk about simply covariate shift. Covariate shift means something. It is an established concept, OK? 
+
+And it is quite easy to understand. So all this while, we have been saying that the training distribution and the test distribution are the same. Well, you never know whether they are the same or not. 
+
+In particular, we said that the training distribution is p of x comma y. I can think of this as p of y given x and times p of x just by partitioning the [? line ?] joined like this. Now, think about what this means. So, p of x is the distribution of the different kind of images 
+
+You have at training and test time. If you are looking at-- let's say you are doing prediction of a disease using some genetic markers. p of x is the likelihood of you having a particular genetic marker, you having a particular genetic marker, et cetera. 
+
+As you can imagine, the genetic constitution of people in the US is slightly different from the people in India, slightly different from the people in China, et cetera, right? There is different populations. Different populations have different distributions of what their genetic constitution consists of. 
+
+Given the same genetic constitution, a person in America is just as likely to get cancer as the person in China. That is what it means for p of y given x to be the same. And this is-- so this is a slightly more nuanced view of when the distributions are different or similar. 
+
+We say that the distributions are the same when p of x comma y is the same, and we see that the distributions are different when p of x comma y is different. But p of x comma y can be different in many, many ways. It can be different because p of x is different because you're talking about simply different kinds of people. 
+
+It can be different because p of y given x is different. Then, to give you an example, when p of x is the same when p of y given x is different. The kind of images are the same, but somehow, the problem that you're interested in is slightly different on the same images. 
+
+I give you a very silly example. I give you the kind of cars are the same when you drive and when you bike. When you bike, you are more interested in not hitting people. When you drive, you are more interested in not hitting other cars because they are the ones next to you. So, py given x is slightly different when you drive because you're interested in all the y's that are cars, less interested in people even if p of x is identical because it's the same images that you see. This is a very trite example, but we can come up with more nicer ones later. 
+
+Can you give me an example where p of y given x is the same but p of x is different? The one that I just [? give ?] different people in different continents with different genetic makeup. 
+
+So this-- so when p of x is different but p of y given x is the same, this is called covariate shift. Covariate is a different word for the inputs x. So when the covariate distribution is different, that is called covariate shift. When p of y given x is different, this is called conditional shift. 
+
+There can be situations where p of y can be different, and then you will be able to write it as p of x given y. But there can be situations in which in one case, there is too many cars and too few pedestrians. In some other case, there is too many pedestrians, too few cars. 
+
+In this case, p of y is different. So, p of x comma y, [? they ?] joined, can be different in many, many ways, and depends on the situation which one of these is causing these differences. This is called covariate shift when p of x is different. 
+
+When p of y is different, when you're interested in a slightly different distribution of classes, that is called label shift. When both of them are different, this is something called as [INAUDIBLE] cluster shift. But these are all legitimate concepts, and these are all things that you want to be cognizant of when you build a model and then actually run it at this time in a company or somewhere because the distribution will never be the same, and you will be hitting problems like this. 
+
+Strategies to tackle covariate shift Transcript (07:17)
+Not surprisingly, many people have built mechanisms to fight covariate shift, and here is how one particular example looks like. So let's say that the red thing was our true function, the blue dots are our training samples. So let's say that this is the US and then this is China. And we are recording a lot of data from people in the US, and they look like these blue dots. 
+
+At test time, we may be testing our model in China-- and they look a little bit like these black markers. All of them-- if you knew both of these points, both the blue ones and the black ones, it is not difficult to imagine that they do come from the same true model, same red line up to some noise. 
+
+But if you don't know the red points, if you only know the blue points, then you would also be pretty reasonable if you fit the green function. If you fit the green function here to the blue points, you are going to make erroneous predictions on the test data. This is exactly how covariate shift hurts. 
+
+The covariate-- the distribution of x is different between the green points and the black points, and you are hurt by it because you did not measure all the samples or did not get enough samples from the entire distribution. What do you do then? Suppose this is happening. What should we do? So let's say that we get a larger data set and now we have some of these black samples. What should we do next? 
+
+Retrain the model? 
+
+OK. I can retrain the model on all the blue points and all the black points, and I may get something like this. And that will be a reasonable model. So indeed, this is exactly what happens. So you build a, let us say, system to identify cars. This system works in the US. When you go to Europe, the cars look slightly different. So it doesn't work that well because it hasn't seen those kinds of cars. 
+
+So you get a little more data, put it in your data set, update your model or train a new model. You can also update your model. You can say that, look, I have this model that I built for cars in the US. I would like to take this green line and update it using these new samples that I've collected from Europe. What should I do to update the model like this? 
+
+[INAUDIBLE] so what he's saying is that, look, my network has many, many layers. I believe that the first few layers are low-level features and the last few layers are the ones that combine these low-level features to actually make the predictions. The low-level features of cars between US and Europe may not be that different, so I'm going to keep them the same, and I'm going to do back propagation using these new images but only to update the last few layers. 
+
+This is very easy to do. You simply go to your PyTorch network and do requiresgrad equal to false for all the weights on the lower layers. So this process that he talked about is called fine tuning. In general, it is literally taking the new data and then doing a few steps of stochastic gradient descent to update the model. 
+
+And we hope-- we expect that this model, which is like this, may become a little bit like this when you update it. So this is how you fight covariate shift. It always happens, so you keep updating the model. When you update the model like this, you can also make mistakes. 
+
+So by updating the model to make it a little bit better on cars in Europe, it will become a little worse on cars in the US. So there is no nice answer that you can get for all the cars in some cases unless you actually fit something that looks like this. So transfer learning is kind of a field which studies different ways of adapting models like this. 
+
+But for us right now, it is only important to understand that data will change when you go to test time if you run your model in different environments. To fight or to adapt to these changes in the data, you can adapt the model. Covariate shift is one kind of change that data undergoes. 
+
+If the labels change, if you have the distribution of cars versus pedestrians changing, you will also adapt the model but in different ways [INAUDIBLE]. 
+
+Is internal covariate shift a problem for neural nets? Transcript (12:07)
+That's covariate shift. What is internal covariate shift? OK. So the name of the paper clearly has internal covariate shift. And in simple words, this is how they were thinking when they gave it this name. 
+
+You have different layers. Let's give them names. Let's write down the names of these weights. We have been thinking about back-propagation as a way of updating all these layers in one go. Right? So you have a loss, you get dl by ds1, dl by ds2, et cetera, and you update each of these weights independently. 
+
+Now, when you train very large models, what can happen is that because of the intricacies of the architecture-- some layers, let us say, have too few channels, some layers have very small kernels, some layers have too much dropout-- the distribution of the activations of this layer-- so the distribution of the activations of this layer, p of h1-- can change when you change s1 using gradient descent. This is just a mathematical fact. I change s1, so the p of h1 will change. 
+
+Make sense so far? I am changing how one can compute the features. So the distribution of features can change. Now, this can lead to problems if s2 does not capture these changes correctly, because it is like-- it is a covariate shift that is happening from the eyes of s2. If s2 did not know anything about the rest of the world, it only knows that it gets some features as inputs, these are its inputs, right? s1 is its input. 
+
+So if you suddenly now change the input, the distribution, you cause a covariate shift to s2. Is this clear so far? There's a lot of mud here, but so far, at least in English, if the lower layer suddenly changes its output, then the layer above now has a slightly different input distribution. So if the layer above was an independent thing, then it would suffer covariate shift. OK? 
+
+And then its output would also be quite different from its usual output distribution. So this is why the paper called-- so the paper noticed this in some experiments, that the different layers, they train at different rates. One layer trains very quickly, the other layer train doesn't train too quickly to match these changes. And that is why they have these kinds of fights with each other. 
+
+I change my output a lot. The top layer does not understand that the output is changing a lot. And so now, it is suddenly left bereft. OK? And that is why they called it internal covariate shift. Can anyone say why this is not a valid argument? 
+
+I'm telling you it's not a valid argument. So at least conditional on that, why would it not be valid? Covariate shift, we said, happens when I take a trained model and run it in auto. Right? If the output of s2 was bad because the input to s2 had a slightly different distribution, the loss will update s2 to have the correct output. The entire point of doing back-propagation is that it will tell s2 how to change to get the correct output. 
+
+So covariate shift is happening, yes. But it is not important here, because in the next step of back-propagation, it is going to tell you, oh, you should change your output. You change your weights-- s2 and so on, and so way-- so that your features are predictive of the output. OK? So just because the distribution of these activations is changing doesn't mean that bad things are happening. The residual activations is changing, but back-propagation will fix it in ways to get the correct output. 
+
+If some of these layers were frozen, then the idea of back-propagation makes sense. If s2 was never going to change, then yes, it will suffer from covariate shift. But that is not what is happening when you train a network. All the layers are being updated. Right? 
+
+So this is how even experienced researchers can get into a lot of, let us say, fallacies, if you think in English and don't use enough mathematics. And this is why we write down equations instead of simply speaking in words. Moral of the story, inside the network, covariate shift is happening, but back-propagation is fixing it while the network is being trained. If some of the layers were not being trained at all-- if the gradient was set to-- if requiresgrad was set to false, then yes. Then you will get into bad places, because one of the layers will change the distribution, and now you would be working with slightly different distribution. 
+
+The utility of statistical whitening Transcript (17:50)
+Let us talk about how they argued for the existence of [INAUDIBLE] covariate shift. And they gave a very simple example, OK? So, let's say that we have a mini batch of inputs, x1 to xb. These are b images in your mini batch x1 to xb. 
+
+Let us say that you have a layer that performs a very simple operation. It simply does x plus b. b is some bias, x is your input. And these are our activations, OK? 
+
+And we all know that whitening inputs is a good thing. So, before you took this course, when you took a basic machine learning class, one of the first things that you were taught was principal component analysis. Can you say why we do principal component analysis? Why should we do PCA? 
+
+Sometimes people use it to reduce the dimension because you project the data into a subspace where it has large variability and ignore the data in subspaces where it doesn't change much. So let us say this is our data. The ellipse consists of all our data points. 
+
+This is two dimensional data. Now, x1 and x2 are correlated in this data set, they are correlated because when I change x1, x2 also changes. If I move a little bit right of x1, then x2 also changes. 
+
+That is what correlation means. What happens when I do principal component analysis? I project my data into a slightly different basis, usually e1 and e2. 
+
+e1 is the eigenvector with the largest eigenvalue. That is the direction along which data is changing a lot. e2 is the eigenvector with the second eigenvalue where the data doesn't change too much. 
+
+Data that is projected on e1 and e2 is not correlated with each other. They change in independent ways. Because that is the exact operation that we are doing. We remove the correlation in the different features so that we make the features more pure. This is useful, not so much to learn the data faster but more to understand that if a particular model was not using feature E2, then it is only using E1. 
+
+You wouldn't get that effect if you simply used x1 and x2 as the features to fit your model because x1 and x2 are always together correlated. So the model would have to use both these features all the time. If you fit the model on the whitened data set, then you may see for some problems-- that it is only using one particular feature or only using some other feature. In which case, you get to say, oh, this is the feature that my model is using and not the other one. 
+
+So, decorrelating the input features is useful for us to understand what they are doing. And also, you can project things. Like someone else said, I can remove the x2 dimension completely and think of it as a one dimensional data set because this ellipse is so thin. 
+
+This is why we do whitening of data. There are many ways of whitening. PCA is the one that most of you might have seen before. 
+
+But in general, I would encourage you to go to this web page. It is a very nice and concise introduction to many kinds of whitening. Fundamentally, [INAUDIBLE] whitening is just taking a distribution like the one on the left hand side and then removing the mean and, let's say, dividing by the standard deviation. If you have a one dimensional distribution, this will bring your distribution to the origin and have its standard deviation to be equal to 1. This is called z scoring. 
+
+There are many ways to do this. So this is simply a derivation of PCA that you can read later. But one thing that I wanted to point out was this operation called ZCA. ZCA is a close cousin of PCA, Principal Component Analysis. 
+
+It is slightly more useful for whitening images because it preserves the local structure of images whereas PCA will think of images simply as vectors and lose the local relationships between these images, OK? So, read this web page, and you will see different ways of whitening. But all of us agree in this room that whitening is a good thing. That much we have been brought up to believe. 
+
+Details of batch-normalization Transcript (22:31)
+So let's say that we have this layer, and we wanted to do whitening of the activations of every layer in our network. For this particular layer, I would take every feature that I have. I will compute the average of the features of that mini batch and remove the mean. Let's say I'm not doing anything to the standard deviation yet. Let's just say that we do mean removing of our features. 
+
+And so I remove the average of the features of all the images. If you take the mean of this entire quantity, what do you get? Zero, right? 
+
+h is the feature of one image. Actually, I think I should write it a little bit more precisely. So let me say hj is this for all j. And this is a typo. OK. 
+
+So, hj is the feature of the j-th image in the mini-batch. The right hand version or the version of the features without the mean is hj minus the average of the features of all the other images. 
+
+Now we know from back propagation that-- does this quantity depend on b? And you can see the answer written down there, but I add the mean to one image. And then when I remove the mean from every activation, I subtract the activations of all the other images, right? 
+
+So, this entire right hand side or h hat j, to be specific, on the left hand side does not depend on what bias that I added to my inputs. Make sense? This much is obvious. 
+
+That's the back propagation gradient of-- what is the back propagation gradient of b bar or b bar? So, b bar is dl by db. What is this quantity? 
+
+It is equal to h bar, dh by db as an h hat bar and dh hat by db. This is whatever it is from the top layers. What is this quantity? Why is it zero? 
+
+[INAUDIBLE] 
+
+Because h hat doesn't depend on little b, right? So, this is a short arithmetic calculation that will convince you that h hat doesn't depend on b and neither does-- and b bar is clearly 0, right? And this is the mistake that they made in the paper. 
+
+They wrote these things in English and convinced themselves that b bar was not equal to 0. It seems like a very simple mistake to make, but things happen. So, to us in that class, it should not be a mystery why b bar is 0. 
+
+But anyway, so what they-- was like the first part of the paper. And so to be clear, the paper actually is an operation just like drop out. It is an operation. How it was motivated is a little bit immaterial, right? They made a mistake in how they motivated the necessity of this operation, but that doesn't mean that the operation doesn't work. 
+
+OK, so let us now look at this is one way of removing the mean of the features. In principle, you also want to divide by the standard deviation, right? So I could imagine running a computation like this for my whitening where I remove the mean as before and then also divide by the standard deviation. 
+
+What is the dimensionality of h? h is a vector. So let us say h edge has p dimensions. What is the dimensionality of the covariance matrix of h? 
+
+[INAUDIBLE] 
+
+p cross p, right? So, for every mini-batch, I would have to compute this covariance matrix and then divide and take the square root and everything. Take the inverse and everything, which is kind of painful operation. 
+
+And when you've called up the neural network, you're happy to do matrix item multiplication. But doing an inverse would be much more expensive. It would be order nq as a first order n squared for the matrix multiplication. So, this is the whitened version of the activations that we would like. 
+
+Again, why do we want the activations to be whitened? Why do we want-- why do we want to whiten the data for PCA? So that it decorrelates in a neural network. 
+
+Why do we want the activations to be whitened? I think-- so, this is a question that we will come to in a few lectures. And the Nugget of the answer is in what he said. 
+
+It makes the data easier to learn, so when you're doing, let's say, gradient descent, it will be easier to pick the learning rate if your features are whitened. It is much-- you will know a nice way of picking it. And for the same reason, when you have features that are whitened in your neural network, it will be easier to initialize the network with certain weights. 
+
+So, the variance of the Gaussian that you are using for initializing the network in homework one, that will be easier to pick the learning. It will be easier to pick, et cetera, et cetera. So there is utility to whitening the features even inside the neural network even though from the outside, it is just one big object, and the input data need not necessarily be whitened [INAUDIBLE]. But let's say that we want to go ahead and do this widening. 
+
+In deep learning, because the number of features is quite large, you don't want to do the complete inverse of the matrix. And what you actually do is you compute the element-wise variance and divide by the element-wise variance. So this is the part where we remove the mean of the features of your mini batch. 
+
+This is the part where you take the element-wise variance of the features to do this. You don't need to calculate the covariance matrix. You can calculate simply p different standard deviations independently for every dimension of the feature and divide element-wise. Makes sense so far? 
+
+So instead of using the covariance matrix, we are using the diagonal of the covariance matrix. The diagonal of the coherence matrix is a vector of size p whereas the covariance matrix is a matrix of size p cross p. The diameter of the equivalence matrix is easier to calculate because it is smaller. 
+
+And so this is why you do the element-wise operation. This is also how batch normalization does it precisely so if you have a mini-batch with b images-- so let us say i is the index of the samples in the mini batch and j is the index of the features of each of the samples. So, h hat ij is the j-th feature of the i-th image after whitening. 
+
+h hat ij is equal to-- this shouldn't be here-- is equal to hij minus the average of that particular feature across all the i's, across all the images. OK. So, this is h. 
+
+This is-- the rows correspond to different images in the mini-batch. j corresponds to the different features. Let us say we are talking about a fully connected network. 
+
+So, this particular thing is the mean of-- each h is the average of all the entries in one particular column right. There is p different means. And so you are again doing the subtraction element-wise for every j. 
+
+The variance of this is the variance calculated-- again, notice-- over for that particular sample for that particular feature j, across all the images in your mini-batch, across all the features in your mini-batch. So everything is happening element-wise instead of you using the full covariance matrix. Usually, you will also add a small epsilon in the denominator in to prevent overflow in cases where the variance is very small or 0. 
+
+Implementation of batch-normalization in pytorch Transcript (32:16)
+Batch normalization, the way it is programmed in PyTorch also applies in other operations. So in addition to removing the mean and dividing by the standard deviation like this, it also does an element-wise multiplication by a vector a and an element by summation with a bias b. So this is an affine transformation of the whiten features. So this is our a chart. But the real a chart is some a times a chart plus some bias b. 
+
+What is the dimensionality of b if the dimensionality of h hat is b ? Yeah, so b is a p-dimensional vector. So this is, again, happening element-wise. a is also a p-dimensional vector. And this is also happening element-wise. This is just a choice that they made. And they made this choice because of the following argument. 
+
+So this is another insight into how deeply people make very heuristic arguments. They said that if you take the features of a sigmoid layer-- the sigmoid layer is the layer which has activations which has a nonlinearity like this-- some features will be here. So some features will be very close to 1. Some features will vary close to 0. And then there will be some features that are between 0 and 1 after you apply the nonlinearity. 
+
+When you whiten these things, you are shrinking the distribution of the features. And so a lot of those features, they become close to the origin. And the sigmoid close to the origin is pretty close to a linear function. It is no longer nonlinear. So whitening, it shrinks the tails of a distribution, and it brings everything close to the origin. Because after whitening, the standard deviation is 1, at least for one-dimensional data. 
+
+And so they said, look, if you have a sigmoid layer and we whiten, then we are actually making the network a little less nonlinear. And we are losing expressive power like this. And that is why we also want to add another linear operation that, again, lets the features go in whichever-- go to some new place away from the origin. 
+
+All of this is pretty dubious because we remove the mean of the features to bring them to the origin. And now we are again adding another quantity that is learnable to make them move away from the origin somewhere. We divide it by the standard deviation of the features to make sure that the new features had one standard deviation. Now we are again multiplying by a learnable parameter a to change the standard deviation of these features. 
+
+So it's a little bit incongruous, incongruent, to think like this. I whiten because I want my features to have 0 mean and unit standard deviation. But then, again, I multiply by a constant and then add a bias and let the network learn this constant and the bias. There is no reason to do this. If you want to whiten the features, you whiten the features. Why do you, again, let the network unwhiten them here like this? 
+
+But nevertheless, they did it. And so this is how the layer is coded up in PyTorch. So this is called an affine transform. Affine simply means that you multiply by a quantity and then add a bias. You can disable these parameters and set them to-- set this one to 1 and set this one to 0 by using an argument called affine equal to false in PyTorch. This is usually a very good idea. I, personally, like to do this. And so it helps your life when you fit models. 
+
+Another important point is to notice that is the back propagation gradient of b 0 now? Is dl by db equal to 0? No. Because the activations get-- b is added to the activations, right? And so whatever the gradient is for the dl-- dl dh bar, that gradient is going to come all the way to the b. 
+
+This is the part that does not have any learnable parameters, so there is no backpropagation gradient for the mean mu and the standard deviation sigma, of course. But there is backpropagation gradient for a and b. So there is only two kinds of learnable parameters in a batch norm layer. 
+
+And those are the affine scalings and the affine biases. All the others are decided from the [? mini ?] batch and not well learned via backpropagation. And one important thing to remember is that if there are p features, then there is 2 times p trainable parameters, half of them for a and half of them for b. 
+
+Behavior of batch-normalization at test-time Transcript (37:48)
+OK, so here is a question. I do this at training time. At training time, I have a mini batch of let's say size 100 to calculate mu and sigma. What should I do at test time? 
+
+At test time, I have one image. How can I calculate mu? What happens in batch normalization is that you remember the mu and sigma during training and use those to widen the features at test time. 
+
+Now there is a big problem with this. Can you tell me what? The way we wrote this down, this was the mean of every mini batch. This is not the mean of the entire data set. So the value that will be stored in mu and sigma will be whatever the mean of the last mini batch is and whatever the standard deviation of the last mini batch is. 
+
+So it seems silly to use only that one to widen your features at test time. We need some way to calculate the mean of the entire data set and the standard deviation of the entire data set without actually doing a lot of work. So people in deep learning like to, kind of, be very clever in how they do these kinds of operations. And so what is done in practice is that you maintain something called as a running mean and a running standard deviation. 
+
+And the mean of the successive mini batches is added to each other-- or the mean-- or the standard deviation of the successive mini batches is added to each other to maintain some kind of a running mean. And here is how it works. 
+
+The old running mean plus the mean of the current mini batch are summed up with some coefficients. So RHO times the old running mean plus 1 minus RHO times the new mean gives you the new running mean after the t plus 1 mini batch. And you keep updating this all through training. 
+
+So if you show 50,000 mini batches-- let us not say 50,000. So let us say if you show 10,000 mini batches to the network during training, this equation is calculated after every particular mini batch. And so at the end of the day, you have some kind of statistics for your entire data set, but it is not the exact statistics of the entire data set. It is not the exact mean of the activations of all the data set because it is computed by doing this kind of a running average, not an exact average. 
+
+Why do you think people do this running average? Why don't they do exact average? I mean, it's just an average. 
+
+Again, the answer is very boring because to do the exact average, you would have to finish training and then run the entire training data set through the network and then remember all the activations and then average them. You should remember-- you may not appreciate this so much because the networks you are using are quite small. But for very large networks, the number of features is really huge. 
+
+So you cannot even store the features of all the images in your memory. So you cannot even average them. So instead of running it for the entire data set and calculating the exact average, deep learning folks like to do these kinds of little tricks that prevent-- that reduce the amount of memory you need to calculate the average even though it is not the exact average. 
+
+This is actually an exponential averaging method. So if you think of how the new mean is calculated, it is some coefficient times the old mean plus 1 minus that coefficient times the new mean. So you are actually-- the rows multiplied with each other when you go across time, and the old means get lesser and less weight as you keep training. So this is actually called exponential averaging in this equation. 
+
+You will typically choose RHO to be something like 0.95. I don't remember what the default value is in PyTorch, 0.95 or 0.9, one of them. But the point being that you are paying a lot of attention to the past mean because it was coming from many mini batches before and a little less attention to what the mean of this specific mini batch is. Yeah. 
+
+Again, these parameters are not updated by backpropagation, but they are updated, which is very weird, right. In the network, we said that there is parameters that are updated by SGD, and there was no parameters so far that are updated in this secret way where they are being iteratively updated as you do forward passes on your mini batch. This thing happens in the forward pass in your PyTorch network, whereas your actual backpropagation parameters are updated in the backward pass. 
+
+Batch-normalization before ReLU or ReLU before batch-normalization Transcript (43:08)
+If you do batch-normalization before ReLU-- let's say that our non-linearity is ReLU. After BN, your activations are 0 mean unit standard deviation. So roughly half of the activations are below zero. 
+
+The other half is above zero. What will ReLU do to this? It'll just zero out all the ones that were on the whitened. Why do we do BN? 
+
+We do BN because the next layer always sees a consistent distribution. In this case, the next level also see a consistent distribution. But it won't be 0 mean and unit standard deviation. It will have a mean that is slightly positive because all the zero stuff, all the stuff below zero now was set to exactly zero. 
+
+So doing batch normalization before ReLU is a bad idea because it neither satisfies our original goal of making the next layer have standard normal distribution. And it lets the nonlinearity act a little too aggressively on our whitened inputs. 
+
+If you want to do it after ReLU, this is a slightly better idea because after ReLU, you have already applied the nonlinearity. And now you can do the whitening before you send the activations to the next layer. OK. 
+
+A lot of implementations usually do this one. So if you-- in your homework problem, I have told you to look at the code of residual network. You will see this particular thing being done there. 
+
+There is a little more nuances to using batch normalizaton in residual networks. So they do it like this for a specific reason, the reason being that in residual networks, the input has two roads to go to the next layer. 
+
+The one is this particular fully connected layer. And you also pass the input separately without actually applying any transformation to it. So the operator-- so we said that in a fully connected network, our operator is something like this. 
+
+In a residual network, the operator is something like this. Identity plus s1 1 times x. So in addition to applying a linear map to x, you also pass the input directly before you apply to the activations. And then there is a nonlinearity in between, et cetera. 
+
+So when you do these kinds of things, what happens is the batch normalization has a distribution, which is 0-- centered at 0 with standard deviation 1. If x has a distribution, which is centered at some other value, let's say five, then adding x and the whitened activations together is now going to give you a slightly different distribution. 
+
+Again, you are not satisfying your promise of the next layer having a standard normal distribution anyway. So no matter which version you pick, you will see problems. It is more common to use this one. 
+
+I personally like to use this one if I'm not using residual layers. If you're using residual layers, then you can just use this one. There is many, many other problems with batch normalization. In fact, if I were to take a guess, there is many papers on archive that come out every day. 
+
+Roughly speaking, 25% of the papers are wrong because they are not doing batch normalization correctly or seemingly right because they are working because of batch normalization, but the authors think that they are working because the authors invented something. So batch normalization is like this little ugly thing at the center of all this deep learning stuff. The more you are cognizant of what it does, the less you will get hurt by it. 
+
+Tricks and variations of batch-normalization Transcript (47:43)
+How does dropout affect batch normalization? Dropout sets the activations to 0. 
+
+What does this do to the distribution of activations? It changes, but it changes in a random way, right. So ReLU sets, everything below 0 to 0. Dropout arbitrarily sets things to 0. 
+
+So the mean and the standard deviation that you have calculated of your training mini-batches. If you had dropout inside on that layer, then this mean and standard deviation is actually not the correct mean and standard deviation. Because at test time, even if you pass the exact same image, the activations will be different. 
+
+So I had invented a little trick when I was a student of disabling dropout doing forward passes using only batch normalization at the end of training, and then using it for test time. This way, the statistics of VN are correct, as far as the test images are concerned, even if the test images are exactly from the same distribution. 
+
+And this will give you a tiny 1/2% improvement in terms of accuracy. Never published a paper on it because I thought it was too tiny, but now there are papers that do this. So this is another instance of an operation like dropout, a perfectly reasonable operation interacting with batch normalization in a very murky way. 
+
+We talked about classical batch normalization. There are many variants now. So in fact, if you are coding up an architecture for a new problem yourself, instead of using batch normalization, it's a good idea to use something called as layer normalization. It averages things a little differently. But fundamentally, it's the same operation. 
+
+For convolutional layers, it will average across the images, the pixels, but not the mini-batch and these kind of things. But that's VN. 
+
+And it is, as we said, not a regularization mechanism as far as what we know, but a mechanism for helping training. You'll need it, but you always want to be very critical of how things are working. 

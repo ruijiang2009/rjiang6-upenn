@@ -1,0 +1,776 @@
+Understanding the Hierarchy of Neural Networks Transcript (00:00)
+A multi-layer perceptron is a general machine. And attention is a restricted kind of multilayer perceptron. Convolutions are an even more restricted kind of attention. Because convolutions pay attention to only a receptive field around you. They don't pay attention everywhere. Make sense?
+
+So you can imagine in your head some kind of a hierarchy where MLPs are the most general models. When you restrict them to certain specific kinds of operations, you get self-attention. When you restrict self-attention further to smaller receptive fields and certain kinds of operations, again, you get CNNs.
+
+Every CNN-- I can rewrite it as an attention model. Every attention model-- I can rewrite it as an MLP. We want to fit functions from a small hypothesis class that captures the regularities in our data. If you do not impose any structure on the functions, then you are choosing functions from a huge class. And that will cause you to have variance, et cetera, et cetera.
+
+So we build more and more specialized architectures because we know that our data carries certain properties. For CNNs, that would be translation invariance. For attention, it is slightly difficult to understand what properties of the data you want. But certainly it would seem that fill-in-the-blanks kind of tasks are best done with attention.
+
+Because that way, you can attend to different parts of the sentence instead of simply your local neighborhood of the words. You could also fill in the blanks with a convolution network. And I promise you it will work well. It's just that the size of the kernel that you use will now determine how far the fill-in-the-blanks looks to fill in the missing word.
+
+Attention will look very far away. Right? It will look over the entire input sequence. You could also look at the entire input sequence with a convolutional kernel that is as big as the input sequence.
+
+Big kernels are expensive computationally. So we don't like to use big kernels. We like to take small kernels and stack them up. Right? So you could also do these things with convolutional layers-- fill in the blanks.
+
+Attention is one particular kind of convolution. We saw dilated convolutions. Attention is major time-dilated convolution, where the dilation is not even fixed. Depending on the inner product between the keys and the queries, you will dilate in different ways for every time you calculate it. OK. Does this make sense? OK.
+
+Permutation Invariance and Attention Transcript (02:57)
+So another very powerful property of attention is that the output is invariant to permutations of the input. And for those who see it immediately, it is a sum of stuff that is the similarity with the keys and the queries. It doesn't matter if I permute the elements of my sequence, right?
+
+If I permute the elements of this sequence, the similarity between the keys and the queries of the correct letter will remain the same. And because I am summing up over all these things, the output of the attention model will remain the same.
+
+So attention layers do not understand permutations, do not understand the order in which things are presented to them. And this is a very powerful property to use in a lot of your projects and applications.
+
+A simple way to think about this is, I am an autonomous car. Let's say that I would like to travel on the road. I am trying to go straight. There is car one. There is car two that is perhaps coming in like this. And there is car three that is coming here like this.
+
+Whatever command that I take, whether it is braking or accelerating, et cetera, is going to be a function of all the cars in my vicinity, right?-- their relative locations with respect to me, how quickly I expect them to come and hit me, et cetera, et cetera. It better not depend on the order in which I saw these cars.
+
+It should depend on the set of cars that I see, not the order in which I see them. So whether I replace this thing by two, whether I call this one, and whether I call this four and there is a new car here, it should only depend on the set of cars, not the order in which I see them. OK?
+
+ Building Permutation Invariant Networks Transcript (05:04)
+How will you build this model? Let's think of it as a design problem. I would like you to build a neural network that predicts the control command-- steering or brake, let's say-- as a function of the relative locations of all these other cars around you. What architecture should you pick?
+
+So for each of them, I have an xy of the i-th car. I have a bunch of such xy's-- let's set i equal to 1 to 4 in this case. So it's an eight-dimensional vector, which is my input.
+
+I would like to predict u1, which is the steering command, and u2, which is the brake-- two quantities that I need to predict. I know the relative locations of the four cars around me. What should I do? OK?
+
+So if I use an MLP, I will have an MLP with eight inputs. Yeah? Maybe I will do a couple of layers. And then I predict a y-hat, which lies in R2, right? I could watch some data of cars behaving at intersections. And I could fit this MLP on data.
+
+Now, next time, suppose that I just rename this car number two to car number one and car number one to car number two. I will get a totally different input vector. And because of this different input vector, I will get a totally different output from this network. Obviously, in this case, if I fit an MLP, my output is not invariant to the order in which I present the input.
+
+I can use convolution also. Because I could do some convolution by looking at the local neighborhood of the other cars. But then again, if I change the ordering, convolutions would totally change. So in some sense, the operation that you want here is not just any map between eight inputs and two outputs but a permutation invariant map.
+
+How could you build permutation invariance with an MLP? Yes, you create a data set with lots and lots of permuted values of the inputs and have all of them in your data set.
+
+If you are good at fitting, the output will be insensitive to the permutations. Just like we did for data augmentation every time we don't know how to augment data, how to modify the architecture to handle some kind of invariance, we just augment it in the data set. Right?
+
+I could do the same trick here. I could take all my inputs. I could permute them. And that would work. But permutations are very many, right? For four cars-- there is 4 factorial permutations. Right?
+
+4 factorial is how much? 24. So I have expanded the size of my data set by 24. If I had 10 cars, that would be 10 factorial permutations. That's a much larger number. It seems a pretty naive way of building invariance.
+
+Self-attention is the correct answer for this problem in some sense. If I'm building not a MLP layer but an attention layer that checks for the similarity between the locations of my car, for instance, and other cars, then it doesn't matter in which order I present the other cars. My output features will always be the same. Because it is a big sum over the similarity between my location.
+
+So let's give names to this. Query is my location. These are other cars. And maybe the value is some whatever-- other car's location also. Yeah? So the entire summation now doesn't depend on the order in which I present the keys. I will get the same answer.
+
+So attention-based layers are fundamentally permutation invariant. And that's a very cool property. Many problems you will solve in your life that will require permutation invariance-- this is really the right way to do it. Everything else is going to work much worse.
+
+OK. So a little more precisely, if you want to build permutation invariance, your network takes in a set of inputs and predicts an output. It doesn't take in a sequence. It doesn't take in a vector. It takes in a set, right?
+
+It turns out that any function that is permutation invariant-- so if I have n elements that the function takes as input and I want to build-- I want this f to be permutation invariant. Its value shouldn't depend on how the arguments were presented to the function.
+
+If I want to build such a function, then there is one and only one way to do it. It is to take all my inputs, apply some function phi to it, aggregate this function, and then apply some other function on the outside. So any function f that is permutation invariant can be written down as the right-hand side for some choices of rho and phi.
+
+This is really extremely neat. Because you had to pick up a permutation invariant operation. I am telling you that, no matter what you do, all you have to do is select a phi, calculate the phi independently for each of the inputs, sum up the outputs, and then apply this function rho.
+
+In deep learning, we will love to parameterize these functions rho and phi using weights. So I am telling you that these learned functions rho and phi-- I could always find such learned functions that give me permutation invariance. Yeah?
+
+So this is a paper called "Deep Sets". It's a very cool result and a very, very nice way to use it in your problems. Any time you want to make predictions on a set of entities, all you have to do is code up your architecture to look a bit like this.
+
+You have x1, x2, x3. You apply the same function phi to it. You sum up. And then you apply function rho to the output. If this is one of your layers, you will always get a permutation invariant output for the correct values of rho and phi, which you will learn.
+
+Upon this, you can do whatever deep learning you want to do. And this architecture by definition is permutation invariant. Does everyone agree with me?
+
+I permute the elements xi. Nothing changes because I am summing them up inside. OK? The cool thing is that this is the only architecture you need to worry about if you want to build a machine that is invariant to inputs. And this is this very cool theorem that is proved in this paper. OK?
+
+So very neat trick to use. Many people who do not know this trick will do all sorts of contortions to handle such problems. But you don't need to do that.
+
+Position Encoding  Transcript (13:17)
+The next thing we should look at, which is where we stopped last time, is position encoding. Not all problems are such that you need invariance to the order. For most problems that we care about-- predicting the next word in a sentence, predicting the next frame in a video-- position matters.
+
+In very few languages-- Sanskrit is one, for instance-- the order of the words in a sentence doesn't matter because the grammar is so rigid that the order is-- that there is no need for an order. Latin works in similar ways. Or ancient Greek works in similar ways. But many, many languages are very dependent on order.
+
+So position encoding is a very neat trick where we take a set of words and attach to them some information about the location at which they came in the sentence. And this way, the attention operator-- or the self-attention operator, which is permutation invariant, doesn't remain so.
+
+Because each element of the sequence now has another token associated to it, which is [INAUDIBLE] is related to time. And so we break the permutation invariance of the attention operator because we don't need it for modeling sequences. This is what we are going to do next. OK?
+
+So think of a simple example. Let's say this is a sentence. Each word we would like to concatenate with some notion of time or the index in the sequence.
+
+Let me think of simply concatenating the first letter by 1, the second letter by 2, the third letter by 3. And this is simply the position of the letter in my sentence. Make sense? So instead of doing my feature-generation using these letters x1, x2 all the way until xT, I am doing my feature-generation using these different inputs now, which is t comma x. Yeah?
+
+Now, one obvious issue with this is that if at training time I give you sentences with 100 characters and at test time you see sentences with 150 characters, then obviously your inputs are coming from a different distribution. Right?
+
+At training time, you've never seen values of t that are 150. So you would have to extrapolate the model and run the model in its extrapolation regime, which is not a very nice thing to do. As we have said, we like training and test data to come from the same distribution. In this case, it is not even the same support. Is this easy to follow? Yeah?
+
+So we need some other way of imbibing the inputs with information of time. Can you think of anything? We want to incorporate time, but we want to incorporate time in such a way that it doesn't grow unbounded. OK.
+
+Yeah. So some periodic function is a good answer. Here is how people do it in practice. What they will do is, instead of concatenating t and x like we said, they will sum up some feature phi of t with x. OK?
+
+xt is the t-th chatracter in my sequence. It is the t-th element of my sequence. So just so that people don't get confused, this is the t-th character of our sentence.
+
+Let us say that we had built one-hot features of these characters. In your homework problem, you are building one-hot features with 75 dimensions, right, or some such number of dimensions-- the number of unique characters. So let's say that xt belongs to Rd. It has d dimensions.
+
+So what they will do in practice is that, if xt shows up at the t-th position in the sentence, you will build a vector which is phi of t. Phi of t is a sequence of-- let me go to this particular-- so we are going to think of a new input which is the sum of the old input and this feature vector. This feature vector is a sequence of sines and cosines. If you have d dimensions in the feature of the character, we also have d dimensions in this feature vector for time that we have created.
+
+You have d over 2 frequencies for your sines and cosines. People will know that the Fourier transform is the projection of a signal of time onto a basis of sines and cosines. So you can think of this as taking some sequence and then you-- or you can think of this as the basis elements of the Fourier transform. It is not very important if you don't appreciate this. But this is some feature vector.
+
+Now, the interesting thing is that, no matter what value of t we plug in here, all the elements of this particular feature vector are bounded up from above by 1, by below by minus 1. Right? The dimensionality of this vector is also d. So we can obviously sum it up with another vector of length d. OK?
+
+You can choose any set of frequencies that you wish. In the original paper, where these folks-- this is a paper called "Attention Is All You Need". And it's pretty popular because they-- attention is not a new operation. People have been also using it for many years. This paper showed that it works really very well. So that is why it got quite famous.
+
+They used frequencies that looked a bit like this-- 10 raised to minus 8, i minus 1 divided by d. The important thing to notice here is that, when i equals d minus 1, the frequency is close to 10 to the negative 8. OK?
+
+And when i is equal to 0, the frequency is what? Is 1. Omega is 1, right? It's 10 to the 0. Or sorry. If i is one, then omega is 0. So the frequencies for small values of i, where we are looking at small frequencies-- for large values of i, we are looking at very high frequencies. With me so far?
+
+Let's say these are our frequencies. And this is a picture that I pulled out from some blog. The x-axis is d. OK? The y-axis is t.
+
+And so each element here is showing you one value of this feature vector phi of t. Yeah? So every row is one feature vector phi of t. Cool? So sines and cosines-- alternate columns of sines and cosines.
+
+Now, what you will see-- of course that they go from minus 1 to 1, not surprisingly. What is interesting to notice is that, if you had a input character with, let's say, 32 features, then this is the only part of the matrix you would be interested in.
+
+There is no vector that we are creating beyond this. OK? So the number of frequencies that we use is d over 2, where d is the dimensionality of the features of our letter. And that is how we sum up things.
+
+Now, one question to you is, imagine if d were 2. And so we are looking at xt1 xt2 So we are looking at phi t1. And phi t2 is added to it. The two dimensions of my feature-- what do they mean? They mean very different things depending on the problem. Right?
+
+In some cases, it could be a one-hot encoding. It could be [INAUDIBLE] it could be an affine transformation of a one-hot encoding. It doesn't make very much sense to add sine to feature 1, and cosine of t to feature 2, and sine of omega 2 times cosine t to feature 3, et cetera, et cetera.
+
+So we are taking all these features and then creating perturbed versions of these features, where the perturbations depend on the sines and cosines. And this is really a pretty horrible way of putting in time into our features. Because the features now have lost a little bit of their original meaning.
+
+If xt of 1 was an indicator variable that says, there is red in this particular picture, then now, by adding a sinusoid to it, you have said, oh, this red varies across time. And that's not really correct. So there is a lot of 22 that we do when we add position encodings. But this is how people do it.
+
+But so just to conclude how position encoding works, you basically create this matrix, the one that is plotted in the picture. You choose the right row of the matrix. You concatenate it to your inputs. And that is now your new input. And upon this, you perform all your self-attention convolutions, if you will-- whatever else you want. OK?
+
+After doing so, you have broken the permutation invariance of the attention operation. Because? Now each input is associated with a particular time. Yeah? If I permute, the position encoding will change even if the input feature doesn't change. OK.
+
+OK. So let's talk about concatenation. We could have concatenated the position encoding. But then the way our attention kernel works-- your keys and queries are created using some affine function of the features. Right?
+
+In this case, instead of doing w transpose x of t, you would be doing w transpose phi of t comma x of t. And that's all fine, except that the elements of w now that correspond to time will have to be slightly different than the elements of w that correspond to x. Because the similarity in time is slightly different than the similarity in x's.
+
+And you can make this work. There are papers which have made this work. But if you are doing weight decay on the weights, then you should be doing weight decay on the time and the x a little bit differently or maybe not doing weight decay on the time at all.
+
+There is many such pesky implementation details that you will have to worry about if you do concatenation. The summing-up operation is a tiny bit better, but that is not a panacea. OK?
+
+Moral of the story-- we need to input some information about position. And that way, the attention module becomes now just another operation. It doesn't even have permutation invariant properties.
+
+So in some sense, you can think of attention operation as just another operation, like a fully connected layer or a convolutional layer. Just like all those operations have specific inductive biases, affine functions for the fully connected layer, convolutions for the convolution layer, this is an inner product-based attention kernel for the attention layer. Yeah? It doesn't have any other special properties than the other operations that we have seen before.
+
+There will be people that you will meet very soon who will claim that attention have magical properties. That's not really true, in my opinion. Although, I happen to be in somewhat of a minority in this case.
+
+Multi-Head Attention and Transformer Architecture Transcript (25:50)
+OK. So the next embellishment is what is called multi-head attention. Just like we have multiple channels in a convolutional network, you can have multiple attention kernels. OK?
+
+So in simple words, one channel is a function of some set of keys, queries, values computed using our input features. You can take the same input features; use another set of keys, queries, values to create a different feature vector. And that will be the second channel of your output layer. OK?
+
+Just like convolutions have multiple channels, attention layers can also have multiple channels. People call these multiple heads because they would like to think of these keys, queries, values as three heads of a dictionary that are on the same dictionary of features. And then they write in different ways to the different channels. OK?
+
+Yes?
+
+[INAUDIBLE]
+
+You initialize them randomly, all of them-- the weights.
+
+OK.
+
+The important thing is that-- let's say that you had multiple heads. Each head are hj l plus 1. It has the same number of dimensions as the values.
+
+All right? Because we are averaging over the values using the dot products given by attention. So jh l plus 1 has the same number of dimensions as some other hil, which is the i-th feature of the l-th layer's output. Yeah?
+
+So if I have three heads and I concatenate their output features, then I have three times as many features. OK? And if I keep doing this for a few less, the number of dimensions in my features will explode.
+
+s two multi-head attentions will have-- 3 times 3-- 9 times as many features as the one that you had at the input. To prevent this from happening, people will add a fully connected layer to bring down the dimensionality of these multiple This is no different from how we have a fully connected layer in the inception network, or 1 plus 1 convolutions in the inception network, to bring down the dimensionality. OK?
+
+So multiple-head attention will take multiple heads, create different features. They would do-- so in this case, this particular arrow here is showing a residual connection. Do people appreciate what a residual connection is? We haven't done it in the class, but hopefully it's [INAUDIBLE] in the recitation.
+
+Yes? I see a big thumbs up from there. Where are the others? You should show me thumbs down if you do not appreciate.
+
+So our one layer was calculating features of the kind h l plus 1 is some function of hl, right? A residual connection calculates this function. OK? It is the original features plus some features [INAUDIBLE] feature generator acting on the original features to create new features.
+
+Think of it as simply a different function than this feature generator. That is why I wrote phi prime in the second line. Yeah? Instead of learning phi now, you are learning phi prime. And phi prime is something like a phi-minus identity. Yeah?
+
+The original paper on resnet used these kinds of features. Because in many problems, if you are reconstructing the input image again, for instance, then identity is a pretty good initialization for the weights of your network, right? So it is much more useful to learn deviations from the identity instead of the weights directly.
+
+And that is why residual models work very well. And the residual models-- there is other reasons for why residual models work well. We'll see that in a few chapters from now. But this is how residual layers look. And this is how they look in a picture. People will draw an arrow from the input of a layer to the output of a layer to denote that the output now is the summation of the input and whatever comes in from this side.
+
+The transformer architecture, which is what this picture is showing, uses also a layer normalization operation after doing the summation of the residual network. Just like we do batch normalization in a convolutional layer, this is a layer normalization. We use layer normalization because? Yes, it is insensitive to the number of channels and the batch size, actually. OK?
+
+Now we-- after this point, because of multi-head attention, we have many more input features. Right? So you will use what is called a position-wise fully connected network to bring down the dimensionality of each of the features.
+
+That is just an affine function that takes features that are high-dimensional. It reduces the number of dimensions. And again, they have used a residual connection across this fully connected network for the same reason that you would use a residual connection in any other layer. OK?
+
+So what this function represents is one block of what is called the transformer architecture. It is just a name so that-- a name that caught on. If you want it to be very precise about this, you would call this a multi-head self-attention layer. Right? Just like we say a multi-channel convolutional layer or a convolutional layer, this is how a self-attention layer is coded up in a typical network. Yeah?
+
+The input to this-- you can have, let's say, a sentence, where each kind of letter of a sentence is encoded as a one-hot vector. And the output of this could be another sentence, which is, let's say, the reconstruction of the original sentence.
+
+That would be a model that takes in a sentence and predicts a sentence. With me so far? It could also take in an image and predict an image. It could also take in an image and predict some other thing, some other class. And that's all fine.
+
+Sequence Modeling with Attention Transcript (32:51)
+Ok. So let's now look at something important. So until now, we've looked at attention as simply one function. If you want to use attention-based networks to predict on sequences, you need to use them in a special way. 
+
+So we are now going to look at problems that are like the problems of recurrent networks, where we are going to predict the next word of a sentence given all the past words of a sentence, next location of the car given all the past locations or past observations. OK? So let us bring ourselves back to recurrent models, and LSTMs, and all such things. Now we would like to use attention to solve those problems. 
+
+Ok. So here is how it would look. Imagine that, for a sequence of length T, you have features of each location-- so x1, x2, xT. Now, if I was building a recurrent model, I would write down h1, h2, et cetera, all the way until hT. As you know, h2 would be a function of h1 and x2, so on, and so forth. Right? 
+
+ 
+
+We have said how RNNs or LSTMs are difficult to train because of vanishing gradient issues. The reason we have vanishing gradients in these models is because the same hidden vector is used multiple time steps until you get to the end of the sentence to make a prediction. That is the real fundamental issue, right? 
+
+ 
+
+Attention works on this entire thing in a very, very elegant way. And this is why it became so popular. If I have an self-attention layer with positional encoding for my inputs, then I will not have to worry about the same hidden state being used to propagate information across the sentence at all. Right? 
+
+ 
+
+So for instance, my attention layer creates a new set of features. This is h1 until hT. Does everyone agree that h1 depends on everything from x1 to x capital-T? h capital-T also depends on x1 until x capital-T. And every single feature that you create on the second layer like this depends on every single input of the previous layer. 
+
+ 
+
+Now suppose that I have a loss which is on the last time step. In an attention-based network, the loss on the last time step is connected to
+
+ x1 using how many edges-- or how many computations? Yes-- connected essentially directly, right.? 
+
+So x1 plays a role in creating hT because of the attention layer. And hT creates y-hat. So the gradient from y-hat comes to x1 directly. It doesn't have to pass through all of the other hidden states like it does in a recurrent model. OK? This is like a major time shortcut across time that the attention layer allows us to create. 
+
+Ok. So in a picture, here is how one could use an attention-based network. Suppose you wanted to create a combination of recurrent layers and attention-based layers. Suppose-- I'm not saying this is a good idea. 
+
+You would take your input sentences. You would create some embedding-- a one-hot encoding, let's say, of all your characters or all your words. You would have multiple recurrent layers in a standard RNN or an LSTM. 
+
+As soon as you have one attention layer at the top, your gradients automatically flow very freely. So if you did not have this attention layer, you might get vanishing gradients in your recurrent model. But even one attention layer sitting on top of the recurrent layers completely eliminates the vanishing gradient issue. Yeah? Because now the loss from here will go directly into the first input via a shortcut. 
+
+There is no need after doing all this to ever have recurrent connections. Because why would you? Right? You would only use recurrent connections if you need to really get the hidden state. Attention-based layers do not have a hidden state. 
+
+Ok. So many, many very interesting and unusual things-- we remove the recurrent state of an RNN. We are no longer facing gradient-vanishing issues. There is no gradient-vanishing. And this is just a better way to build recurrent models. Or this is just a better way to build models of sequences. 
+
+Ok. So we don't have any issues with BPTT anymore. And this is just-- so it is always a good idea to simply use attention-based layers to model sequences. There is no need to worry about LSTMs and GRUs anymore, even though they are-- as you see, these models did not come out of thin air. There is a systematic-ness in how these models were created. This is the latest incarnation. And it is genuinely better. 
+
+OK. So we talked a tiny bit about this. So what is the sufficient statistic that is built by attention? Did everything that I say two or three lectures ago-- was pointless? No. So what is the sufficient statistic of an attention-based model? 
+
+ 
+
+[INAUDIBLE] 
+
+ 
+
+What? 
+
+ 
+
+[INAUDIBLE] 
+
+ 
+
+No. 
+
+ 
+
+There isn't any. 
+
+ 
+
+So there is none, if you see the syntax. So a sufficient statistic is a function of past elements of the sequence that lets me predict future elements of the sequence. Right? 
+
+ 
+
+The function in this case that lets me predict, let's say, y-hat 4 is what? It is not being calculated using h1 to h3. But it is calculated using x1 to x4. So the sufficient statistic in an attention-based model is the concatenation of all my past hidden states because these are the functions of all my past inputs. 
+
+ 
+
+A recurrent model creates a sufficient statistic and updates it recursively. An attention-based model doesn't create a sufficient statistic. It recalculates the statistic at each time point. This particular element will have to talk to every one of the inputs before calculating it. OK? 
+
+ 
+
+Can you see an obvious bad thing about this? 
+
+ 
+
+[INAUDIBLE] 
+
+ 
+
+Yes, it is very expensive. So when you build a recurrent model, to predict y-hat capital-T, you would need to do all the capital-T operations. Right? Your hidden state is propagated capital-T times up to [INAUDIBLE] to create the last loss. In an attention-based layer, you have to do quadratically many operations. So every y-hat 1 is calculated using all the T elements. OK? 
+
+ 
+
+So an attention-based layer performs all the T-squared operations. Whereas, an RNN performs all the T operations. An attention-based layer can handle very large sequences without suffering from vanishing gradients. But it is also extremely expensive to handle large sequences. RNN suffers from vanishing gradients, but it is cheaper to run on large sequences. 
+
+ 
+
+Fact of the matter is that people have figured out very clever ways of modifying the attention operation, using some tricks of, like, how the cache of the GPU works and where you load these features on the CPU, SRAM, and things like this to reduce the complexity of calculating attention. But it is still an expensive operation. OK?-- to hide it, not reduce it. 
+
+OK. So attention-based layers do not have a recurrent state. But that doesn't mean that they are any different from the mathematics that we have done before. It is just that the hidden state is now a little more implicit instead of an explicit hidden state that is being propagated. 
+
+ 
+
+This is where I said causal attention. So people will implement causal attention slightly differently than how we did it [INAUDIBLE] I said that, to implement causal attention, this summation is being done only until t minus 1, right? If you are predicting the element at location t in the sequence, you only do the attention over past elements of the sequence. That is what causal self-attention means. 
+
+ 
+
+In code, people will implement it as follows. They will still keep the sum like this. But inside the inner product kernel, they will add a special term called masking. And this masking will be set to minus infinity for all elements larger than t. In this way, the softmax will completely discount it and not worry about those particular values. 
+
+ 
+
+Make sense? It's just a code trick. But in your homework problem, for instance, you will have to implement causal self-attention. You will implement it by choosing a mask of this kind. Because that is what the very first layer takes as input. Yeah? 
+
+ 
+
+The cool thing is that, even if attention requires T-squared operations to be performed, you can perform all of these operations in parallel. An RNN has to sequentially operate upon the hidden state one time step after another. 
+
+ 
+
+Whereas, an attention-based network can calculate everything in parallel completely. So you're using all the many cores of your GPU to calculate the attention-based models. And this is really why you can hide away the computational cost of running attention. Yeah? 
+
+ 
+
+So the new GPUs that NVIDIA is building-- they will be more and more suited to running these kinds of operations. They'll have a huge number of cores as opposed to a large clock rate. To run an RNN, you need a large clock rate because your inputs have to be-- you need to tell the GPU to perform the next operation of the recurrent computation. In an attention, you will just have a large number of cores. 
+
+ 
+
+So this is the basics of attention. There is a lot of little bells and whistles that people have discovered over the last three, four years. And the first time you code up attention by yourself, I would really strongly encourage doing this. It's trivial to code up, really not very complicated. You will see all the magic that you can do with the attention operation. It is a little bit more easier to understand than convolutions in how you apply it to new problems. 
+
+ 
+
+And this is the reason why attention-based models have been so popular for solving any and every problem these days. Conceptually, if you think about it, an self-attention-based layer is like a convolution but with a huge receptive field. Right? 
+
+ 
+
+The receptive field is equal to the size of the image. And I am choosing the convolution kernel now. The weights of the convolution kernel are chosen to be the inner product features of my attention model. OK? 
+
+ 
+
+So we should expect self-attention-based networks to be a superset of convolutional networks. They can do many more complicated operations than a convolutional network because of their larger receptive field. Your conversion network will need many more layers to achieve the same kind of operation that the [? core ?] self-attention-based layer does. 
+
+ 
+
+Of course, a multi-layer perceptron is a superset of a attention-based network. Because the operation of the attention-based layer-- I can always build a fully connected layer to mimic that operation. 
+
+ 
+
+I may need more layers. I may need more width. But because my fully connected network is a universal approximator, I should be able to match whatever the attention layer does by an appropriate fully connected network. Yeah? 
+
+ 
+
+So we have built some kind of a hierarchy of models. These are the most general models. They do not assume anything about the input data-- no translation invariance, no correlations, et cetera. And they work generically. 
+
+ 
+
+Convolutional networks assume something much more specific about your inputs-- the fact that spatial regularities exist. Attention-based models are some nice middle ground. And it is very cool that you can train attention-based models well. 
+
+ 
+
+You don't use fully connected networks in practice because it is very difficult to train them, not because they are bad networks. Convolutional networks are easier to train. There are fewer parameters. That is why you use them so much in practice. 
+
+ 
+
+Attention-based models are kind of a nice middle ground. They are more expressive than convolution layers. They are easier to train than fully connected layers. And this is why people try to use them in many places. 
+
+Ok. So take a look at this library. It's a company called Hugging Face. Don't ask me why they call themselves "Hugging Face." So they have built-- it's like PyTorch. They have built very nice wrappers around PyTorch to use transformers and do NLP tasks in general. And it takes really very little amount of code to download new data sets, build new architectures, or try out different models. 
+
+You will be able to try out the latest chat bots using Hugging Face within five lines of code pretty easily. Yeah? So definitely check out this library for doing your course projects and see how it is built or how they think about it, et cetera. 
+
+Pre-Training and Fine-Tuning Transcript (48:32)
+The next thing that I wanted to do was a few examples of how people use attention in practice. When you think of building very large models, over the last few years, there is one trend that is very evident. And that is this two-stage training pipeline, where people will first pre-train and then do what is called fine tuning. OK? 
+
+ 
+
+These words don't mean anything to us yet. But pre-training usually corresponds to using unlabeled data. OK? I have some model. I would like to train this model to perform image classification. I could take a data set of images and their ground truth categories, which is how you did your homework problem, and fit a convolution network or an attention-based network to perform this operation. 
+
+ 
+
+But in practice, people will do something like this. They will first pre-train a model using just unlabeled data-- lots of images, no labels. And then they will fine tune this model using labeled data. OK? The reason you would like to do this is because there is usually plenty of unlabeled data available to you. 
+
+ 
+
+No matter which problem you look at, it is always expensive to annotate data. So by extension, you have plenty of unlabeled data available to you. And if you can initialize your network a bit more cleverly, using unlabeled data as opposed to sampling your weights from a Gaussian random variable, then you stand to gain in terms of either test accuracy on the final problem or, you may not need as many training samples to build your model. 
+
+ 
+
+Why is this the case? OK. So let's think of a picture. 
+
+ 
+
+So this is the space of all models. Yeah? Let's say that this is the set of models that are my good classifiers. Yeah? When I do a standard image classification, I'm beginning with one model, let's say, at the center of this space of models, which is the randomly-initialized network, right? 
+
+ 
+
+And the training process conceptually is trying to take my randomly-initialized network from wherever I began to this set, which is the set of good models that work well. The pre-training procedure is not beginning at the red point. 
+
+ 
+
+At the end of pre-training-- you don't know yet how we do pre-training, but let's suppose that there is some mechanism for doing pre-training. At the end of pre-training, we are selecting models from a slightly different set. Let's say "set of pre-trained models." OK? And within this set, you have selected, let's say, one point at the end of your pre-training phase. 
+
+ 
+
+Now, if this orange point is close to the blue set, then you are in luck. Because you don't need to travel as far. That means that you don't need to have as many samples, et cetera, et cetera. If the points in the orange set were here, then you would be doing yourself a disservice and artificially making the problem more difficult than initializing from random. Make sense? 
+
+ 
+
+So what people have figured out over the years is ways in which this orange set is essentially the blue set, or as close to the blue set as you can make it. So we have figured out ways to pre-train networks such that the outcome of the pre-training procedure is essentially as good as the outcome of standard training, which is pretty neat, right? 
+
+
+So this suggests that we have figured out ways to use unlabeled data in such a nice way that the answers that we get from unlabeled data are essentially as good as the answers we get after using labeled data and standard training procedures. We'll take a look at some examples of how people do this business next. With me so far? OK.
+
+Attention-Based Models in Practice  Transcript (53:11)
+So let's look at sequential data-- so sentences. Consider a data set where we have sentences. All sentences are of length capital-T. As usual, we have little little l n sentences in our book, set of books, whatever. OK? All the sentences conveniently are also only capital-T-length. 
+
+You can think of a pre-training procedure. Pre-training doesn't come with labels, right? So you can think of a procedure that says, build me some probability distribution that takes a sentence and returns a 1 if the sentence is natural and returns a 0 if the sentence is not natural. 
+
+In general, you could ask yourself, return to me the probability of this sentence in the space of all sentences. I look at the empirical distribution of the sentences that I see in nature or see in all published books. How likely is this sentence to belong to that set? With me so far? So that would mathematically correspond to you building a model that predicts the probability of a sentence, the likelihood of a sentence, given inputs. 
+
+This is not a very easy problem. Because sentences are really monstrous things, even though they look very benign. So even if you take a sentence with 15 words-- this is kind of a normal sentence. 
+
+ 
+
+I like to say that, in a typical novel that you read-- if people still read novels these days-- there is about 10,000 unique words. OK? There's about 100,000 words in a novel-- about 10,000 of them are unique words. So a sentence is really-- there is really 15 raised to 10 to the 4 different possible sentences of length 15. With me so far? 
+
+ 
+
+And this is really an absurdly large number. It is 10 raised to 12,000, which is way more than any number that we will ever see in the universe. Yeah? The number of atoms in the known universe is roughly 10 to the 80, which is not that much. Yeah? 
+
+ 
+
+So there is really many, many sentences. And from within this, we want to ask ourselves which sentences are natural. Of course, the set of natural sentences is a much, much smaller set than this set. Because this is all going to be gibberish, like any random sequence of words put together. 
+
+ 
+
+So the space of natural sentences is expected to be much smaller. And this is why learning this object or estimating this probability is even viable. Otherwise, we wouldn't be able to learn this. We would need a huge model to learn this. OK? 
+
+ 
+
+So here is one way to build this model. It is called a Bidirectional Encoder Representations from Transformers, BERT for short-- among the first models that really went viral sometime around 2018. Yeah? 
+
+ 
+
+We are going to optimize a loss that looks like this. xit is the t-th word of the i-th sentence. It is being predicted using xi minus t. And I wrote this notation "minus t" to simply say that the t-th word of the sentence is predicted using all the words except that word. OK? So classical self-attention except that I don't use that word to predict-- the specific word to predict the token at time t. I use all of the others. Yeah? 
+
+ 
+
+So effectively, what we are doing is we are writing down the probability of x1 until xT as the product of t from 1 until capital-T, p of xt, given x minus t. 
+
+ 
+
+Is this-- I take the logarithm of both sides. And you will see that, when you are maximizing the log probability, it will correspond to maximizing the summation over time of the log [INAUDIBLE] probabilities of these [INAUDIBLE]. With me so far? OK. 
+
+ 
+
+So now this is a probability distribution. This is our model for the probability distribution. Yeah? If I told you to create sentences using this model, how would you create them? Suppose you have all these little terms at your disposal. Can you create me a good sentence? 
+
+ 
+
+I have a machine that takes in sequence of words. And then it predicts a-- that fills in the blank at whichever location you want the blank to be filled at. How would you use this model to create a sentence? 
+
+ 
+
+[INAUDIBLE] 
+
+OK. Can you elaborate? 
+
+ 
+
+[INAUDIBLE] 
+
+OK. But I don't know x of minus t. I have an empty slate. I would like you to fill it up with a good sentence. The only thing you know is how to fill in blanks. So you need to fill in some values for the remainder of the sentence. OK? 
+
+ 
+
+So let us imagine an algorithm that initializes a sentence with arbitrary words. It takes every word, fills it in using the initialized versions of the remaining nine words, and then does so many, many, many times iteratively. OK? 
+
+ 
+
+So I have 10 words. The first word I predict using the initialized versions of the remaining nine words. Then I get a new value for the first word. The second word I predict using the new value of the first word and the initialized values of the remaining eight words. 
+
+ 
+
+And I do this thousands of times. At the end of it, my sentence will localize. Or my sentence will converge to some sentence. Right? Because all of the words will be the maxima of the probabilities of all the other words. OK? 
+
+ 
+
+So this is a weird algorithm that you haven't yet encountered. It is called Gibbs sampling. This is an algorithm for creating sentences from this fill-in-the-blanks model. Yeah? So BERT equals fill in one blank. Using this model, which can fill in in one blank, you can create sentences using this funny algorithm. 
+
+ 
+
+It is slightly different from the maximum likelihood model that we had in chapter two, where we said that, my outputs are simply some f of x
+
+ 
+
+ plus some noise. And then you maximize the-- you assume that the noise is Gaussian. You maximize the likelihood of the outputs given your inputs. And you said, this is my [? MLE ?] estimator. 
+
+ 
+
+We do not have such a nice model for modeling this probability. In that case, it was probability of p of y given x for the Gaussian with mean f of x and covariance which is sigma-squared [INAUDIBLE]. Right? It is a slightly different model than this model, where we have written down this model a bit more implicitly as a function of other little models. 
+
+ 
+
+So we can model the probability as any other legitimate distribution. But that doesn't make sampling from this distribution easy. In my case, I had to cook up this very complicated algorithm to sample from these sentences right? So this is what is called a pseudo-likelihood. 
+
+ 
+
+And it is called a pseudo-likelihood because it is the likelihood of some model that allows you to sample in some way. It is just not as easy as sampling from this very simplistic model. This is a very simplistic generative model of the outputs. Given an x, sample from a Gaussian with mean f of x [INAUDIBLE] noise. You get an output. 
+
+ 
+
+In this case, creating the sentence is not that easy. So we are writing down the actual likelihood as some pseudo-likelihood. We know-- these things are not very important to understand or really internalize. You can think of it as just some model for the likelihood of sentences. 
+
+ 
+
+Once you become good at writing down these models-- in our [INAUDIBLE] language, we can call it a fill-in-the-blanks model, right? Given a sentence, fill in the blanks. And this is the likelihood of the fill-in-the-blanks model. Once we become good at writing down these likelihoods, it becomes second nature. 
+
+ 
+
+So just to complete BERT, you can build this kind of a probability using self-attention by just masking out xt, right? ht-- the way it will be created is that it will be created on a masked version of xt. And it will take as input everything else. 
+
+ 
+
+That way, anything that ht predicts cannot depend on xt. And in this case, we are going to force y-hat t to be equal to xt in our loss. It will simply be the cross-entropy loss, where y-hat t is forced to be equal to xt. Make sense? 
+
+OK. So y-hat t equal to equal to xt. And so effectively, this becomes the probability of t equal to 1 until capital-T p of y-hat t given x minus t. OK? 
+
+ 
+
+The original BERT also had some other losses based on the order of the sentences. It's not that relevant right here. But given all your n sentences, you maximize your log pseudo-likelihood of this kind. And now you will be able to predict or fill in a missing word in a sentence. 
+
+ 
+
+Using the missing word, you will be able to create new sentences like I did. When people typically use BERT, they don't use it to create new sentences. They will use it for downstream tasks. They will use it for tasks that are like, tell me if this sentence is grammatically correct or grammatically wrong, in which case you will have some labeled data of sentences correct or incorrect grammatically. 
+
+ 
+
+And you will have some fully connected layer that uses, let's say, the first output of BERT to make this prediction. The first output of BERT, h1 in our notation, still depends on all the rest of the sentence. So everything is nice. OK?
+
+ 
+
+ Multimodal Attention Models Transcript (01:04:42)
+Does this make sense? Or is this all very new? It is new, but we saw attention as a way to model sequences. Now, using attention, we are building different models of sequences. 
+
+ 
+
+This is a fill-in-the-blanks model. It can do one thing, fill in the blanks. With this model-- you can train this model on unlabeled data. Say, give me a text. I can create missing [? l ?] words and fill in the missing words, right? But once you have trained this model, you can now fine tune this model in this example for grammar classification. 
+
+ 
+
+You can fine tune this model for some other task-- let's say predicting the word to be a noun, verb, object, predicate, blah, blah, blah-- if you have annotated data. So you should think of this as a good way to pre-train the features of a network. Yeah? 
+
+ 
+
+Once you think like this, there is many variants that you can cook up. For instance, there is a famous model called T5 from Google which predicts two missing blanks at the same time. So "I am a boy." If I mask out both of these words, then the model has to predict both the words in a consistent way. Right? 
+
+ 
+
+It cannot fill in the words arbitrarily. And that is now a slightly different objective. It is an objective that looks like this. But you can read it later. I mask two words and predict the correct values of both the words. Yeah? And there is many, many variants of this. All of them are fair game for pre-training models on unlabeled text data. 
+
+ 
+
+One thing to note that I want to conclude with is, when you read papers on attention, it is somehow very fashionable to not write a single equation. So even just this equation I have never seen in any paper-- and certainly not in the original BERT. 
+
+ 
+
+T5 is, like, 30 pages of a paper without a single equation. And it was so difficult for me to figure out what the heck they were doing. But at the end of the day, they are filling in two missing blanks. 
+
+ 
+
+So once you become comfortable with writing down these expressions, you will be way more efficient and clever in cooking up new ideas instead of just thinking in this very vague way, where you are never really thinking formally. 
+
+ 
+
+So this is the reason why we write down these models. We are not doing any complicated mathematics. We are simply writing down Greek letters, right? Because we are not doing any calculations with these letters. 
+
+ 
+
+But it is very useful to write things down crisply, and especially in this new world, where most of the papers that we will read don't have any equations. They don't have any equations because there is only one equation in the paper usually. That is-- and so if you just told me this objective, I would never need to read anything the rest of-- the rest of the BERT paper. 
+
+ 
+
+If you just told me this objective, I would not need to read T5 paper. So this is-- I am being a little bit provocative. But it is really jarring to me how the new set of papers are. So I feel old. I think this is a much more succinct way, in my opinion, to write a paper. 
+
+OK. So a very similar model-- much older in age-- is called word2vec. Word2vec is, like, a good 15 years old at this point of time. Instead of completing the missing word using all the previous words and all the next words, it predicts this word using the previous m words and the next m words. OK?-- so local vendors as opposed to global vendors in the sentence. 
+
+ 
+
+Again, the BERT paper did not quite write down this loss. But once you know how to write down these losses, it is trivial to see the connection between BERT and word2vec. OK? Word2vec-- it is a cheaper version of BERT. Word2vec is a horrible model if you want to generate new sentences, right? Because it doesn't understand the full sentence at all. 
+
+ 
+
+It is a great model for creating embeddings of words. And this is why it is used everywhere on the internet. Any place where you are typing in a query and then someone else is searching for how similar your query is to some other database, they are probably using word2vec right now. Yeah? Spotify, for instance, will use word2vec when you search for songs. 
+
+ 
+
+Let's look at GPT. GPT is a slightly different model. It stands for generative pre-trained transformer. And it works as follows. 
+
+ 
+
+So we have a sentence with p of x1 to xt. In this case, you are not going to use-- GPT doesn't use a pseudo-likelihood. It writes down this probability distribution as this. 
+
+ 
+
+Does everyone agree that this is an identity for any probability distribution p? I have-- yes? 
+
+ 
+
+[INAUDIBLE] questions. So first, [INAUDIBLE] different architectures [INAUDIBLE] 
+
+ 
+
+Word2vec was implemented with a different architecture, yes-- not attention. But you can implement it with attention. These days, no one would use word2vec. Everyone would just use BERT. So everyone agrees with me that this is an identity for every probability distribution p, right? 
+
+ 
+
+We have decomposed the joint as a product of the conditionals. The first one is simply the probability of x1. The second one is x2 given x1. And the third one is x3 given x1 comma 2x, et cetera, et cetera. 
+
+ 
+
+This is what is called an autoregressive model. It is called an autoregressive model because if someone gave you x1-- or suppose you sampled x1 from the marginal distribution of the first words of a sentence. 
+
+ 
+
+So imagine all the sentences that you have read in your life. If I were to ask you what is the most likely first word of a sentence, what would you say? "The," right; or "a;" or something like this, right? 
+
+ 
+
+So we know that p of x1 is a probability distribution that is supported or that puts a lot of probability mass on words like
+
+ 
+
+ "the." So let's sample one word from p of x1. And let's call it "the." 
+
+ 
+
+The next word that you sample will be sampled from x2 given x1. So x2 given "the"-- "the school." OK? And in this fashion, you can go from the left to the right and sample the next word given all the previously sampled words. This is why it is called an autoregressive model. It regresses the future automatically as it moves from the left to the right. Yeah? It's just a name. 
+
+ 
+
+OK.So the likelihood that GPT maximizes is this, is the autoregressive likelihood. So let us write down the negative log likelihood version of this. li is the negative logarithm. So this is a product over such terms. Let us write it down as p of xt given x less than t. And t goes from 1 to capital T. OK? 
+
+ 
+
+Once you write down this formula, I can take the negative logarithm of this. And now I get an objective of this kind. Every word is being predicted using all the past words. So it is exactly the same architecture that you have coded up in your homework with causal attention. It doesn't depend on the future words in the sequence. And it predicts the current word given all the past words. This is the pre-training part of ChatGPT. And that is called just GPT. OK? 
+
+ 
+
+The nice thing about this kind of a model is that, once you have trained it, you can also sample sentences from it very easily. Instead of doing this complicated algorithm in BERT, where you had to, like, do multiple iterations, to sample from GPT, all you have to do is sample from your first term, which is the first time step of your sentence, then sample from the second one given the first term, where you plug in your-- so let's suppose that your sample x-hat 1 from p of x1. OK? 
+
+ 
+
+Given x-hat 1, you would sample x-hat 2 from p of x2 given x-hat 1. You know the value of x-hat 1-- whatever was sampled in the last iteration. So GPT generates words one by one in autoregressive fashion from the left to the right. OK. 
+
+ 
+
+So the way you use it on the website, what you provided is some initial part of the sentence, right, saying, "what is the weight of the Earth?" And then GPT will finish the remaining part of the sentence and say, "the weight of the Earth is" so, so and so, which is a very funny thing because-- yeah. No one checked yet the weight of the Earth. 
+
+ 
+
+What I wanted to say is, the completions of ChatGPT specifically are simply likely sentences from the distribution of sentences. It is very cool and surprising that, instead of simply memorizing sentences from all the books that it has been trained on, you can ask it questions that are unlikely to be in any book. And it is mixing and matching the information from all the books and giving you a reasonable completion. 
+
+ 
+
+This is a reasonable completion because it looks reasonable to us. But to the model, it is just a likely completion. OK? The model doesn't really understand whether the completion is true, false, whatever. The only thing it understands is likelihoods. With me so far? OK. 
+
+ 
+
+So the only difference between this objective and GPT-3 is that GPT-3 was trained on a lot of data. So let me explain quickly what tokens are. And this is a very cool course project, if someone wants to do it. 
+
+ 
+
+When we see a piece of text-- you currently encoded each character as a one-hot vector in your homework. This is not terribly nice because each character now is-- so even if you were to look at all the languages in the world and then encode every character as a one-hot vector, you would get, like, maybe a 500-dimensional one-hot vector or so, right-- not that difficult to write down. ASCII, for instance, is a 256-character set. So that is a 256-dimensional one-hot vector. So you could do it. 
+
+ 
+
+But the issue is that the model now has a slightly more difficult job of predicting the next character given the current character. You are forcing it to understand both the structure of characters within a word and then generate longer and longer sentences. So all the responsibility of synthesizing good sentences now lies within this probability distribution p. 
+
+ 
+
+If you were to do the same thing with words, you take all the text data you have in your homework. You do a one-hot encoding of words. Then the model will automatically generate grammatically-correct words, right? It would never be able to generate a grammatically-incorrect word with missing letters and stuff like this. 
+
+ 
+
+But then how many words would you need? Many. Yeah, you would-- the one-hot encoding of the set of words in even your homework problem would be very large, in the thousands. So that is obviously a no-go if you want to train at the scale of all possible books or the internet. 
+
+ 
+
+So we need to find some nice intermediate regime where we are not using a very simplistic encoding of the inputs, in which case there is few inputs. But all the difficulty of learning good sequences lies with p. And nor are we using a very complicated encoding of the inputs, in which case there is too many encodings, too many input dimensions, even if the p could be simpler. OK? 
+
+ 
+
+So what-- this is a sentence. It is very simple. So if you see a piece of text of this kind, the first procedure of GPT-like systems is that they will scan the entire piece of text from the left to the right. And then they will create a dictionary of commonly-occurring pairs of bytes, pairs of bytes. Every character that we write down here is 1 byte because it can represent it as an ASCII character, for instance. 
+
+ 
+
+So "is" is repeated in this case. So for instance, let me do a very heuristic version. And then you're going to create a dictionary with the word "is." And let us call it a value of 1. 
+
+ 
+
+You will replace this "is" with 1, this "is" with 1. And any time you see two consecutive characters that are "i" and "s," you will replace it as "1." The next time, you will scan the entire sequence again. And you will find more such repeated patterns. OK? 
+
+ 
+
+So now let us see-- for example, in the second iteration, you have a sequence which is 1 comma space. Right? 1 is our key from the previous iteration. And then there is a space next to it. 
+
+ 
+
+So we can write down a pattern, which is 1 comma space, and then call it 2. And this way, it will collapse the entire text into a more compressed representation or more compressed form of text by replacing pairs of consecutive bytes by keys. Make sense? 
+
+ 
+
+So I have a piece of text. I find out all frequently occurring pairs of bytes. I write down a dictionary where the keys are these frequently-occurring pairs of bytes. And the values are whatever value I put in. This is called a "token" in GPT parlance. OK? 
+
+ 
+
+Then I get a new piece of text where there is some natural characters. And there is some of these unusual tokens sitting there. Now it's a new piece of text. It's a new sequence of bytes. 
+
+ 
+
+I'll do this entire procedure again. And I'll get a new kind of keys, which is-- some of them could be my tokens. And then some of them could be my natural keys. And then I create new kinds of tokens with this. OK? 
+
+ 
+
+So you would do this many, many times over the entire piece of text. It's actually very cheap to implement and not that expensive. And at the end of it, you will get a big dictionary. The left-hand side will be all the pairs of bytes that you have encoded. And the right-hand side will be their values within your text. OK? 
+
+ 
+
+And what you're actually doing sequence modeling on when you fit GPT is actually the values, not the raw text. So they never use the raw text. They use a compressed form of raw text. 
+
+OK.And just to conclude, GPT was trained on 500 billion tokens, which is, give or take, close to. 3 terabytes of data. You folks are turning in your homework with 5 megabytes of data. And it is actually quite large at our stage in life. 5 megabytes of text is a lot of text. 3 terabytes of text is a huge amount of text. 
+
+OK. So the reason all of these things are so popular these days is that many people have noticed that pre-training the way we do this here for fill-in-the-blanks or autoregressive losses-- for images, also, people will do this. They will blank out a patch. 
+
+ 
+
+They'll take an image. They will blank out different patches. And then they'll force the model to reconstruct the missing patches. It is exactly the same loss as BERT. Right? It is fill-in-the-blanks but on pixel space. 
+
+ 
+
+These are all very powerful mechanisms for pre-training neural networks without using any labels from the data set. And what people have noticed is that this pre-training, when done well, requires you to use very little labeled samples from the actual data set to get the same kind of accuracy. So pre-training plus fine tuning with a few samples is essentially as good as classical training with a lot of samples. OK? 
+
+ 
+
+In our picture, that simply means that the set of models that the pre-training procedure restricts us to is so nice that the good set of models is already within this set, or at least very close to the set. That is why you don't have to search very much to find this good set of
+
+ 
+
+ models. OK. 
+
+ 
+
+And just one final thing.-- I didn't want to end this chapter without showing you a CLIP. We have talked about text. And there is a lot of interest these days on combining different input modalities-- for instance, images and text. And attention is really the real magic that is making all these things work. 
+
+So for instance, here is a model called CLIP. It is also from OpenAI. Now there are many variants of this from others also. 
+
+You take in an image typically on Instagram, or Facebook, or whatever website people use for uploading images these days. They'll write a-- they'll put in a photo. And below that, they will say, "oh, this is my birthday party," or, "this is my dog." And these are all captions that people write. So it is not that difficult to create data sets with an image and a corresponding caption. OK? 
+
+Now, the way CLIP works is that it uses this caption to encode it. This is a piece of text. You can think of a word-style encoding or GPT-style encoding to create what is called a text encoder. So for every word inside your caption, you get a sequence of features-- n features for n words. Yeah? 
+
+Actually-- so the N here actually means mini-batch. That's not [INAUDIBLE]. So T1 is features of caption. OK? And N is the mini-batch size. Yeah? 
+
+So let's say that you have N mini-batches. You encoded each of the captions using T1 to TN. Each of them corresponds to N images-- a dog, a giraffe, et cetera, et cetera. It is very easy to come up with an image encoder. You don't have to use attention, but you could. But you can also use a few convolutional layers to create some features. OK? And you have such features-- I1, I2, until IN. 
+
+Now, you can think of a problem where, given the image, I would like to synthesize the text, or, given the text, I would like to synthesize an image. This requires us to understand the relationships of the embeddings of texts and the embeddings of images. OK? 
+
+So here is how CLIP does it. CLIP calculates this n-cross-n matrix. And it forces the features I1 to be similar to T1. And it forces the features I1 to be very different from the features T2, T3, all the way until TN. 
+
+So the image features of a sample are forced to be similar to the text features of that same sample. But they are forced to be far away from the text features of all the other samples in my mini-batch. 
+
+How can you do this? So it is not terribly difficult to imagine. Let us say that you have a pair x comma c. x is the image. c is the caption. You have some features of the image that you built, phi of xi; some features of the caption that you built, phi of ci. So this is equal to I. And this is equal to T in the image. And let us imagine that the dimensionality of all these features is the same. OK? 
+
+These are the features of three particular images in my mini-batch. And there is text features of corresponding images. OK? 
+
+If I force these two to be close to each other and everyone else to be far away from each other-- so let's say that we imagine a Gaussian that is centered at xi. I would like to maximize the likelihood of phi of ci belonging to this Gaussian. 
+
+And I would like to minimize the likelihood of phi of some other cj belonging to this Gaussian. Make sense? So we are doing a Gaussian clustering loss, where the image features are the centers. And the captions are supposed to come close to them or far away from them. And you can also do the opposite. 
+
+So imagine a Gaussian centered at the captions. And force the image feature of that particular sample to be likely under phi of ci is Gaussian and the image features of all other images in the mini-batch to be far away from that. OK? 
+
+And this is simply a Gaussian mixture model, where you have e to the negative phi of xi minus p of ci, which is a Gaussian, centered at phi of xi, evaluated at phi of ci. And you're maximizing the likelihood. And similarly, you have a [? caption ?] loss. OK? 
+
+And this is what CLIP implements. It simply embeds the inputs and the outputs in the same space, makes sure the inputs and outputs correspond to each other correctly. At the end of it, you get this very cool thing where you can feed in an image. And you get features of that image that you can use as keys to query an attention model to create new text. 
+
+Or you can do the opposite procedure, where you feed in a text, and you can use the features of that text to query the attention model of some generative model for images. We'll use generative models of images in Module 4. But for now, you can just imagine it as some neural network that takes in a feature vector and creates an image as the output. OK? 
+
+So this is how people will combine images and text. And once you kind of think a little bit of how this works, it is not that complicated-- just a feature-matching exercise. You can come up with lots of very clever applications.
+

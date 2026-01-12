@@ -1,0 +1,3 @@
+[AUDIO LOGO] We will next look at techniques to understand how SGD might behave while training neural networks. These techniques build upon things that you might have seen already, such as Markov chains. They also bring in some new ideas from physics. Together, they paint a somewhat abstract, but a very beautiful picture of where you are likely to find SGD towards the end of training. 
+
+The goal of this content is to build your intuition about what happens when you train a neural network. This will help you tune training methods much more effectively and get better results when you do deep learning. 

@@ -1,0 +1,344 @@
+Descent lemma at the global minimizer Transcript (00:00)
+So in this lecture, we are going to use the development of the previous lecture to prove a certain number of lemmas or theorems that will tell us how many steps of gradient descent you need to run for a particular problem. The central element of all these results is the so-called descent lemma. Descent lemma is a theorem of this kind, which says that if you are at a location w, you walk along the tangent to the w. 
+
+We know by the first order condition for convexity that if I am at w and I walk the sum of the prime-- w prime along the tangent, then I have to lie below the function. The function takes a value here. I have to lie below the function. The descent lemma tells you that you not only lie below the function, but you lie below a quadratic of a certain curvature. This is exactly the quadratic of that curvature. 
+
+So in some sense, the descent lemma is a statement that uses the Lipschitz continuousness of the gradients to bound how much you can move at most from when you go to w prime from w. The first order condition of convexity tells you at least how much you have to. 
+
+The next thing that we want to show is that convex functions are nice, as we said. They are nice because even if you are at some location w, you know a little bit about how far away or how close to w star you are. w star is the global minimizer. Because it's a convex function, l of w star is a unique value, although there can be many different w starts that can take this value, OK? 
+
+So you will be able to write down inequalities of this kind. l of w minus l of w star is less than L. Over 2 w minus w star whole square. If you are very far away from w star, that means that the right-hand side is quite large, then you shouldn't expect the value of your training error or your loss to be as close to the loss of l of w-- close to l of w star, OK? How can you show this? 
+
+We know the descent lemma-- the descent Lemma says what? l of w is less than or equal to l of w star plus gradient of l and w star times w minus w star plus l over 2 w minus w star whole square. Given this, what is the gradient of the function at w star 0. So because of this, we know that the gap between the function at any location that you are at is upper bounded by l over 2 w minus w star. So this part is pretty straightforward to show. 
+
+Now let us try to show this part. We know that, for instance, l of w star is the smallest value that the function can take across all weights. We also know that l of w prime is equal to l of w and then expansion along l of w of the descent lemma. This is, again, exactly the descent lemma being deployed to write l of w prime as a function of l of w times the gradient of the function at l of w, the gap in the weights w prime minus w, plus the quadratic term. 
+
+So far, nothing interesting has happened. The cool part is that we know that l of w star is the smallest value of the loss that you can take as you optimize over w star. So we have this infimum over w prime that is sitting on the right-hand side of the inequality. 
+
+Now we are going to play a game. So we have w. You have some other weight, w prime. You want to make statements about what happens at the loss at w prime using the loss at w. You can always do these things for convex functions by basically drawing a straight line between w and w prime and then parameterizing the straight line by some constant lambda. Any point on this line is written how? It is written as w plus lambda times w prime minus w. If lambda is equal to 0, then this point is exactly w. If lambda is equal to 1, then this point is exactly w prime. 
+
+So using this one scalar constant, you can walk from w to w prime. So we're going to write exactly this, w prime equals w plus lambda times V. V is simply the vector, let's say, w prime minus w. And it's a unit vector in that direction. So we'll optimize over-- instead of optimizing over w prime, you can actually optimize over lambda and a V in this case. 
+
+These are one and the same thing. We are simply rewriting w prime using lambda l. But then, now what happens? You know that w prime minus w is lambda times V. So we have a V here. w prime minus w is, again, lambda times v. But then v is a unit vector. 
+
+So I can write the norm of V. The norm of V is equal to 1. So I can write this entire thing as lambda squared simply. So lambda is no longer constrained to be between 0 and 1 but is simply a scalar that lets us travel along the direction V. 
+
+This entire curly brackets we can write in terms of lambda. If I optimize this function as a function of lambda, what do I get? It is a scalar function of lambda. So I can take the derivative of this function, and then I can optimize it. So I can calculate this infimum over lambda and write it in closed form. 
+
+So let's take the derivative. This term does not depend on lambda. This is the only term that depends on lambda. And this is the only term that depends on lambda. So when you take the derivative, what do you get? You get lambda star is such that gradient of l of w times V equals minus L times lambda. OK, so now we have a value of lambda star. And that means that lambda star is equal to negative [INAUDIBLE] v divided by L. 
+
+If I substitute this value back into this expression, I will get negative gradient L times V whole squared, which is a term that looks like this. There is 1 over L here. So when I substitute lambda star, I will get 1 over 2 L because the L will cancel out when I square this. So this you can rewrite the infimum of the curly brackets by solving for lambda star to be exactly this. Is that clear for everyone? We are simply taking the derivative, setting it to 0, calculating lambda star, and then substituting the lambda star back, yeah? 
+
+Now you can do this optimization over V. And think about this. V is a unit vector. I have the loss at w minus 1 over L times the inner product between the gradient at w times V whole square. At what value do I get the smallest thing in the curly brackets? 
+
+[INAUDIBLE] combined. 
+
+Exactly, so when this inner product is exactly equal to the gradient of L whole square, or actually scaled appropriately so that V has unit norm, when V aligns exactly with V gradient of L, that is when this entire term in the curly brackets is the smallest. For any other direction V, it has a slightly larger value. Make sense? So I can write this now as L of w minus 1 over 2 L gradient of L whole square. 
+
+Now, why is this useful? It is useful because we get an inequality of this kind. So you can take L over-- you can bring in L over w on this side. You can send this guy on the other side. And you get an inequality of this guy. If you are at a location w and you want to know how far you are from w star or how far your loss is from w star, you can measure the gradient at the location w and say that if your gradient is large, then you are also pretty far away from the global minimum. 
+
+This is a little less interesting in the context of neural networks because what do we know about l of w star? It is a training error. So it is l of w star is something close to 0 if you don't have any regularization. 
+
+So if you want to understand how far you are from the best loss you can get, you simply look at the training error. And if this training error is 10%, then I'm very far away from my ideal answer, 0%. But suppose that you had some regularization? So suppose our objective was the training loss plus weight decay. 
+
+Yeah, in this case, you wouldn't know what is the minimum value of l. The minimum value of l can be 0 for the training error. But then you wouldn't know what is the right value for the smallest value for weight decay. So in most problems, when you optimize the objective, you don't know what the minimum value of the objective is because that is kind of something that you are trying to find in the first place. 
+
+So any point during optimization or any point during training, you can calculate the gradient of the objective. And if this gradient is large, you know that you are also far away from the best objective. If gradient is small, then that you would be close to the. Objective that is the utility of an inequality like this. 
+
+Yeah, this part of the inequality, you cannot really calculate because you don't know w star either. But if you know something about l of w star, in this case, then you know how far you are from w star. So you can use it in both ways. Does this make sense so far? It's a very pictorial way of remembering that convex functions are nice. If you are at a certain location, you can calculate either the gradient of the location-- a gradient of the objective at that location to say something about how far you are from your ideal location. 
+
+Yes, so these inequalities don't make sense for neural networks because they are not convex. So descent lemma is not true. And this inequality is also not true. To draw a picture about what you asked, if this is your w star, this is your w, your gradient can be small, w can be a local minimum. So this part can be 0. And you might be actually pretty far away from the objective l of w star. 
+
+Co-coercivity of the gradient Transcript (12:02)
+So the next property that we are going to look at is something called co-coercivity of the gradient. And the way I will explain this is by first telling you about coercivity, and then we'll talk about co-coercivity. So these are just names given for these quantities. But coercivity is actually a pretty reasonable condition. It simply says that the inner product between the gap in the gradients and the gap in the weights, we know that this is at least greater than 0. Why? 
+
+This comes from monotonicity of the gradient. For convex function, if you move in one direction in the weight space, the gradient also evolves in the changes in the same direction. So the fact that this part is greater than or equal to 0, we have already seen by applying the first-order condition of convexity twice to get monotonicity. 
+
+Co-coercivity says that this is actually some greater than m times w minus w prime whole square, which is pretty easy to understand if you imagine that if you have just a convex function, monotonicity holds for convex functions. So convex functions have m equal to 0. So for sure, this condition holds for convex functions also. 
+
+But you can try to prove that this condition also holds for strongly convex function with this on the left-hand side. Does anyone see the proof already? You have done this essentially in homework 3, where you wrote the gap in the gradients in terms of the Hessian. So you can use the same trick here to write down the gap in the gradients in terms of the Hessian. And then this will be the smallest eigen-- this will be a lower bound on the smallest eigenvalue of the Hessian. 
+
+So such conditions are called coercivity. They tell you that the change in the weights and the change in the gradients are nice and aligned. And it's also greater than something that is a non-zero term. Before this, we already knew that this is greater than 0. What is the right-hand side of this? What is an upper bound for this quantity? Simply L times the gap in the weights whole square, right? Just by the fact that your function is smooth. 
+
+Co-coercivity is a slightly more different term in the term on the left-hand side. So here, we have the gap in the weights. Co-coercivity has the gap in the gradients-- very, very closely related quantities. And the way to understand this is that oftentimes when you do proofs of gradient descent, this is the key quantity that you will always see in all the proofs. 
+
+And so it helps to know different ways to both lower bounded and upper bounded by different things. In this case, the lower bounded by some knowledge of m. In this case, the lower bounded by some knowledge of capital L. 
+
+This was also a homework problem in homework 3. For those of you who did not notice, the proof is actually this. So all you had to do was study this and practice. 
+
+But the way we show this is actually quite straightforward. You can think of a function that is g of u, which is l of u minus gradient of l at w times u. h of u is l of u minus gradient of l at w prime, comma, u. 
+
+These are just two functions that we define. These are slightly pesky ways of defining things. So the way you should think about this is we know that if u equals w, then what is it? Or let's say, g of u takes its smallest value at u equals w because this is our function. 
+
+This is how much you walk along the function. So if you don't walk at all, then that is the smallest value of the function that you can take, at least if you are walking on the positive side. Similarly for h of u, if u is equal to w prime, then it takes the smallest value. 
+
+We want terms like this on the right-hand side. So let us write down terms like this on the right-hand side. You can write down l or w minus l of w prime minus l of w minus this kind of a term, which is the exactly equal to g of w prime minus g of w. g was, in some sense, defined so that we can write down inequalities of this kind. Why is this condition true? 
+
+What is the smoothness constant of g? g is given by this expression. If the loss function l is capital L smooth, what is the smoothness constant of g? We know that if you want to calculate the smoothness constant of g, you do g of u minus gradient of l. 
+
+So this is simply the definition of g from here. And this, we can upper bound as L times u minus u prime whole square. So the smoothness constant of g is exactly L, which is the same as the smoothness constant of little l. So using this condition here, where we said g minus g prime is equal to-- one second. I'm making a mistake. 
+
+No, that's fine, yeah. So using this part of the inequality, we can bound g of w prime minus g of w as 1 over 2L gradient of g whole square, which is exactly-- when you take the derivative of g with respect to w, you get exactly this back. 
+
+The second part of the inequality, again, follows by applying it to h. So what I would suggest is read this again before you write your homework. Or I guess, most of you might have written your homework anyway. But the point to understand is that this inequality will be used when we try to use the descent lemma to show how much you descend in terms of the loss after one step of gradient descent, which is exactly this theorem. 
+
+Step-size for monotonic progress of gradient descent Transcript (19:47)
+So I'll just read the theorem for a second. For gradient descent, we know that w t plus 1 equals w t minus the gradient of the loss at w t. If we pick a step size which is at most 1 over L, then you can show an inequality of the following form. The loss of your next iteration, w t plus 1, is upper bounded by the loss of your current iteration minus the step size times the gradient squared. 
+
+Does this already say that your loss will decrease always? Because this term is negative, so this inequality immediately tells you that as soon as you take one step of gradient descent on a convex function with this step size, your loss has to decrease. We haven't shown this yet, but we will show this in a bit. 
+
+So that is a very nice property of convex functions. The loss decreases monotonically if your step size is not too large. And this is exactly the upper bound on what you should select your step size to be. If the step size is smaller than this, then you descend always. If your step size is larger than this, then this inequality need not remain true, OK? 
+
+So let us show this inequality. In the descent lemma-- let's write down the descent lemma. So we have l of w t plus 1 less than l of w t plus the gradient of l of w t times w t plus 1 minus w t plus L over 2 w t plus 1 minus w t whole squared. This is just the descent lemma for now. 
+
+What do we know about w t plus 1 minus w t? We know that it is exactly equal to minus the step size times the loss of the gradient at w t. This is gradient descent. So we can write this as equal to l of w t plus-- or minus-- 
+
+OK. Just substituting the value-- actually, there is an eta squared here. I'm substituting the value of gradient descent in this equation. These two terms are, of course, the same. This is the inner product of the vector with itself. This is the squared norm of the vector. So they're one and the same thing. 
+
+And I can write down something like this-- so minus eta-- 
+
+Let me write it like this. So if eta is less than 1 over L, L is less than 1 over eta. So this L, I can upper bound by 1 over eta times the same thing. So we can write this as L of w t minus eta times the gradient squared plus eta squared divided by 2 eta gradient of w squared, which is exactly equal to this expression. Does this make sense? 
+
+We have found-- the descent lemma is called the descent lemma precisely because of this result. It tells us how much your loss decreases in the next iteration. The loss doesn't decrease for any value of the step size. The loss decreases when your step size is smaller than 1 over the-- 1 over L. 
+
+This is very useful because it will let us pretty trivially show how many steps of gradient descent you have to do. After every step, you decrease the loss by this much. And that tells us how far you have to go until you finish decreasing the loss completely. 
+
+The second result is-- or the second result that we are going to show next is some kind of a telescopic-- yes? 
+
+Is it beneficial to avoid use of [INAUDIBLE] less than 1 [? mile? ?] Why not just take 1 [? mile ?] [INAUDIBLE] faster than [INAUDIBLE] back to [INAUDIBLE]? 
+
+Yes. So you want to pick the largest step size that you can-- you're allowed to pick. In any real problem, you don't know what L is. So in some sense, this is a theoretical point of what your eta should be. 
+
+If you see your loss increasing for a convex function after successive iterations, then that know that you should reduce the learning rate. Even for when you train a neural network, if you see the loss increasing, which is not that common, but it does happen, you know that you should reduce the learning rate. For many problems, as I said, you don't know L, but you can also guess L by using some tricks. And in that case, you know what learning rate to use. 
+
+OK. So let us look at the second result. The second result is as follows. So in this-- in 9.22, we'd try to show that the gap between the loss of w t plus 1 and w t is so and so. Now we will try to show that the gap between the loss at w t plus 1 and w* is upper bounded by something. 
+
+So this is how far you are from your true answer. This is the optimality gap. We want this to be as close to 0 as possible. Is it always positive? 
+
+Yes because l of w* is the smallest loss you can ever get. This is always positive. We want it to be as close to 0 as possible. And here is how you write it. 
+
+So l of w t plus 1 minus l of w* is equal to l of w t minus eta over 2 gradient l squared, which is exactly this inequality. That is what I have substituted in here. 
+
+Now I would like to write this little cleverly. Can anyone tell me how I went from this step to this step? I have an expression, which is the gap in the loss. I upper bounded that by the gradient times the gap in the weights. What is this? 
+
+What are we using to do this? First-order convexity, exactly. So by first-order convexity, you know that l of w t is less than l of w* plus the gradient of l of w t times w t minus w*. This is the first-order definition of convexity. When you substitute this into this expression, you get the gap in the weights times the gradient. 
+
+So we have used convexity to go from this to this part of the inequality. To go from here to here, we use the descent lemma, which is true for convex functions, and l-smooth functions. Now we will rewrite this entire-- these two terms using a clever trick. And you will see why we rewrite it in this very special way. I will add and subtract this term. I'll add and subtract w t minus w*, whole squared, from these two terms. 
+
+So let us first look at this expression. And we will try to expand this expression, and I'll convince you that it is equal to this inequality-- this expression. Let us rename this thing as A and now expand the quadratic of this guy. 
+
+I will get terms that are of the kind A squared, which is this entire thing squared, plus the second term squared minus the inner product between the two terms. The inner product between the two terms is exactly this term. The second term squared is exactly this term. And so the A squared and the first square in the quadratic cancel out. 
+
+So we have simply added and subtracted A from this expression and written it in a slightly different way. We have written it as w t minus w*, whole squared, minus this particular quantity, whole squared. They are equal to each other. 
+
+The reason we wrote it like this is to be able to write this step. So this is exactly the same term as here. What do we know about this one? We know that it is equal to w t 1 minus w*, whole squared, because w t plus 1 is precisely the sum of these two terms. 
+
+And now you see something very nice happen, right? This particular term, the gap in the loss, is upper bounded by the difference in how much you reach closer to w*. So at iteration t, you are this far away from w*. At iteration t plus 1, you are this far away from w*. So this is how much you have moved in the weight space. 
+
+This is how much your loss has improved-- or this is how far you are from the solution, sorry. So how far you are from the solution is upper bounded by how much you have moved in terms of distance divided by 1 over square root of 2 eta. 
+
+Convergence rate of gradient descent Transcript (30:30)
+Now we can do a pretty cool trick. We can sum up this left hand side over time. We can sum up this right hand side also over time. And you will see we'll get an expression of the following time. 
+
+So let us say let us see the first term. l of ws minus l of w star is less than 1 over 2 times eta times how much you move in that iteration, which is exactly what we just showed. If I sum up the left hand side from s equal to 1 to s equal to t, and sum after right hand side also from s equal to 1 to s equal to t. 
+
+Do people notice that these successive terms on the right hand side will cancel out? You have ws minus w star whole squared. In the previous iteration, it showed up as a negative ws minus 1 minus w star whole squared. 
+
+You have a negative minus w star whole squared in the next iteration. It will show up on this side of the expression. So when you sum up this, you will get a telescopic sum, and it will be exactly this-- w0 minus w star whole squared, which is how far you are from the solution when you began training, minus wt minus w star whole squared, which is how far you are from the solution at the end of t time steps. 
+
+So this term, we don't really control because that is where you initialize your network or that is where you initialize optimization. It is not in your hands how far you are from w star. This term is what you want to understand. You want this term to be small at the end of training. 
+
+But it is definitely-- it is negative here. So we can simply upper bound this by how far you are from the beginning when you began training. Let us not worry about this term for a second. 
+
+We know from this expression now that the loss decreases after every iteration. So you know that the sum of the losses across all your t time steps is something. So each term in this summation is decreasing. 
+
+So if I take-- I can upper bound this summation as the average of the terms in the summation because after every iteration, my loss keeps decreasing. So I can upper bound l of wt minus l of w star by the average of the losses across the t time steps. 
+
+L of wt is the smallest loss I have in the entire summation. So for sure, it is less than the average of the losses of many terms like this. With me so far? I have a loss that is l of w0, l o w1, et cetera. 
+
+And this is l of wt. This quantity is, of course, less than the average of all the quantities because it is the smallest one. 
+
+This is, at most, w0 minus w star whole squared. So now we get a pretty nice result that says that after three iterations, the gap in your loss from the optimal loss-- so l of wt minus l of w star-- is, at most, 1 over t times sum or 1 over 2t eta. Let us not worry about 2n eta. It is, at most, 1 over t times how far you are when you began training. 
+
+This is a term that we don't really control. But you can see that st goes to infinity. This entire right hand side goes to 0. So as t goes to infinity, you come closer and closer to l of w star. 
+
+This is what it means to obtain a convergence rate for gradient descent because this tells us how many iterations I should run of gradient descent if I want this quantity to be less than so and so. So let us say that we want the loss after t time steps or the optimality gap, which is exactly this expression here to be, at most, epsilon. 
+
+And you're trying to find how many iterations of gradient descent you should run. How will you calculate this number? You can say, well, I want this entire thing to be less than epsilon. Then, for sure, the gap in the loss is less than epsilon. 
+
+So I want 1 over 2 times eta times w0 minus w star squared less than epsilon. So I want t to be something like order 1 over epsilon. Make sense? 
+
+I see a lot of more people, but this is really the one result that you need to remember. So how we derived it is a little bit boring and tedious, but that's the price you pay. If you want your training error-- so let us say that l of w star is 0, we don't have any regularization, and that is the smallest loss that you can get. 
+
+If you want a training error that is less than epsilon, then that you should train for at least 1 over epsilon steps. If epsilon is small, you should train for many steps. If epsilon is large and you're happy with the large epsilon, then you are allowed to train for a few steps. 
+
+ 
+
+Gradient descent for strongly convex functions Transcript (36:22)
+Now let us look at how strong convexity helps you reduce the number of steps that you need to run, OK. If we have a function that is not strongly convex, how do you make it strongly convex? What kind of regularization? So if you add a weight decay term to your objective, then by definition, your objective if it was only convex before then now it becomes strongly convex with the coefficient of the weight decay term that you added, right? So if we manage to say at the end of this section that for strongly convex functions you need fewer iterations to train, then one other reason for why you should add a weight decay term. 
+
+When we talked about weight decay, we said, oh, we add weight decay to restrict the class of functions, to prevent ourselves from overfitting and stuff like this. But weight decay also gives you a strong convexity for free, even if you only have a convex function. So if strongly convex functions were easier to optimize than convex functions, then that is another reason why you should add weight decay when you train. 
+
+We will write down a co-coercivity condition that is pretty-- that is a slightly more complicated version. So this co-coercivity holds for only smooth functions. It holds even if the function is not strongly convex. If the function is strongly convex, then you can write the left hand side. You can get a more refined lower bound than this particular version. And that is how-- and this is how it looks. 
+
+The inner product between the gap in the gradient and gap in the weights is some function that looks like our m over m times w minus w task whole squared that was the coercivity condition plus the gap in the gradient norm whole squared divided by L which was like the co-coercivity condition. So think of this as an interpolation between coercivity and co-coercivity. 
+
+If m equals 0, then this term don't exist, and you get exactly co-coercivity back. So this is a more refined condition than co-coercivity. If L equal to infinity, then what do you have? You get exactly this condition. You get here, this coefficient becomes m. And this one goes to 0. So then you get the coercivity condition back. So think of this as interpolation between the gap in the weights whole square and gap in the gradient whole square with these coefficients sitting in between. 
+
+The way you show this is basically by thinking about-- thinking about a new function, which is g. We cook up a function which is L minus m over 2w square. Is this function convex? If L is m strongly convex, then L minus m over 2w square is convex. So g is a convex function. 
+
+And so now we basically write down some arithmetic for the gradients of g which looks like this. g is a convex function, so its gradients are monotone. So the alignment between the gap in the gradient and gap in the weights of g is upper bounded by some constant times the gap in the weights whole square, OK. Turns out the constant is exactly m over-- L minus m. 
+
+So the if little l is capital L smooth, then g which is little l minus m over 2w square is L minus M, smooth, OK. This is our result. So g is convex and L minus m smooth. And this is actually the proof of that result. 
+
+Once, you have this result, then you can write down-- you know that g is also-- you know that G is also convex, so you can write down this condition, the co-coercivity condition for g, and basically do an algebraic manipulation to get this inequality. it's a little bit painful. But there is nothing other than just manipulation of the terms. There is not even any bound that you have to use. 
+
+The way we are going to use this result is like this. The convergence rate of gradient descent for strongly convex functions-- remember that in the previous theorem, we saw the convergence rate for convex functions. Here, this is about the convergence rate of a strongly convex function. In this case, the learning that-- the learning rate that you should choose is upper bounded by 2 over m plus L. m also shows up. If m is 0, then you're basically back in the same case as before. But if m is large, then you're not allowed to use too large learning rates anymore. 
+
+We'll show a result of this kind. The distance of your weights to the best weights-- w star-- after t iterations is upper bounded by some constant times the distance of your weights to w star of your current iteration. The distance to w star decreases multiplicatively after every step of gradient descent for strongly convex functions. This is a pretty cool property. And you will see in a bit why this is interesting. 
+
+Let us say that we call this constant c. And write down a large number of inequalities like this, which is W1 minus w0 whole square is less than c times-- sorry, w star whole squared is c times w0 minus w star whole square. w2 minus w star whole square is less than c w1 minus w star. That's correct. 
+
+And you can write down many inequalities like this. If you put them together, what do you get? The distance of your weights, wt from w star, is upper bounded by some constant c raised to t times the original distance of your weights before you began training. 
+
+If c is less than 1, what is the right hand side? It is very small. Is c less than 1? c is 1 minus a bunch of things. All these things are positive. So if you can ensure that we pick a learning rate such that this term is less than 1, then our c which is 1 minus learning rate times 2m L divided by m plus L is less than 1, then we can ensure that this entire right hand side goes to 0 very quickly. 
+
+Before this, it was going to 0 as 1 over 3 times the original gap in the weights-- in terms of the original gap from w star, OK. In this case, it is going down to 0 as c raised to t, which is much faster. yeah. 
+
+Is t variable? 
+
+So let us say, you know that 1 over t decreases to 0 as t goes to infinity. 1 over ct decreases much more quickly. So we like c to be much smaller than 1. And as he said, if c is close to 1-- if c is 0.99999, then I can write down something like 1 minus epsilon raised to t is equal to 1 minus E times t plus E over 2t square and this kind of things. 
+
+So if c is very close to 1, then it will not decrease very quickly. It will decrease at a very slow rate. So we like c to be much smaller than 1. The way we ensure that C is much smaller than 1 is by picking a learning rate that is not too large, OK, by picking a learning rate that is precisely this quantity. 
+
+Let us now show this. It is actually not that difficult to show if you believe me about this inequality. That is why these co-coercivity inequalities have a name. They always show up in this proof. So people basically pull them out as lemmas and give them names. wt plus 1 minus w star whole square, you can write down as-- after one step of gradient descent, which is wt minus the gradient minus w star whole square. 
+
+We can now expand this square to say that this is wt minus w star whole squared plus learning rate squared times the gradient whole square, which is this particular term, and the inner product between the two, which is the 2 times a times m term of the quadratic. 
+
+From co-coercivity condition for strongly convex functions, we know that this particular quantity, the alignment of the gap in the gradients and the gap in the weights, is upper bounded by this entire expression. It is some factor times w minus w prime whole square and some other factor times the gap in the gradients whole square. 
+
+So you can use co-coercivity to write an expression of this kind. Gap in the weights whole squared times gap in the gradient whole square. But remember that this is w star. So the gradient of w star is 0. So whenever you get terms of the kind gradient of L wt minus gradient of L w star, this one will end up becoming 0. And that is why you will get gradient of L at wt whole square. Yeah. 
+
+Let us say that we arrived here using co-coercivity. How can you go from here to here? I will show you this. So if learning rate is less than 2 divided by m plus L, then what is this quantity? It is negative. It is-- so the second term here is negative because we chose the learning rate to be smaller than 2 over m plus L. And because of this, I can throw away this quantity and simply use the first one to upper bound the left hand side. 
+
+This is exactly our c. And so what we have effectively talked about is 9.27, which is this-- multiplicative decrease in the distance to w star. So the way to remember this is that for strongly convex functions, the distance to w star decreases multiplicatively. This need not be the case for convex functions only. 
+
+Gradient descent for strongly convex functions - rate of convergence Transcript (48:04)
+If you write down all these inequalities together, you again get this telescopic multiplication, in this case. And as we said, if C is less than 1, then the right-hand side is quite small, so you know the gap in the weights. Now, let us play the same game. Let us give them names. 
+
+So let us call this A, let us call this B. If I want A to be small-- why do I want A to be small? So if my weights, at the end of t iterations, are close to w star, then the loss after t iterations is also close to the loss at w star, so we want A to be small. Let us say that we want A to be less than epsilon. How many iterations should I run in this case? 
+
+Yeah, I need to run logarithm of 1 over epsilon iterations. Do people see this? I can take the logarithm of both sides. I'll get t times log C, plus log of this constant, less than or equal to log epsilon. 
+
+And this is another important thing to remember. If we want the gap in the weights from w star to be less than epsilon, for strongly convex functions, we need to run only a logarithm of 1 over epsilon steps. For convex functions, we said that if we want l of wt minus l of w star to be less than epsilon, then you need to run order 1 over epsilon steps. In this case, you need to run exponentially fewer steps. So the fact that your function is strongly convex allows you to run a lot fewer steps to reach the solution. This is why we like strongly convex functions more. 
+
+In this theorem, we said that the loss is smaller than epsilon. In this case, we said that the weights are smaller than epsilon. How do you go from one to the other? What should I write here? 
+
+Well, this is the ellipsis constant of the function. If we assume that our function is [? b ellipses, ?] then we know that the gap in the loss is upper bounded by B times the gap in the weights. So if upper bound the gap in the weights, then I automatically get an upper bound on the loss. You'll just get a constant of 1 over B here, but that doesn't-- what we want to focus on is the fact that the number of steps decreases exponentially. 
+
+This is a pretty useful thing in practice. For instance, if you have epsilon equal to 10 over minus 2-- so 0.01-- then order 1 over epsilon is what? 100. If you have epsilon, which is 10 to the negative 2, what is order log of 1 over epsilon? Let's say we do the log 10, which is equal to 2. So there is a huge difference in the number of steps that you take for strongly convex functions and convex functions. And this difference, it just becomes worse as you keep training for more and more. 
+
+Another way of thinking about this is that, let's say that we use this inequality. And then, we wrote down and we plotted this stuff. So logarithm of the loss of w as a function of t. We know that this is less than C raised to B times C raised to T times w0 minus w star, all squared. Or actually, let's say that squared. 
+
+I can take the logarithm of the left-hand side. And while I do not know what l of w star is, I can always say that l of w star is at least zero. So I can take the logarithm of the left-hand side and plot it during training, plot it against time. What should I see? 
+
+Yes. So you should see something that looks a little bit like a straight line. What is the slope of this line? It is exactly C. When you take the logarithm of both sides, you get logarithm of B squared plus logarithm of C raised to T, plus logarithm of the second term. So the slope of the line-- of a plot where the y-axis is the logarithm of the loss at each iteration and the X-axis is time-- is exactly log C. 
+
+We like the slope to be a large number. So we like the slope to be quite large. So we want C to be much smaller than one. That is when the slope will be large and negative. That really means that you're decreasing very quickly. 
+
+How will this same thing look? So let's say this is a strongly convex function. How will this look for a convex function? 
+
+For a convex function, we have l of wt minus l of w star is less than 1 over 2t, learning rate 0 minus [INAUDIBLE]. OK? This looks as something like a logarithm of 1 over t, right? Or if you want to plot it like this, it will look a little bit like this. I shouldn't right above-- or below, right? I should write it above. 
+
+So for convex functions, the loss does decrease after every iteration. It's just that the rate of decrease keeps on getting smaller and smaller. For a strongly convex function, the rate of decrease is actually on a log scale. It is a straight line. 
+
+So it doesn't mean that strongly-- it doesn't mean that for convex functions, you don't converge. You do converge. It just takes a lot more iterations to reach the same loss. This is the difference between a strongly convex function and a convex function. 
+
+To reach the same level of the loss, you need a lot fewer steps. Basically, all these results will become a tiny bit worse, because you don't have the fully gradient. And you will never actually get something that decreases so quickly. 
+
+So in optimization-- in the optimization literature, people have slightly non-intuitive names for these quantities. So they call this linear convergence, because it is like a line on a log plot. And then they call this sublinear convergence. Newton's method, actually, will perform something like this. That is called superlinear convergence. 
+
+But the important point to note is that, because we have a strongly convex function, we get to optimize it with a lot fewer time steps. You can watch your training, and plot the loss like this, and check. So take a neural network. Take your homework to a neural network and plot the loss. And you can convince yourself that it is not as nice as a strongly convex function. 
+
+Condition number Transcript (56:51)
+c is 1 minus 2 if eta is exactly the largest value that I'm allowed to pick. The reason we have this bound on eta is because we want to make sure that this term is negative or this is something that we can throw away, right? So it doesn't really come from coercivity or any such thing. It is simply a loose bound that we have that makes our life easy. 
+
+If we pick this value of eta, what do we get? We get 1 minus 4 mL divided by m plus L, whole square. You can rewrite this entire fraction as something like this-- as kappa minus 1 whole squared divided by kappa plus 1 whole square, where kappa is capital L divided by m. So this constant c that we like to be something very small is equal to the, roughly speaking, the upper bound on the largest eigenvalue of the Hessian divided by the lower bound on the smallest eigenvalue of the Hessian. 
+
+This is kappa. What happens to this fraction as kappa becomes very large? It becomes closer and closer to 1. If kappa is very large, then kappa minus 1 divided by kappa plus 1 is basically equal to 1. So as L or m is very large, c becomes closer and closer to 1, and that makes a gradient descent slower and slower, even if the function is strongly convex. Yeah? 
+
+If L over m is equal to-- L over m will never exactly be equal to 1, because L is larger than m. It is the upper bound and the largest eigenvalue, and m is a lower bound on the smallest eigenvalue. But let's say if L over m is very close to 1, then what is this ratio? That's pretty close to 0, right? Kappa is greater than 1 always, but kappa minus 1 will be a small number if L and M are equal, roughly speaking. 
+
+And in that case, this constant c that determines how quickly we descend, so if c is very close to 0, then you are going to get a huge slope that decreases like this, right, when you plot the loss. That means that you need a lot lot fewer iterations to descend on the same function as compared to a badly conditioned function. 
+
+You have seen functions of this kind. So we said that if you take a two-dimensional function, then what is the eigenvalue in this direction? The letter is a two-dimensional function with two weights, so it has only two eigenvalues for the Hessian. What is the smallest eigenvalue? It is at least m, right? This is the large eigenvalue, so it is at most L. 
+
+If L over m is very large, that means that this ellipses are very thin and long. If L over m is close to 1, then that means that our function looks a little bit like this, OK? The ellipses are not very long and oblique, but the ellipses are very circular or isotropic, OK? 
+
+Like we said, optimizing functions of this kind is difficult because you don't know what value of learning rate to choose. If you choose a value of learning rate that is too large, then you overshoot in this direction. Is this obvious to people? Just like we did the proof for the convex gradient descent, we said that learning rate had to be smaller than 1 over L. So if L is very large, then you cannot choose a very large learning rate. Your learning rate is limited by the smoothness of the function. 
+
+For functions that increase very quickly, you have to use a smaller value of the learning rate. Why? Because if functions increase very quickly-- let's say that you are only optimizing in this direction-- you did not care about this direction-- this is a function that increases very quickly. In this case, if you choose a large learning rate, you will show up on the other side of the hill. Again, you take a gradient descent step with a large learning rate, you show up on this side of the hill, so you oscillate in directions where the curvature is large if you choose a large step size. 
+
+If the curvature is small, then you should be choosing a large step size, because otherwise, you don't make a lot of progress in that direction, OK? This much we know simply by watching the proof of over over L or understanding one over L. 
+
+This expression, or this particular calculation, is a crisp mathematical statement that says that when you have functions that are oblique like this, you really do get slow convergence. There is no one nice value of the step size that you can pick that both reduces the oscillation in this direction and that both lets you make a lot of progress in this direction. You have to strike a balance between the two because your learning rate, of course, is one scalar number. It has to match both these directions and equalize them in some sense, OK? 
+
+This is why optimization of multi-dimensional functions is slow. It is slow because the function can be very-- can have very different curvature in different directions. If the function had the same curvature in all directions, then you would know exactly one nice value for learning rate, and kappa will be close to 1, and it will effectively show up as you being able to optimize this function quickly. 
+
+Smaller the value of c, faster the convergence. Larger the L, smaller the ideal step size. You will also see sometimes in papers people writing this expression in a slightly different way. So this is actually-- this shouldn't be L. And this should be equal to B. B also works. 
+
+You will also see the exact same expression written down in this form. So in our notes, we wrote c raised to t here, which is the rate of decrease of the distance to w star. So instead of c raised to t, people will sometimes write e raised to negative t over kappa. 
+
+The reason they do this, or the way they do this, is they basically use this identity, 1 plus x raised to is smaller than e to the negative x. And that is why they expand c as something like 1 minus-- or if c equals 1 minus epsilon, then c raised to t is 1 minus epsilon raised to t is equal to-- is similar to 1 minus et is less than e to the negative t times epsilon, by this identity. 
+
+So the reason they do it like this is because if you take the logarithm of both sides now, you will get a slightly different result that says that you should be using kappa times logarithm of 1 over epsilon times steps if you want your gap in the weights to be less than epsilon. 
+
+It is exactly the same result as before, except that we have pulled out the dependency of kappa separately. And this is useful because it tells you that if I had two functions, one with a slightly different condition number kappa than the other, then the number of steps that I have to use for the bag function scales linearly with the condition number. 
+
+In the midterm exam, do you remember the question where I asked you to calculate L over m for polynomial regression? What was the answer of that question? What was L over m for that question? 
+
+[INAUDIBLE] 
+
+Very large. It was exponentially large, OK? So even for that function, you would think that polynomial regression is pretty straightforward. But even when you optimize polynomial regression with gradient descent, you are effectively solving for an objective that has a huge condition number, and that is why you need to take a lot of steps, OK? Again, the reason that you have to take a lot of steps is because there is no one nice value of learning rate that works for all dimensions. So you have to use a slightly smaller value of the learning rate. 
+
+Transforming a non-convex function into a convex function Transcript (01:06:10)
+You don't choose epsilon, right? So you want an epsilon. And you say look, to solve my problem, I need to get stuff correct with at least 1% accuracy, or 1% error. And so you say oh, if I need a model that is this accurate, then I have to run these many steps. 
+
+And how we achieve that, or how we reduce the number of steps is what we've been talking about. Yeah. So maybe I can do an example of a function. So this function is convex or not convex? It's not convex, clearly. Can I make it convex? 
+
+I can tell you a little bit about my first paper on deep learning. Let us say that I was using an object of this kind. I can choose a very large value of lambda. Can I make it convex by picking a very large value of lambda? What is the value of lambda that I should pick? 
+
+Exactly. Equal to the gradient of L-- less than or equal to L times identity, right? Just because the function is not convex doesn't mean it doesn't have a Hessian. Let's say it has a Hessian. And capital L is the upper bound of the eigenvalues of the Hessian. 
+
+So if I pick lambda to be exactly equal to capital L-- in fact, I can actually do this. So let us say lambda is the eigenvalue of the Hessian. And this is the absolute value of the eigenvalue. If all eigenvalues of the Hessian, regardless of whether they are positive or negative, are all smaller than capital L, then if I set lambda to be exactly equal to capital L, then I know that I'm adding so much curvature that even if the function has a negative eigenvalue of capital L, I will still get a convex function back. 
+
+OK? So over here the function is not convex, but if I add so much curvature, then I can make it convex. OK? You know that if you do gradient descent, or you can appreciate right now that if you do gradient descent, in order to reach a location like this, this part, which is the hill, is in your way because you're descending down. 
+
+So if there is a hill, you will never be able to climb up a hill. So concave regions are regions that prevent you from making progress towards the solution in this particular case. If I add a huge weight decay term, then I can kill the concave regions and make everything look convex. OK? 
+
+So one of the first papers, or actually, a large part of my thesis, to be honest, was taking functions that look like this, and cooking up a convex function, and then using that convex function to do gradient descent. Of course, you can reach bad answers when you do gradient descent on such a convex function, right? 
+
+The global minimum of the black line is not the same as the global minimum of the blue line. The weights are different. So what can you do? How can you make sure that the global minimum of the blue line is the same as the global minimum of the black line? 
+
+Yeah. Let me try to show you. So I have my training iterations. I have my coefficient lambda. I can begin with a very large value of lambda. And I can reduce it with time, just like you reduce your learning rate with time. I can begin optimization with a huge weight decay term, in which case I am basically optimizing the blue line. 
+
+And as I decrease lambda, I see some nonconvexity coming from the original function. And that is where I slow down. At the end, if I choose my lambda to be close to 0, then I'm actually optimizing the black line. I may never guarantee that I will reach the solution of the black line, but for sure, I guarantee that I won't be stuck very far away from it. 
+
+Limits on the convergence rate of first-order methods Transcript (01:10:54)
+This lower bound by this guy named Yurii Nesterov. We will talk about him a lot today again. The cool thing about this lower bound is that in any part of mathematics, the lower bounds are very, very powerful things because they tell you what you cannot do. 
+
+The way you do science always is that you show some result or you have a hypothesis. You try to prove this hypothesis and say, aha, this I can do. But it is very hard for you to ever say this is something that cannot be done. For those of you who have taken a class on computation complexity, you might have heard-- so do people know something called as NP hard? You have heard of this, I guess? 
+
+And so there is something that is co-NP hard, which is a complement of NP hard problems. Co-NP hard is telling you that this problem is much harder than NP hard problems. NP hard problems are problems which are very hard to solve. But given a solution, you can check those problems easily. Co-NP means that you cannot do this. So every time someone says I cannot do this, that's a huge statement to make in all of science. 
+
+So when you read a paper that says this does not work, it's really the wrong way to write things. What you should really be writing is I tried this. This did not work. Doesn't mean that the concept is not true. I just haven't been able to show it. So that is why lower bounds are very powerful. 
+
+And this particular lower bound is particularly nice because it tells us that no matter how many dimensions you fix or what time you fix, I can cook up a function for which any optimization algorithm that you use will at least be this slow. It cannot converge any faster than 1 over t-square. 
+
+Again, these terms are not in our control. The only thing in our control is how many iterations we run. So we said that gradient descent converges at 1 over t rate for convex functions. This says that you cannot do anything better than 1 over t-square for all functions. There can exist functions where you can do better, but not for all functions. 
+
+And obviously when you see results like this, someone tells you that you cannot do any better than this in general, you know that you can do at least this much better, this much well. Can you do something in between? So can you make gradient descent work faster? Given that you know that you at least have this much room to go to. I cannot give you 1 over t cubed, but I can surely give you 1 over t to 1.5. 
+
+So that is the goal of today's lecture, to cook up algorithms or to discuss algorithms which go towards this lower bound. And we'll see very different way of understanding these algorithms than the previous lecture. The previous lecture was about using properties of convex functions to understand the number of iterations. 
+
+Here we'll be a little more vague about how we are constructing these methods. Doesn't mean that these methods are vague. You can also do the more rigorous analysis like last lecture for this, but it becomes more and more boring. So we'll do it the heuristic way. 

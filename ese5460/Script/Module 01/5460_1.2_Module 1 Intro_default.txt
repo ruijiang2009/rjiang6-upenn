@@ -1,0 +1,9 @@
+[MUSIC PLAYING] This is our first module of the course. We'll begin with a course through history. The quest to mimic intelligence that we see in a biological organism is very old. It has been close to 85 years since we started talking about it and thinking about it. We'll first peek through the history, talk about the different ways in which people have attempted to build artificial intelligences.
+
+ 
+
+This will provide us with a roadmap of sorts. We'll be able to trace back different topics that we cover in the course as milestones on this roadmap. That will be first lesson.
+
+ 
+
+The second lesson will be on linear regression. This is material that most of you might have seen before. How you take a bunch of points and fit a straight line through them, this is linear regression in simple words. We use this opportunity to introduce some basic ideas and notation. This is notation that we'll carry with us throughout the semester.

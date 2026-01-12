@@ -1,0 +1,5 @@
+[MUSIC PLAYING] Typical data sets consist of images, sentences, sounds of different kinds. And there are spatial regularities in such data. The picture of a blue car has a bunch of pixels colored blue. The words of a sentence are often related to each other as to what topic they correspond to. The sounds that a songbird makes to attract its mate follow a certain tune. 
+
+Convolutional neural networks, CNNs for short, are neural networks that allow us to capture such regularities in the input data. A fully connected network uses matrix multiplication as the canonical operator in each layer. A convolutional network uses a convolution operation as the canonical operation. This is an operation that is designed to capture the regularities in the data. 
+
+Most modern deep networks are convolutional neural networks. We will study the many variants of a CNN. We will see how to get translational equivariance in these networks. Due to this, the network can classify a cat irrespective of whether it is showing up in the top-right corner of the image or the bottom-left corner of the image. This is what makes CNNs powerful. 

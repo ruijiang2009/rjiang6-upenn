@@ -1,0 +1,385 @@
+Generatives model using latent factors Transcript (00:00)
+The fourth module that we will begin next is very different from the first three. It is not about fitting the data but it is about recreating the data, generating the data. And so I've titled the chapter Variational Inference, but you could just as well have titled the chapter Generative Models. So all this while, we have been trying to fit y star or the true label y.
+
+ 
+
+Now we will be interested in slightly different problem. We'll will want to construct images themselves, OK? And this is useful for many different reasons. Suppose you are painting something in Photoshop, and Photoshop completes the shape for you. This would be an instance of completion.
+
+ 
+
+If you see something in your robotics sensors, and it is behind an occlusion, then some model could complete this occlusion, and that would be another instance of you using a generative model of the data to guess what is sitting in front of your sensors without worrying about what the labels are, OK? The labels would be a different story.
+
+ 
+
+The way I will explain this is as follows. So each of you could draw the image of a dog, some of us not as well as the others, but let us say that I would like all of you to draw the image of a dog. Now first, you are going to bring to your mind what breed of a dog you want to draw, maybe the age, whether it's a puppy or a full dog, the color of its fur, et cetera. And once you have all these things inside your head of what a dog you want to draw should have, you will draw the picture, right?
+
+ 
+
+So let us call all these quantities latent factors, OK? So latent factors are all the factors. Some of them are salient factors. By salient, I mean important. And those would be stuff like breed, age, color. Some of them can be nuisance factors.
+
+ 
+
+And you know nuisance factors now. This would be from which viewpoint you are drawing the picture, what is the-- whether it was a day or night when you draw the picture, or whether it is an occlusion that you want to draw. Different salient factors and different nuisances will give you different images, OK?
+
+ 
+
+So once you have both the salient factors and nuisances in your head, these are all our latent factors, you can imagine that you draw an image just like this. Depending on how you draw the image, someone who is very good at painting might draw the one on the left hand side. Someone who is not that good at painting might draw the one on the right hand side, although the one on the right hand side is this French artist called Mondrian, and he is famous for drawing these pictures that look-- that have squares and rectangles always and then just a slight dash of paint.
+
+ 
+
+So this is a dog. Most of us would recognize it as a dog. It's a very different kind of picture than the one here. But the moral of the story is that both you and Mondrian first created in your heads a latent factor for what you wanted to draw and then used different functions to draw the image. So the probability of x given z. X is the image. Z are the latent factors. Even if Mondrian and you had the exact same latent factors, you would draw two totally different images. And that means that the function that draws these images is different for both of you, OK?
+
+ 
+
+So the most important point to appreciate is that you see images around you. You don't know what latent factors nature chose to draw those images, right? So you click a picture of your dog with your camera. Nature chose whatever latent factors it chose. You also don't know what model nature picked to create this object or create this image, OK?
+
+ 
+
+So the name of the game in fitting the model to y star was, we knew the y stars, and all we had to do was fit them. But here we would like to guess both the latent factors that nature used, the right ones. And we would also like to guess how it draws those images given the latent factors, OK?
+
+ 
+
+And this is the hard part of generative model. Generative models are a little bit like k means, wherein k means, you don't know the centroid and because you don't know the centroid, you also don't know which points belong to which cluster. Here, you don't know the latent factors. Because of that, you also don't know which images correspond to which latent factor, OK? Or which latent factors correspond to which images.
+
+ 
+
+To answer the second question in the chat, how is this different to transformer, where we-- you also had an encoder and a decoder? This is close to transformer, and you will see the relation very soon. But it's close, yeah.
+
+ 
+
+OK, so we are going to make our life a little bit simpler. There are lots and lots of latent factors. So we'll say that we may not know which latent factors nature uses for every image, but maybe we know some distribution over latent factors that nature uses typically, OK? So think of z being a big vector of breed, color, viewpoint, et cetera. And you know some distribution over these latent factors.
+
+ 
+
+Typically nature draws from so and so breeds. Typically nature draws with so and so color. You usually do not see a blue dog, and so that simply means that the probability of the color blue under nature's prior, or under our prior, or under nature's sampling distribution, is small, OK? Cool.
+
+ 
+
+So here is how nature generates images. Let us assume that nature first samples z from some distribution, and let us say that nature samples it from prior of z. Given this z, it creates an image. And this is what we are going to reverse engineer. We are going to learn how nature creates those images, and we are also going to create an estimate of what the prior of z should be, OK? What this distribution should be.
+
+ 
+
+Some examples of where people use this in practice are, if you see an image like this in your camera, if you are doing, let's say, and if you're an autonomous car, then this part of the vehicle is occluded from you. The reason you and I can recognize this as a car is because we, in our heads, we complete the shape of this car and imagine that this is a blue car, and because this headlight is red, and there might be another headlight over here, there's a wheel here because one of the wheels is visible here.
+
+ 
+
+So all of these things are being done using our generative model inside our heads, OK? Same for this particular car. So you can use generative models to wipe away occlusions, or refill the occluded parts of things. You could also use generative models to do these kinds of things. I draw line sketch, and then you give me a realistic-looking image of the line sketch.
+
+ 
+
+So this is a model called Pix2pix. If you have used Photoshop recently, if you start drawing the line sketch like this, Photoshop will automatically complete the rest, or it will give you options for how you want to complete it. If you start drawing a mountain with a tree here it will automatically try to draw a river next to it. So these are all instances of applications that people have built that use generative models to solve some problems, in this case occlusions, in this case, something that is a tiny bit more creative, OK?
+
+ 
+
+Good. So in this entire chapter, we will not worry about labels because all we need to do is create the images. We don't care about what labels we assign to those images, OK? So our dataset will not have y. It will only have x.
+
+Variational calculus Transcript (08:50)
+So we are going to now begin the technical basics of variation inference. And the central piece of mathematics that we will need is something called as variational calculus.
+
+ 
+
+Variational calculus is not very different from the calculus that you know. So you have always seen functions of this kind, f of x equal to, let's say, 5x squared, where x is some variable, finite dimension variable. Let's say, in this case, a real number. And so you have been used to taking derivatives of df dx is, in this case, 10 times x. This is standard calculus.
+
+ 
+
+In variational calculus, we are interested in a slightly different kind of problem where I give you a function. So let us call this function H it is a function of p. p itself is a probability distribution. So p could be a function. And H of square brackets p, I will use this square brackets to denote what is called as a functional.
+
+ 
+
+So just like a function takes in a variable and gives you some output, a functional takes in a function and gives you some output. In this case, our functional is the entropy function. So H usually stands for entropy. It returns a real number as the output. And this real number is equal to the negative integral of p log p dx.
+
+ 
+
+As you can see, if p is a probability distribution, it is an infinite dimensional object. It is not a finite dimensional vector because for every x, there is one value of p, and there are infinitely many such x's. So p is a function. H of squared brackets p is a functional that returns a real number as the output. It is not very different from what you know in calculus.
+
+ 
+
+Now this is the function. Just like you would take the derivative of f with respect to x and ask yourself, how quickly does f change if I change my x? You would also like to ask similar questions. How quickly does H change if I change my p? Makes sense? I have many p's, I can ask myself, how quickly does H change?
+
+ 
+
+And so we are going to write down a very similar definition that we know from high school. f of x plus H minus f of x the limit h tends to 0 is f prime at x. Similarly, for a functional, we will say p plus delta p is my change to my argument minus H of p. And I will say things like-- usually people will write a epsilon delta p here.
+
+ 
+
+So the definition of-- and so here, people will denote-- the variational derivative is denoted like this. That is just a symbol for what it is. But fundamentally, it is perturbing the argument, and then checking how sensitive the output of the function is to perturbations of the argument.
+
+ 
+
+Now because this p that we care for is a probability distribution, we cannot put a weight in any which way. It would be like-- imagine that you have a function of real numbers and you want to plug-in complex numbers. That wouldn't be the right derivative of it in the complex plane. So you have to put in the right domain of the function.
+
+ 
+
+p is a probability distribution. So p plus epsilon times delta p should also be a probability distribution. So for p plus epsilon times delta p, to be a probability distribution, epsilon times delta p has to satisfy certain conditions. What is it? It has to-- so p plus epsilon times delta p, dx has to integrate to 1. This is the only condition that is satisfied.
+
+ 
+
+But we know that p is itself a probability distribution. So we know that integral of p dx equals 1. So the condition that delta p needs to satisfy is that the integral of delta p over dx has to be equal to 0. So we cannot put up p in any which way. We are to put it in ways such that the area under the curve remains 1. It remains a legitimate distribution.
+
+ 
+
+So in pictures-- and I say that this is our x and this is our p. I am allowed to perturb it using delta p of x in such a way that these perturbations nullify each other and eventually the integral of this perturbation is also 1.
+
+ 
+
+So variational calculus will have certain conditions like this. This is very specific to the fact that we have a probability distribution. In general, variational calculus does not have a condition like this. For some problems, they have different conditions, but this one, the fact that things integrate out to 1 is very specific about [INAUDIBLE]. So that is one little trick to think about. We cannot perturb in any which way.
+
+KL-divergence Transcript (14:33)
+Now just like entropy of p is a functional, it takes in a density in this probability density, in this case returns a number. I can define-- there are also many other functions. Just like there are many functions of variables, there are many functions. The KL divergence is one such functional.
+
+ 
+
+It takes in two arguments, p, q, and this two vertical lines is just a funny way to write down things. It doesn't change anything. It is just a notation, and it takes in two arguments, p, q. And the right-hand side of the width, the definition of the function, is that it is p times logarithm of p over q. If I were to write it down, it would be p of x log p of x minus log q of x dx.
+
+ 
+
+The first one is the negative of the entropy. The entropy was exactly defined to be negative p log p, and we have a positive p log p here, so I can write this as minus H of p. It doesn't depend on q. And then this second term is minus p of x log q of x dx. OK. So the entropy-- the KL divergence between p and q is equal to the negative entropy minus the cross entropy between p and q.
+
+ 
+
+If you look at this carefully, it is exactly the cross entropy loss that you have been using except that in your cross entropy loss, this one we write it down as y given x, the probability of your network predicting y given x, and this would be the true probability of your nature's model predicting that particular y. Make sense? So this one is called the cross entropy.
+
+ 
+
+This is the reason why we use cross entropy. So what we are actually doing is if q is our probability distribution y given x predicted by the network, p is nature's probability distribution of how likely that y is. And in our case, that one is simply the one hot vector. Nature doesn't think that this image is anything else but a dog, and then your network, of course, says that it's 90% a dog, 10% a cat, et cetera.
+
+ 
+
+So nature's distribution is the one hot distribution over the labels. Your predicted distribution is y given x, and what you are actually doing is you are minimizing the KL divergence between these two. KL divergence is some notion of a distance between two probability distributions, and you are minimizing the distance between nature's output distribution and your output distribution. Your nature's output simply happens to be the one hot vector, which is also a legitimate probability distribution.
+
+ 
+
+H of p is a constant because this is just a nature-- the entropy of nature's probability distribution. In fact, if nature's probability distribution is one hot, then H of p is 0. So for one hot distribution p the entropy is 0 because it takes only one value. Entropy, roughly speaking-- you don't know this yet, or at least some of you may know. Entropy is, roughly speaking, the number of distinct values that a probability distribution takes.
+
+ 
+
+In any case, it doesn't depend on our weights, so we don't worry about it. And that is why we minimize the cross entropy loss. OK. So all this is to say that these functionals that we have written down are objects that we have seen before, just in a slightly different shape and form. They are nothing more, syntactically, than an object that takes in a function as an argument and then returns a real number.
+
+ 
+
+The only reason why people write it without-- if people don't use a comma here and they write this two vertical pipes, it's to denote the fact that this is not a symmetric function of p and q. It is asymmetric. KL of p vertical pipes q is not equal to KL of [AUDIO OUT]. It's a very minor point, so I usually like to write it like this. But most places in the literature, you will see it written like this. OK.
+
+Variational optimization Transcript (19:15)
+So these are not new objects, old objects. And so just like we have standard optimization that takes a function and calculates the input variable that minimizes that function, variation optimization involves you taking a function L and calculating the function that minimizes this function. OK? Same thing.
+
+ 
+
+So we would write our standard optimization problems like this. You have some objective that you're minimizing and some domain that you're minimizing the objective over. Similarly, you could write down a variational optimization problem. This Kl of-- in this case, I just happened to write it as q, comma, p. It is not really relevant at the moment. This is your objective.
+
+ 
+
+And let us say that e is fixed, and we are optimizing over q. So you will pick some domain for the probability distributions q. Make sense? If w was a very large set, then this optimization problem is difficult. Just intuitively, it's a very large set. You are trying to find the smallest value of this function over a very large set, so you have to search over the entire set. And that makes it challenging.
+
+ 
+
+Similarly, if q or capital Q is a very large set, then this problem is also hard. Make sense? If l is not convex, then this problem is hard. If Kl of q, comma, p is a more complicated function, then this problem is also hard. So everything that you know about optimization applies here.
+
+ 
+
+In fact, from the previous lecture, we had drawn this manifold, and then we said nature's outputs, y bar star, are somewhere here. And these are all your outputs, y bar of w. When you are trying to find y bar w that is closest to y bar star, it is also a problem of this kind. It is not a variational problem the way I wrote it, but you can write it like this.
+
+ 
+
+Obviously, if this domain is very large, if this manifold is very large, then you have to find all possible nearest points. That makes it difficult. If this function is very complicated, that means that the distance between two points is complicated. Then that also makes your life harder. So remember this picture and the fact that we are searching over a space that is-- searching over a set, capital Q, to find our distribution. These two are kind of important.
+
+ 
+
+Here, it was just Euclidean space, so things were straightforward. This Q will be a more complicated object because it is the space of probability distributions. So what we are going to study next is we'll say, look, let me fix some domain. x is the set of pixels. So if you are creating 100 cross 100 images, p of x are all possible probability distributions on 100 cross 100 pixels. Any particular value that the image takes, any particular value that all these pixels take, is one sample from some probability distribution in this set.
+
+ 
+
+So calligraphic P is a huge set of probability distributions. All black images lie inside it. All white images lie inside it. Everything in between also lies inside it. What we want is we don't want to optimize over the entire family because the family is too big. So we want to select a smaller subset from within this family and optimize over only within that subset. This subset presumably is the set of nice-looking images. And from among that set of nice-looking image distributions, we want to find the best distribution that could describe your real images. OK?
+
+Laplace approximation Transcript (23:21)
+We said KL divergence is one metric. I could have written the name. The full form of KL divergence is called Kullback-Leibler divergence. You should know the name. But you will never use it, because it is a mouthful. And everyone will call it KL divergence.
+
+ 
+
+Of course, there are many other functionals like KL. You can think of something called as a Wasserstein distance, which is another distance. Just like there is many, many functions in the standard world, there are many, many functionals in the world of functionals. And some of them have names.
+
+ 
+
+So you can write down the variational problem using many different kind of formulations. We will not worry about this in this entire course or the chapter. But let us take let us take a very naive way or a very simple example of when you want to approximate a distribution.
+
+ 
+
+In this case, I said KL measures the discrepancy between p and q because KL is related to cross entropy loss, which measures the discrepancy between p and q. So at the end of the day, I give you a p. And your job is to find a q that is closest to p. That is what this particular objective tells us to do. Let us take an example of when this would be useful. When would it be useful to find a q that is close to p?
+
+ 
+
+And here is a very useful trick. Suppose our p was p of w that looked a little bit like this. It was a Gibbs distribution. It is e raised to negative n times the loss of w. This is not related to anything about optimization. This is just an arithmetic expression at this point.
+
+ 
+
+And suppose that we wanted to estimate an expectation of this kind. It is the expectation of some quantity phi of w. That depends on w. And this w is drawn from our distribution p. Someone told us to calculate this expectation. I will write down this expectation as an integral. And so someone told me to calculate this integral.
+
+ 
+
+I may not know how to calculate this integral. So I would like to approximate this integral using something. This is the game. And I will show you one particular approximation to convince you that approximating p is useful.
+
+ 
+
+We know that if n is large, just like we said in the Gibbs distribution setup, where beta was small or beta was large, if n is large, what happens to this entire fraction or this entire exponent? It goes to zero. So if n is very, very large, then the only interesting point that this entire exponent is large at is the global minimum of f.
+
+ 
+
+Just like when beta went all the way to infinity, the only point in the Gibbs distribution that popped up that had a large probability mass was the global minimum of the loss. Similarly, as n goes to infinity, the entire exponent is large only at one place, where f is the smallest. All the others are much, much smaller points.
+
+ 
+
+So I should be able to write this entire integral as e times negative n times f star w, phi of w. There is no integral anymore, because I just summed it over. There is only one point which has a nonzero exponent. And so that is the value of the integral.
+
+ 
+
+Does this make sense? What are we really doing here? What we are really doing here is taking a variational approximation of p. And what we are going to see next is what that variational approximation is.
+
+ 
+
+So let us take our integral and write it down again. I said that if n is large, then l only becomes interesting around the global minimum. Let us also assume that l is convex. And so if l is convex, we can write down the Taylor series expansion of l around the global minimum.
+
+ 
+
+So if w star is the global minimum, then l of any w equals l of w star plus the first derivative of w star, which is equal to zero, plus 1/2 times the Hessian at w star times w minus w prime on the other side. So this is the Taylor series approximation of l of w, for a convex l of w, let's say, around the global minimum, w star. Make sense so far? I have simply written down the exponent in a different way.
+
+ 
+
+Now, we know that if n is large, then I'm allowed to-- actually, let's not worry about n being large just yet. So l of w star does not depend on w. So I can pull it out as this term. And what do I have here? I have phi of w times e raised to something that looks a bit like a Gaussian. A Gaussian is e raised to minus n delta x, transpose some covariance matrix times delta x.
+
+ 
+
+If this Hessian was positive semidefinite, then this would exactly be a Gaussian. Make sense? It is a Gaussian whose mean is what? w star, right? And what is this variance?
+
+ 
+
+[INAUDIBLE] Hessian.
+
+ 
+
+Inverse of the Hessian is the variance. So what have we done here? We have said that this entire expectation that someone told me to calculate before is equal to some factor times an expectation over a Gaussian probability distribution. The Gaussian being on w, centered at w star.
+
+ 
+
+So in pictures, what is happening is as follows. So if this one was our-- so the yellow one was our p of w, which was equal to e times negative l times w. What have we done here? We said, instead of integrating over p of w, let me integrate around a slightly different distribution.
+
+ 
+
+I will multiply it by right by the correct factor. But I now have an integral over a Gaussian probability distribution. The Gaussian probability distribution is something whose mean is exactly at the global minimum of l, which is the global maximum of e to the negative l. Make sense?
+
+ 
+
+So this point is the global maximum of the yellow curve. I have put a Gaussian, the red one, with mean as-- the right mean as the global minimum, and the standard deviation being exactly equal to the inverse Hessian.
+
+ 
+
+So we have cooked up a new distribution, the red one. And now instead of doing our integral over the yellow one, we can do our integral over the red one. And we'll get a slightly different answer because this is an approximation. But it's an easy integral to do because it is an integral of a Gaussian.
+
+ 
+
+And so I will write down this as e to the negative n times l of w star, expected value now of w drawn from some normal distribution of phi of w. And this normal distribution is what? Centered at w star. And its variance is equal to the inverse Hessian divided by-- times n here.
+
+Digging deeper into KL-divergence Transcript (41:55)
+Because we are going to use KL divergence a bit, we are going to look at some examples of KL divergence just to ground your intuition perfectly. So in this entire thing, red is q of x. Green is p of x. This is our truth. This is the one we optimize. OK.
+
+ 
+
+And so let us try to write down KL of qp, which is equal to q of x log q of x divided by p of x. And the second one that I will write down is KL of pq, which is equal to p of x log p of x q of x dx.
+
+ 
+
+Focus on the first one for a bit. If p is 0, what value should q take for the KL to not be infinite? 0. OK? So this is a very important thing to realize.
+
+ 
+
+If I am optimizing q, p, if p is 0 somewhere, then q also has to be 0 at the same place because if q is not 0 at that place, then this will be equal to infinity. So for the KL to be meaningful, q has to be 0 everywhere where p is 0.
+
+ 
+
+So out of these two things-- so notice that our p of x, the green lines, are the same thing. It's a Gaussian. It's a multivariate Gaussian, two-dimensional Gaussian with a certain covariance matrix in this case. Which one of these would correspond to the first problem?
+
+ 
+
+I'm showing you the solution q, the red lines, and I'm asking you what was the objective that created this solution. Which one of the-- is it the left one or the right one that was computed using formula number one, the left one?
+
+ 
+
+Everywhere where p is 0, where the green lines are near 0, q also is 0. The red lines are also putting 0 probability mass. Everyone understands the fact that these are contours and then when contours disappear, we expect there to be either very little mass or 0 mass, more specifically? OK.
+
+ 
+
+So this objective says, if you were to find q that minimizes this objective, we should expect to find q's that put 0 mass every time where p puts 0 mass. Otherwise, the objective would be infinite, and that couldn't possibly be the minimum. OK.
+
+ 
+
+So the solutions while obtained for q while minimizing this objective will be eating the variance a tiny bit less of p. They will be within the support of p because they cannot go outside the support of p. So there is 0 probability mass put by p over here, so q also has to put 0 mass.
+
+ 
+
+But we are optimizing over-- so I guess I forgot to say that we're optimizing over the family of Gaussians, and we're optimizing over the family of isotropic Gaussians. Isotropic Gaussians are Gaussians with a covariance matrix identity, identity times some factor.
+
+ 
+
+So even if the original distribution p is a non-isotropic Gaussian because it has a covariance matrix that is not equal to some scalar factor of identity, I am optimizing over a family q, which is an isotropic Gaussian family, and now the solution that I obtain while minimizing this thing will be such that it will be a tiny isotropic Gaussian that eats most of the variance of p but does not go outside its boundaries.
+
+ 
+
+The exact reverse argument holds here. q does put a probability mass even when p puts-- even in places where p puts 0 probability Massachusetts. So if I were to take this correlated multivariate Gaussian and ask myself, what is the closest isotropic Gaussian to the green lines, what is the closest isotropic red lines to the green lines, if I minimize this objective, I will get this answer. Does everyone see this?
+
+ 
+
+OK. Both are useful in certain cases. If you get solutions of this kind-- now imagine that the green lines was the distribution of natural images. If you obtain solutions that look like this, then what are you really saying?
+
+ 
+
+You are saying that, look, I am capturing most of the variance of the images, but I never give you new images. Or I never give out-- not go outside the support of the distribution, whereas if you find solutions that look like this, if the distribution of synthesized images, red, is very fat outside the distribution of true images, green, then you are saying that, look, my generative model can generate many, many different kinds of images, even those that do not look like natural images.
+
+ 
+
+Presumably, the ones here do not look like natural images, so which one do we want if you want to create good natural-looking images? The left one. We don't want the right one because the right one has unnatural-looking images even though they are images.
+
+ 
+
+But what do we lose when we get the left one? We don't get these images as our answers, so we lose the tails of the distribution because why? Why don't we get these as the answers?
+
+ 
+
+Let me ask again. So all of you would agree that images here are likely under the green lines but are unlikely under the red lines. The red lines are presumably the solution of minimizing KL divergence of q, p, and it is clearly an unsatisfactory solution because it doesn't put probability mass on the tails. Why do we get this unsatisfactory solution?
+
+ 
+
+So we took a two-dimensional correlated Gaussian and tried to find an isotropic Gaussian that was closest to it. This is why we cannot represent the tail. We do not have enough representational power in our family q. Our family q-- if the family was a correlated multivariate Gaussian, then your solution could be this right because this would be one of the elements of your family.
+
+ 
+
+But your family q is a unimodal isotropic Gaussian, so your family-- this is really the best element of your family. Make sense so far? So this is really the crux of everything that we are doing.
+
+ 
+
+You want to represent all parts of the data. You don't know what all parts of the-- what the true data distribution looks like, so you are doomed to choose some variational family Capital Q to optimize over. If your family is too large, then optimizing is hard. If your family is too small, then you will lose some parts of nature's distribution.
+
+ 
+
+This is not that different from bias variance trade-off. If your family is small, then you get a large bias. In this case, the bias looks-- missing images on the tail. If your family is large, then your variance will be large for generalization, and in this case, simply finding the solution will be hard. Once these things are inside your head, the rest of the mathematics is pretty straightforward.
+
+ 
+
+OK. So second example, let's say these lines are p of x. The blue lines are true distribution now, nature's distribution, and these red lines are q of x. Suppose p of x is, in this case, a bimodal distribution because these contours have two holes. q of x is a unimodal distribution, although it is not necessarily an isotropic unimodal distribution, not necessarily isotropic.
+
+ 
+
+So depending on where you initialize the optimization problem, so can you guess what is the objective that is being used to find all three of these images, all three of these solutions? Is it KL of q, p, or is it KL of p, q?
+
+ 
+
+I will give you a side hint that it is the same one for all three. OK. How many said p, q? One, two, three, four? How many say q, p? Slightly larger number? It is q, p because you do not-- you do not see p going outside this. You do not see-- sorry-- q going outside this.
+
+ 
+
+Can you now tell me the difference between these three images? Why are they different if all of them are minimizing KL of q, p? Their mean is different, but these are all elements of the family, right? And in some cases, we seem to find this solution, and in some cases we find this one. In some cases, we seem to find this one.
+
+ 
+
+This is an evidence of the non-convexity of the problem. In this case, actually, the problem is convex, but the way the problem is-- the problem is convex, but the way you are minimizing it is not correct. And that is why, depending on the initialization, you may find three different solutions. OK.
+
+ 
+
+Actually, I should think a little bit-- the problem is not convex because p is a bimodal distribution. If p was also a Gaussian, then you would get the same answer no matter where you initialize, and that is because this would be a convex function of q. But if p is, in this case, a bimodal distribution, then this is not a convex problem, and these are three different local minima of the problem. OK?

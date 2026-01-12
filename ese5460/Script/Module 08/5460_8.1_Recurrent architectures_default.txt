@@ -1,0 +1,351 @@
+Motivating recursive functions Transcript (00:00)
+In this chapter, we are going to look at slightly different kinds of architectures. They are called recurrent architectures. And in simple words, convolutional architectures are a way to handle images. Why? Because images typically will have some equivariances. Objects move in the image. And you want convolutions to catch these moving objects. 
+
+For data that looks a little bit like a time series-- think of a video. Think of a sentence that you are writing. Think of the words that you're typing on your phone. Anything that evolves in time-- recurrent architectures are a nice way to model such data. OK? 
+
+So I will introduce recurrent architectures using a slightly unusual idea. But you will see why, or you will see how this is an easy way to think about things. So let us say that we have a signal of time. OK? This is h of time. And it does something. This could be the location of a car as the car moves. So x comma y is the location of the car. And h is equal to x comma y. OK? 
+
+This is a signal of the car. And we watch and record every location across time. And maybe we want to understand how the car moves. There is many ways to understand how a car moves. Anyone knows how would you write it down? 
+
+A car has two locations-- x-coordinate and y-coordinate. I want to understand how it moves. What should I do? 
+
+Yeah. So let me simplify the answer. And let's say that we use high school stuff-- so kinematics. There is an x-direction velocity. There's a y-direction velocity. And the car, in a very basic model, would move at a constant velocity in both these directions. We don't know this velocity because this velocity depends on what the gas and the brake were applied by the driver inside the car, right? We are just watching the car from the outside. It moves and so on. So [? we. ?] 
+
+Let us take an even simpler way, model of understanding what the car does. Let's say that the new location at time t plus 1 is the old location at time t times some scalar. So let's say that this is just a one-dimensional car. OK? It goes only on the x-axis. 
+
+And so ht plus 1 is the old h times some constant. If it were just velocity, then I would say ht plus 1 minus ht equal to some velocity, right? This is how we would divide it if x is the position of the car. So this is some model for how a car moves. It is a very basic model. 
+
+Now, we may not know how exactly it moves. So this a is our guess for what happens. How is the next location of the car related to the current location of the car? A is some number that we choose. Our goal is to usually find a from the data or some such thing. 
+
+Let us not worry about how to find a for a second. Let us say that I cook up some a. Let-- I say that a is 1. Now, the actual car may move with a slightly different-- in a slightly different way. To understand the discrepancy between how the car moves and how my model of the car evolves, my model of the car moving-- being ht plus 1 equal to a times ht. The car moves in whichever way it moves, right? 
+
+The gap between the two-- I will write it down as a term, which is xi. And you can think of it as noise. So I believe that cars move typically like this. But I understand that they move slightly differently in the real world. So I write the discrepancy between the two things as noise. OK? 
+
+This is a very simple modeling exercise. In high school, you usually did not do these kinds of noise. You said, there is a spring and a mass. And the spring and the mass move in a certain way. So you write Newton's laws for that. And those are the kind of models that you developed in high school. 
+
+Of course, the spring is not exactly linear. It is a tiny bit non-linear spring. So every model that you developed in high school was off from reality by something. And that's something we will just call noise for a second. OK? So moral of the story, this is how our car moves. 
+
+Now let's say that we assume that this noise is Gaussian. Why is it Gaussian? Because of central limit theorem. Many different things can cause the car to move in different ways. We might as well say that the car-- the gap between my model of the car's movement and the actual movement of the car is 0 mean. So I am roughly correct, but I could be off by some standard deviation sigma xi. OK? So for now, this is just a basic model of how a one-dimensional car moves. 
+
+h is the location of the car. OK? I may be watching pictures of the car, right? Pictures of a car are not exactly the x-coordinate of the car. A picture of a car is a picture of a car. I would like to now guess what the x-coordinate of a car is using a picture of a car or a video of a car moving. 
+
+So I'll say that I don't get to watch h exactly. At every time t, I get to see some function of h, which I will call x. Think of this as a video of the car. The car moves. I watch a video of the car. Now, by watching this video, I would like to guess what the actual location in the Euclidean space of the car is. 
+
+Images are formed by a very complicated procedure. Because you are one person. And if I want to take a photograph of you and understand where your three-dimensional location this, is a pretty complicated problem. You will study it if you take 581 or so. 
+
+Here, we'll think of a very simple model again. So whatever sensor I use-- let's say a fancy camera-- it tells me the location of the car edge up to, again, some noise. So imagine this as an oracle which says, I-- the oracle knows the true location of the car edge, but it doesn't tell me the true location. It tells me other location corrupted by some noise. This is a very simple model for a camera, right? And that itself is a pretty horrible thing to say, but it is a very simple model for observations of the car. 
+
+So in words that you might have seen in some other courses, h is called the state of the car, what the car actually is doing. x is called the observations of this state. We don't get to watch exactly what it is doing, but we get to watch it up to some noise. OK? 
+
+So far, there is no deep learning here. There is no recurrent models, et cetera. This is just a sequence. Just like h of t is a function of t, x of t is also a function of t. At each time instant, I get to watch one observation. OK? 
+
+Now let us play the following game. By looking at these observations, x, I would like to guess what the current location of the car is. Yeah? So let me draw this signal. 
+
+Let us say that this is h. OK? And then let us say that this is my x. 
+
+Depending on how my x was corrupted by noise, I don't get to watch the exact h. I get to watch h up to some noise. So x is not the same as h, right? 
+
+If I were to ask you what is the location of the car at any given time t, what would you say? One reasonable answer is to simply give me x, right? Because x is h up to 0 mean noise, which is really not a bad answer. 
+
+Can you do better? Instead of giving me the observation that you received at this time, you can say, oh, I received so and so observation in my last time. This is my xt minus 1. This is my xt. I know that ht plus 1 is a times ht up to some noise. So I could guess the value of a by using these observations and then use that to get a slightly better estimate than what I would get by just giving you xt. OK? 
+
+Can you also use two time steps ago-- observations from two time steps ago? Obviously. Just like the previous observation gives you a tiny bit of extra information, the previous two observations give you slightly more information about what a is and, more precisely, what h is at a given time. 
+
+In principle, you would like to use the information from your entire past to estimate what the value of h is at a given time. OK? This is all the information that we have because I have been watching this video for the last t time steps. 
+
+You asked me what the location of the car is at this time step. And any answer that I give you will be calculated using all my past observations. I could be calculating a very simple function of the past observations, which is simply the last-- the current observation. But I could also imagine calculating some more complicated functions. 
+
+So let us write it down a little more mathematically. So when you give an answer-- let's say that you give an answer, ht plus 1, what the location of the car is at time t plus 1. This is your guess, h-hat. This is the true location of the car, ht plus 1, which you don't know. OK? So a good answer is an answer that minimizes the gap between the true location of the car and your answer-- and your guess. So it minimizes the squared error between h and h-hat. 
+
+The answer h-hat depends on everything that you saw in the past. So you can think of this as your data set. I have a data set of pictures of cars that I have-- or not pictures of cars, but one video of this particular car that I've seen in the past. And now I'm using this data set to make a prediction of what it will do in the next time step, just like you track the ball when you play tennis, right? 
+
+Every single observation was created by two quantities. It was created by xi, which is how different you think your model of the car is than what it actually does in the real world, and what noise corrupted your observations. OK? 
+
+So mathematically, you predicting the best location of the car using all your past observations is exactly this optimization problem. Find me the best location on average over all possible things that could have happened to give me these observations. And find me something that is close to the true location of the car. 
+
+You cannot solve this problem because you don't know ht plus 1. OK? But this is the one-- this is the answer that we want to get. So we want an h-hat that has a small value of this objective. OK? 
+
+Now, if you are with me so far, you will appreciate that any h-hat that I calculate has to be a function of everything I know. It cannot be a function of anything else, right? This is the only observations that I have. 
+
+So I am going to give you a function like this. And now my job is to find this function. What function of the past observations should I use to guess h-hat? OK? This is the name of the game. 
+
+Updates using a Kalman filter Transcript (13:01)
+There is a very nice formalism or a field call it to understand these kinds of questions in electrical engineering or in control theory. It is something called as a Kalman filter. We will not worry about why it is called the Kalman filter and so and so on and so forth. But just like when we did the bias variance tradeoff, we said that the true answer f star of x is the expected value of y given x. Why was this the expected value of y given x? Because we are minimizing something like f star minus f squared integrated over p of x comma y. 
+
+And we took the derivative with respect to f star of this entire thing, a very hacky functional derivative. But then we said that, oh, my f star is the conditional expectation of y given x. Here also you are minimizing something which is the expected value of a square. So I can again take the derivative of this entire thing with respect to h hat. And I will see that h hat is the conditional expectation of ht plus 1 given all my past data. OK. It's exactly an identical calculation because we are hacking it like left, right, and center anyway. 
+
+But the moral of the story is that the estimate that you should make of the location of the car is, if you want to minimize the squared error between the true location and your answer, then your answer should be the expected value of the true location given all your past observations. You don't know how to calculate this expectation because you don't know how the true edge is. It's a very powerful result in control theory that says that the answer that you should give me is the expected value of the true state given your past observations. 
+
+Now the entire problem with this business is that you don't know how to calculate this expectation because we don't know H1, H2, H3, et cetera. OK. But if the noise is Gaussian, so if both the dynamics noise in the sense that how the discrepancy between your model and how the car moves, if this noise is 0 mean in Gaussian, if how your camera clicks videos of things in motion, that noise is also Gaussian, so whoever corrupts your observations, if that noise is also Gaussian, then you can solve this problem. And that is the entire beauty of something called as a Kalman filter. 
+
+We will not talk about how to solve the problem, how to derive these things. I do it in the robotics class. And it is not really relevant here. But I'll show you the answer. h hat t plus 1 is the expected value of ht plus 1 given all the observations from x1 to xt plus 1. The way you calculate this is that if the noise of xi is Gaussian, if the noise mu is also Gaussian, then you know that if this is Gaussian, if x is Gaussian, you are adding another Gaussian to this so ht plus 1 is also Gaussian. Right? 
+
+If x is Gaussian, you are adding another Gaussian to this so xt plus 1 is also a Gaussian random variable. So because all of these are Gaussians, you can do these calculations nicely. And what ends up happening is the following. You will maintain two quantities, which are the mean of ht plus 1 and the standard deviation of ht plus 1. 
+
+So every time someone asks you what is h hat, you will say h hat is something with mean so and so and standard deviation so and so. You can give them the exact value. And it would be let's say the mean, for instance. But in principle, you know the entire distribution of h hat. The mean is simply the mean of h hat over all your past observations. Sigma squared is the variance of your random variable h hat over your past observations. 
+
+In a Kalman filter, we also know a formula for calculating these things. And it works as follows. So mu t plus 1 is your old mu plus some deviation of what actual observation you got at time t plus 1 and the estimate of xt plus 1 or ht plus 1 as using your previous mean. OK. So here is a simple way to understand this in words. So you see a car moving. I want to know the location of the car. I maintain in my model the mean and the standard deviation of the location of the car. 
+
+Every time I see a new observation, I measure the discrepancy between the observation and how I think the car will move based on where it was according to me in the previous time step. And that I use to update the mean location of the car. OK. Very natural thing to do. If you were running a filter like a first order filter that you might have seen in a Matlab class in high school or a first year undergraduate, this would be like averaging the locations of the car. Right? This is just a slightly more fancier version of averaging. 
+
+The standard deviation also has a formula. Let's not worry about it. The thing to appreciate from this entire business is that you want to estimate the location of the car at this time. You maintain a quantity that is updated recursively across time. The quantity that is updated recursively across time is mu and sigma squared. 
+
+Every time you see a new observation, you calculate the new mu using the old mu and the new observation. You calculate a sigma. Sigma doesn't depend on the new observation. It only depends on this thing called a gain and the old standard deviation. And you keep updating these quantities recursively across time. Using this, you can estimate the location of the car at any time t using all the observations until time t. 
+
+ 
+
+Sufficient statistic Transcript (19:34)
+To bring everyone on the same page, we have a signal of time that we would like to estimate at each time instant. We have observations of the signal from all the past time instance. The way we estimate the value of the signal edge is by maintaining two quantities, the mean and the standard deviation of our estimate, and update these quantities recursively. 
+
+Everything that I'm saying here is extremely important. The fact that there are two quantities that correspond to all the information of the signal from all these past observations-- think about it. If I give you 1,000 timestamps, I am still completely capturing what happens to h hat using these two quantities, mu and sigma-- yes, compared to the information of 10 timestamps. 
+
+The second one is that both these quantities are also updated recursively across time. So I don't need to maintain my past observations on my hard disk. All I need to do is have these two quantities. Every time I see an observation, I calculate mu and sigma and then throw away that observation. I never need to remember the observations. 
+
+What I have kind of tried to introduce is some very beautiful and deep concepts in statistics. The first thing to appreciate is that these two quantities, mu and sigma, capture all the information of the past trajectory. No matter what time is at any time, these two quantities capture all your past information, which is very beautiful. 
+
+It can be an arbitrarily-long time series, and you will still capture it using these two quantities. This doesn't work for all time series. So that is why when she said if the model is nonlinear, then these things can be quite-- very many of them. They wouldn't be just mean and standard deviation. They can, in general, be an infinite number of things that you need to remember. 
+
+The second important thing is that-- so this has a name, this business of taking a data set and then capturing it into some small set of variables. Statisticians like to call this a sufficient statistic. A statistic is a name simply given to any function of your data. So I have a data set. If I compute any function of the data set, I am allowed to call it a statistic. 
+
+A sufficient statistic is a statistic that lets me do something. In this particular case, our sufficient statistics are mu and sigma. And what do they let us do? They let us predict the location of the car in the next timestamp or in the current timestamp. 
+
+I could have done some other statistic, let's say average of the data. And that would let me not predict the location of the car, but that would let me take the average location of the car. I could have created a very bad statistic, which is simply 0, and that wouldn't let me do anything. 
+
+So a statistic is any function of the data. Useful function of the data are usually something like sufficient statistics, and they are useful for a specific purpose-- in this case, for predicting the current location of the car, not the color of the car. 
+
+So the name of the game in the Kalman filter is to find sufficient statistics of our signal. Now, because the signal was Gaussian and our model is linear-- ht plus 1 equal to a times ht is a linear model, et cetera-- the sufficient statistics are simply the mean and the standard deviation. In general, the signal can evolve in complicated ways, and your model for the signal may also be more complicated. And in those cases, the sufficient statics will not be so simple. 
+
+But the concept of a sufficient statistics still remains. You just don't know them. What is a sufficient statistic for predicting apples versus oranges? Sufficient statistics have nothing to do with time. They are a general definition for summarizing a data set and then using this summary to do some task. In this particular lecture, it is about predicting the location of the car. For apples versus oranges, it is about predicting the class of the category of the image. 
+
+So sufficient statistics also-- the features of a CNN are some statistics of the input. Because the features are created by the learn to h, they are a statistic of your data set and your current input. The weights are a function of your training data set. So whatever features you have for the test data, they're a sufficient statistic because they let you make the predictions for this test data accurately. 
+
+Recurrent neural networks (RNN) Transcript (24:24)
+So now we are going to see how deep learning folks implement sufficient statistics. And you will notice a very interesting pattern here. We use fancy words. And then we do, like, very hacky versions of these fancy words. 
+
+But let's take a data set. In a time series problem, you may imagine the data set as a bunch of sentences. So you take a document. A document has many sentences. Each sentence has many words. 
+
+And so let us say that every sentence has a capital T, words. OK? And T is some number-- let us say 15. i corresponds to the number of sentences. So there is n different sentences. Just like we had n images for a CNN, we have n sentences for an RNN, a recurrent neural network. 
+
+And now our job is to say that for every particular word that you have written so far in the sentence, I would like to predict some output. If you are doing text prediction on your phone, what is y? The next word that you will type, right? Another example for y if you are doing text prediction on the phone? 
+
+[INAUDIBLE]. 
+
+The rest of the word that you have already started. In that case, x would be the characters that you have typed, not the words. Right? I would think of a sentence as not just a combination of words but a long sequence of characters. 
+
+And in that case, capital T would be much larger-- let's say 200 characters in every sentence. And then the phone predicts the next character that I'm about to type. 
+
+You can also think of x being words in the sentence and then y being the correct spelling of those words. The correct spelling of the word-- of the current word depends on what the previous word was because that gives it the context to guess the correct word in the first place. OK? 
+
+So this is how a typical prediction problem for a time series looks like. I have a time series. And I'm-- at any time T, I'm calculating some function of my past. 
+
+It is very easy for everyone to keep in mind text prediction on the phone because we use it so often. But text prediction is not the only problem. You can think of video prediction. 
+
+I have a video. I have seen some frames of the video. I'm guessing what is going to happen in the next frame. I may be guessing not just the entire image that I get in the next frame but also what activity is happening, right? 
+
+So someone's playing basketball. And then you are trying to guess, is this person playing basketball in the first few frames? Maybe the person is just carrying the ball around. OK? 
+
+So y corresponds to some function of all the past time steps. x is our observation of the-- of each timestamp. What is h in this case? So let us say that you saw a video of someone cutting vegetables. 
+
+What is h? The hidden stuff that we don't know. h is-- o sorry, h are our images of the person cutting vegetables. What would h be? 
+
+Next step in the-- it depends on what y is, right? So if y is what recipe is being made, then h is our estimate of that recipe. If y is how much of the recipe is finished, then h would be the estimate of the time left to cook-- these kind of things. OK? 
+
+So what the hidden state is depends on the question that we want to solve. And what the sufficient statistic is depends on the question that we want to solve. We choose the question. And then that tells us what the statistic should be or what the sufficient statistic should be. 
+
+For estimating the location the car, the statistic itself was the location. But for more complicated problems, you are solving something that is more semantic. And the sufficient statistic will be more complicated. 
+
+So let's do a very simple example. We are going to choose a special y. We are going to choose a y which is simply the next word. Just like your phone does, it predicts the next word that you are going to type. 
+
+So our y at every time T-- we want to guess the next xt plus 1. OK? You with me so far? 
+
+Here is how it would look like in a picture. "The quick brown fox jumps over the lazy dog." So the output of the first time step is-- so you type "the" in the sentence, "the quick brown fox", et cetera, et cetera. The next word is "quick." So the output that you want to predict the target is "quick." 
+
+Next time, you type "the quick." These are the past two observations. Now the output is "brown." OK? And then if you click "the quick brown", the output is "fox." 
+
+As you can appreciate, guessing this output is very hard because I have only typed the word "the," and many sentences begin with "the." As I give you more and more information about the sentence, guessing the output becomes easier and easier. OK? Because you've seen this sentence many times in your data set. 
+
+This is why we like to use information from all the past observations to make the prediction. You always get more information from the past. Cool. 
+
+OK. So we will say that we want-- I will remove this one. We will say that we are going to think of creating a statistic and hope that it is a sufficient statistic. And it will be a function of all my past observations. 
+
+So hit is the hidden state of the statistic at time t. It is a function of x1, x2, x3, so on until xt. And I have simply done the superscript i because it is the i-th sentence. So ignore i for the rest of this chapter in general. Our statistic is a function of all the past observations. 
+
+Now, for a Kalman filter, we know what the statistic is. It is actually mu. It is the recursively updated mean of h and the recursively updated standard deviation of h. For a general problem like this, we don't know what h is. So we will learn what h is. 
+
+This is a standard mentality of deep learning folks. You know that there is something called a sufficient statistic. You don't know what it is. So just learn it by putting some weights on it. Yeah? 
+
+Just like the Kalman filter updates the mean and the standard deviation recursively using the old mean and the old standard deviation, we will also update our hidden state recursively. OK? ht plus 1 will be some function of the previous ht and the current observation. We don't know what this function is. OK? And we'll try to find this function. OK? 
+
+And so just like in a Kalman filter we think of the mu and sigma as a summary of all past data, we would like to think of the hidden state of an RNN. I call it "hidden state" because everyone calls it "hidden state." So we'll-- and that is why it is also denoted h. It is the statistic after time t. It is also a summary of everything that happened in the past. OK? 
+
+Now this is our problem-- how to write down a function phi. Well, we will again write down phi. As a very simple function of its two arguments. 
+
+Just like in a fully connected model we said that the activations are a linear function of the input activations times some nonlinearity-- or after applying some nonlinearity, we will say that ht plus 1 is some linear function of the previous hidden state and the current observation, xt plus 1. These are the words that we hope to learn. And then this is the nonlinearity that we put in. OK? 
+
+So this is some function. It may not be the correct function. But our hope is that once we learn the weights wh and wx, we'll learn something that looks like a sufficient statistic. 
+
+It is definitely a statistic because it is a function of all my past inputs. Is it sufficient? Well, how will you check whether it is sufficient or not? 
+
+[INAUDIBLE]. 
+
+Yes. So if it is predicting well, then maybe it is close to sufficient, right? OK. So everything that we did here we can also do for a CNN. The activations of a CNN are functions of the previous activations. 
+
+So you can also think of them as statistics of the input and a training data set. They are also something like a sufficient statistic because they allow us to make predictions accurately. OK? 
+
+So this particular way of writing down stuff is called a recurrent neural network. It is recurrent because the old hidden state is used to calculate the current hidden state. And it is a neural network because-- you will see how you plug in these things together. So just like you have one layer of a fully connected network, this is one layer of a recurrent neural network. 
+
+It is important to notice that the function phi of ht and xt plus 1-- this function phi does not depend on time. And neither for the weights wh and wx-- they do not depend on time. 
+
+So at time t equal to 2, you update the hidden state in a certain way. At time t equal to 100, you update the hidden state in the same way. But it is not the same update because xt plus 1 is different and ht is different. OK? 
+
+So again, the nonlinearity is applied element-wise, just like standard networks. Let us kind of write down the mechanics of the model a little better. So we talked about this-- the weights of an RNN are not a function of time. The weights are fixed. The activations are a function of time. OK? 
+
+Once you have the hidden state, I can make some simple function of the hidden state to guess the output. So if I'm trying to guess which sport you are talking about when you text, y will be a categorical variable that says cricket, baseball, football, et cetera, right? And your hidden state that I have based on what you are typing is allowing me to make these guesses. OK? 
+
+For the example of word prediction, y is the next word. h is the summary of all your past words that you have typed. And it is now a linear function of my summary. OK? 
+
+How do you make sure that the model is predicting well? Well, just like your cross-entropy loss for the CNN, you can use any other surrogate loss to say that the actual output that I want at time t-- my predicted output y-hat is close to it. OK? 
+
+If you are doing word prediction, for every time step, there is a notion of what the next word is. So you have a summation over the times because you can make a mistake at every time step. And you also have a summation over the sentences in your data set. So far, it makes sense? 
+
+If you are answering a question which is, did Frodo drop the ring in Mount Doom, then there is only one answer that you give at the end of reading the book, right? So it is not as if you have a loss that is on every time step. You simply have a loss on the last time step. 
+
+Multi-layer RNNs Transcript (37:34)
+Just like we had a perceptron in lecture 2, this was our recurrent perceptron. It's one layer, and then you are making predictions using the hidden state of that layer. Just like we put multiple perceptrons on top of each other and created a deep network, we can also put recurrent neurons on top of each other and create a recurrent neural network. And here is how it looks. 
+
+So let's think of xt. H1t is the hidden state of the first layer that is calculating using xt. The hidden state of the second layer is calculated using the hidden state of the first layer of that time step and the hidden state of the previous time step of that layer. So it is very similar to a CNN except that the entire thing is unrolled in time. 
+
+So this is our CNN without any arrows horizontally, where you have one input and it goes all the way up to give you the output. A recurrent network is simply doing the same thing, but across time also. At every time step, you are using what the hidden state was of the previous time step, and what the input you received from below at this time step, to calculate your next output and one layer above. So it's like you have written a recursive algorithm, and at some point in your life, you will have converted the recursive algorithm into a for loop. This is the same unrolling of the recursion. 
+
+OK, so again, not surprisingly, you will predict yt plus 1 using some simple function of h3 in this case. There is three layers in the recurrent network. How many times do you unroll? As many words are there in the sentence, right? 
+
+So let's say there are capital T words in the sentence. So you unroll capital T times. But how many words are there? 
+
+There are only words for how h1 one is created from x and the previous h. There are only words for how h2 is created from h1 and the previous step. And so these rates are fixed. The same rates are being used to unroll the graph again and again. 
+
+OK, so let's give them names. whh is the rate that connects the hidden state at time t to the next layer [? set ?] and state at time t. So I call it whh because it's like-- it's this one. Wtt is the hidden state of the same layer at time t minus 1 to the next time hidden-- the next hidden state of the next instant. So this one is wtt, and this one is whh. 
+
+And that's it. You have wtt and whh for every layer, but those are the only weights you are unrolling using the same, which makes sense so far? But this is, for all times t, less than or equal to capital T. Just like you would initialize a hidden state to some arbitrary value at time 0, here you will initialize the hidden states of all the layers to some arbitrary value at time 0. 
+
+Backpropagation for RNNs Transcript (41:27)
+Do people appreciate how backpropagation works for a graph like this? There is a loss that can occur that depends on every output. Let's say in general that we are predicting the next word at every time step. So for every time step, we have a loss of the true next word that you would have typed and the [? real ?] word that your model predicted you would type. 
+
+Backpropagation will be taking the derivative of the entire [? loss ?] with respect to the weights of the model. And so just like in your CNN, the backpropagation graph flows backwards after the forward propagation graph. In this case, the backpropagation graph will go both downwards and backwards in time. Because the forward graph was created forward in time, the backward graph for backpropagation will get gradients backwards in time. So what value of weight-- what h3t was also determines yt plus 1. And so you will get a quantity that is edge h3t bar, which is the derivative of the loss with respect to h3t. 
+
+OK, the loss of yt minus 1 does not depend on what h3t is. Is this obvious to everyone? Because when yt minus 1 was calculated, h3t did not even have existed. So the loss of everything in the future depends on what the hidden state at this time is. So the output of anything in your past is not dependent on what your value is. 
+
+Cool, so we can do a simple example, just like the backdrop example for the CNN, to summarize these things. Again, we'll do a very naive scalar recurrent neural network. In this case, we will simply set the initial step to zero. It's a single-layer recurrent model with two timestamps. And so here is how it works. 
+
+x1 is the input of the first time step. U is the weight that is applied to the input of the first time step. And h0 is 0. So h1 one is simply [? some ?] [? nonlinearity ?] times u applied to u times x1. The first output is v times h1. So this is a recurrent model with one hidden layer. It looks a little bit like this. 
+
+So ignore the notation here. I just stole the picture from somewhere else. So this is x. This is our weight U. This is our h1. This is y1, which is created by v times h1, v times h1. 
+
+H2 now is created from the same weight, u times x2. The weights don't change across time. A different weight, w. As to how the past hidden state is used, calculate h2. So just w times h1 is h2, and [INAUDIBLE]. 
+
+Again, the output is y2, which is the same [? way ?] v times h2. So pretty straightforward. Let us say that we have only one loss, and this is the loss of the second time step. So it's sentences of two words each, and saying, I eat, and then, I hit. And then, the question-- and output is the last-- so something that depends after you see both the words. We don't care for the output of the first time, so you need not even have calculated it. 
+
+The last, let's say, in our simple model is simply squared error between y2 hat and y2. y2 hat is v times hs. Again, you can go through the mechanics. So dl by dl is the derivative of the loss [? function ?] itself, which in our notation is l bar, which trivially is equal to 1. 
+
+What creates l? Well, there are two things that create l y2 hat and y2. We don't care about taking the derivative of y2. We care about taking the derivative of y2 hat. So we say y2 hat bar is l bar times how the loss is created by y2 hat, which is simply y2 minus y2 hat times 2. 
+
+So in this case-- let me fix the typo, and I'll put 1/2 here. So this is negative y2 minus y2 hat, which is our y2 bar. Now, think about how y2 is created from h2 and v. v bar is, again, y2 hat bar times dy2 to hat dv, which is this one. 
+
+So far, nothing very different is happening from standard backpropagation because we are coming down in time, or we're coming down the list. We are not going back in time yet. h2 bar is, again, y2 hat bar times 3. And u bar is h2 bar, times, the derivative nonlinearity, times h2. So so far, we are just going down like this. Make sense so far? 
+
+OK, but that should not have been like this. So what is w bar? w bar is-- w is creating our output, our h2, right? So w bar would be what? h2 bar times d h2 by dw. OK what would be u bar here? 
+
+So this is one u bar, which depends on how y2 is created-- y2 is doing this, right? Now, there is another u bar where the gradient is moving like this. It is also a step in your forward propagation graph. 
+
+So when you go down like this, you get one u bar. When you go back like this, you get another u bar. So let us call this u bar 2, which is coming from one time step ago. 
+
+What would that be? That will simply be h, h1 bar, times b h1, by b, right? This is our h1, and so it is h1 bar, and the h1 by du. 
+
+Now, h1 bar depends on-- is really dl by dh1. dl depends on y2, so h1 bar is coming from this particular arrow in the backpropagation, yeah? You have two gradients for u2. This is u2 bar, which is coming from this arrow, and there is another gradient for u2 that is coming from this, the backpropagation, without going behind in time. 
+
+What do you do to these two? Why do you sum them up? 
+
+Its is 1u. 
+
+It is 1u, and it is creating the output y2 in two different ways. The first-- in the first case, it is creating the output using x1. In the second case, it is creating the output using x2. So it plays two-- it takes part in two different forward propagation parts. So it gets gradients from both of these forward propagation paths, and the gradients add up. They don't get averaged. They get added up, because it is taking part in two ways. 
+
+If I were to do this for y3, then three gradients would be added up-- the three forward paths for u. In general, as I keep going further in time, all these gradients get added up in the past. Yes? 
+
+If you [INAUDIBLE], then there'll be two more? 
+
+Yes, exactly. So I drew this picture now imagining as if there is only a loss calculated the third time step. If there was also a loss calculated at the second time step, then how many different paths would you play a role in? Five-- two for creating y2, and three for creating y3. And so all these five things will get added up. 
+
+I mean, the rule is simple. If you play a role in the forward path, you get some gradient back in the backward paths. If you play the role many times, you get many gradients back. So for RNN, this business has a name. People call it backpropagation through time. But backpropagation through time is identical to backpropagation, except that it's a graph that gets unrolled in time and that has shared weights across the time. So each of them get gradient backpropagation gradient multiple times. 
+
+Again, it would be a horrible thing to have to code up this yourself, but because of the way [INAUDIBLE] programmed backpropagation, all that you need to do is write the forward pass like this, and then it'll automatically keep track of all the backward pass gradients. OK, so if the last was on both time steps, then you would get multiple paths back. 
+
+Vanishing gradient Transcript (51:47)
+We have been talking a little bit about this but let us write it in expressions. So because the RNN has so many time steps, this is why-- because it has all these time steps, things get multiplied together, like you said. So u bar is a function of-- this is our u. 
+
+And this is our w. And this is our v. OK. So u bar is h2 bar times the gradient of the nonlinearity times x2. And if you expand it, you will get terms that are like v times x2. So stuff gets multiplied together. If you go further out in time, you will get squares of terms and cubes of weights, et cetera, et cetera. 
+
+And this is a big problem. So this is actually what you are doing in homework 2 without actually learning BPTT because you don't need to know backpropagation through time to think about this. In general, the output of a later time step is coming from the same weight being used many, many times in the past time step. And so the gradient of that particular weight looks like a product of many terms across time. 
+
+To give you a very simple example, if I have some vector x, I have some matrix A, and I keep multiplying x by the same matrix many, many times, then the singular values of the matrix x will determine what happens. If A has singular values that are less than 1, then what happens to A raised to k x as k becomes large? It will go to zero if x has some overlap with the singular vectors. 
+
+OK. If x has some overlap with the singular vectors and that particular singular value is greater than 1, then it will go to infinity. So if you keep recursively multiplying the same matrix again and again, then stuff can blow up to infinity. Stuff can go down to zero. And this is why in RNNs, you can get gradient explosion depending on how the non-linearities are at each time step because if they keep on multiplying with each other, or you can also get gradient vanishing depending on what the neurons are. 
+
+Now, conceptually, what does gradient vanishing really mean? It means that this particular input, by the time it created an output far ahead in the future, its influence on the output was minimal. And that is why when you update the gradient back, it doesn't let-- it doesn't get anything. OK. Now this is quite natural because words, sentences that we write have some context or very old words like you said do not affect what you write. But then in some problems, it will matter. 
+
+So if someone is jumping down into a swimming pool, it depends on what the person is doing. Right. Just watching the last few time steps will not tell you whether he or she is taking a swim or something else. So the fact that gradient vanishes is a big problem in understanding long term dependencies in your input data. Long term dependencies are-- for most problems, the long term dependencies don't have to be so long term. But for many problems that look like question answering, you need to understand long term dependencies. 
+
+Gradient explosion is typically an easy problem to fix because you can just like, if you see that the gradient is very large, you can either like clip the gradient or you can scale the gradient back before using it to update your weights. OK. Gradient vanishing is a much deeper problem because that will basically not let you learn. Gradient explosion is more of a implementation issue. And there are many ways to working around this. 
+
+Inference using RNNs Transcript (59:43)
+You will see how this happens a little more organically. This is a good idea. For instance, think about-- this is the graph of the recurrent model during training. During training, I give you lots of sentences. Let's say you're predicting the next word, given the first few words of a sentence. 
+
+In that case, your yt plus 1 is the next word, which is exactly equal to ht. Everyone is with me so far? We are predicting the next word. So the loss that we calculate at each time step is with respect to what the next word is. This is a training data set, so we know what the next word is. 
+
+At inference time how would you run this model? Suppose I write the first two words of a sentence and I want you to guess the next five words. How will you run this model? 
+
+[? Put ?] the y in there. 
+
+Yes. So you feed in the-- let's say I gave you the first word. So you feed in the first word. You go up in your forward graph. You get the putative next word that is predicted by the RNN. Now, the third word of the RNN should be something that uses the second word of the RNN as input. 
+
+So when you run a recurrent model at inference time, you feed yt minus 1 hat, actually, as ht. And then you'll get y hat t plus 1 or y hat t, which you again feed in as ht plus 1. So this is how you run a model in recurrent fashion at inference time. You will do this in your homework when you synthesize new sentences after training the RNN. 
+
+So what you want to do is definitely happening at inference time. Now, he also said that, OK, why only give ht minus 1 as input to ht? Why not also give yt minus 1? The entire point is that h is a sufficient statistic to predict y. So whatever information about the past sequence we needed that y could have, h already has it. And this is not true in practice, but this is our desire in building the RNN. For recurrent [? filter, ?] it is identical. OK. 
+
+ 
+
+Non-linearities for recurrent models Transcript (01:02:22)
+Which nonlinearities are good for recurrent models? We have talked about how a sigmoid nonlinearity can lead to gradient vanishing because your neurons might be somewhere over here or here. tanh nonlinearity has the same problem because it is something like this. 
+
+Traditionally, people used to use tanh in recurrent models. Some will still use tanh in their current models. These days, you will see, of course, a lot of people using ReLU in recurrent models. Does a ReLU solve the problem of gradient vanishing? I see no. Why? 
+
+You'd have a [INAUDIBLE]. 
+
+You still could have neurons that are sitting here, and they will not let the information pass through. A ReLU can also lead to exploding gradients if the neurons are sitting on this side, most of them, because these waves get multiplied against each other without any reduction in their magnitude. 
+
+So ReLUs can give you both positive and-- both explosion of gradient and vanishing of gradient. So you would imagine that if you make something that is a little more linear, then none of these problems arise. So at least vanishing does not arise. Explosion is usually a little easier to control, like I said in the last lecture also, by clipping the gradient or scaling the gradient, et cetera. 
+
+What happens if I don't use a nonlinearity and I only have a linear function as a nonlinearity? I still get a network, it is not just a very good network. The power of deep learning comes from us composing the linear operations with nonlinear operations. If you only have linear operations, then you only get to do linear functions. 
+
+So you want the nonlinearity, but there is no nice nonlinearity to use. And this is just a fact. And because of this, initialization of weights in an RNN is quite important. In PyTorch, they will initialize it to reasonable values when you initialize the layer. But if stuff is not working for your problem, it pays a lot to simply try to initialize the [INAUDIBLE]. 
+
+Tricks to handle vanishing gradients: clipping and weigh initialization Transcript (01:05:08)
+A couple of clicks. Gradient clipping is a technique that you will see used very commonly when training recurrent models. You will also see this technique used very commonly in training very, very complicated CNNs. And it does exactly what it says. It takes a large-magnitude gradient-- and let's say that this is W1, so this is a two dimensional weight space. 
+
+If this gradient has a large magnitude, you have two choices to reduce the gradient. You can either scale the gradient and make it smaller-- so you can multiply it by a small number, by a number smaller than 1, and then that will scale the magnitude of the gradient-- or you can actually clip the elements of the gradient. So there is a d-- or actually, there is a w1 bar and w2 bar. If w1 bar and w2 bar are large, then you simply clip them to a chosen value. And this clipping happens at some threshold that you decide as a hyperparameter. 
+
+Both of these are-- one of them is called gradient scaling. The other one is called gradient clipping. Gradient clipping clips the gradient element twice. Gradient scaling scales the entire vector of the gradient using one scalar. So they perform very similar jobs. 
+
+And in general, if you see that you are getting NaNs in the weights because your gradient is very large. You can get NaNs in weights because of different reasons because of a very large learning rate. But let's say you try to tune the learning rate but your gradient is still large. You can try to clip the gradient and control the scaling. 
+
+Usually, it is such techniques are a bandage on some deeper problem inside your model. So you use this as a way-- as a debugging tool. But if you see gradients exploding in relatively simple models, then there is something much bigger that should be fixed than just clipping. Clipping will solve it in the sense that it will let your optimizer work without NaNs in the weights or gradients, but it is not going to kill the disease. 
+
+So in PyTorch, there is a very peculiar implementation. So the function, there is a function called clip_grad_norm in PyTorch. If you Google search for it, you will find it. It actually scales the gradient instead of clipping the gradient. So this is just a bad name for a function, but you you will see it when you use it. 
+
+OK, another trick that people started using a couple of years ago is initializing the weights of an RNN using an orthonormal matrix. We said how, if the eigenvalues of the weight matrices-- or the singular values of the weight matrices-- are larger than 1, then multiplying some vector by that matrix will lead to an explosion in magnitude. If the singular values are less than 1, then it will lead to something that is very close to 0 if you multiply the same matrix many times. What happens for the orthonormal matrix? All the singular values are exactly equal to 1. 
+
+So if you initialize the weights of your recurrent model as an orthonormal matrix, remember that you are initializing the weights of the network using simply Gaussian noise. Here, I'm telling you to initialize them as a random orthonormal matrix. Then, you will not get gradient explosion. 
+
+Is this true for throughout the training? This is true for the first step of training. The next time you update the weights, they may not remain orthonormal, and now, again, you will get into the same issue. So this fixes things in the beginning, and usually it is reasonable because at the beginning, things are the worst. So all your learning rate choices, all your initialization is very important because it dominates how much the loss decreases at the beginning. And that is why this kind of techniques people started playing with. 
+
+How do you calculate a random orthonormal matrix? If you want to calculate, in your homework 1, you had to calculate w0 to be a random matrix. You will sample the entries of W using Gaussian random variables. If I want w to be a random orthonormal matrix, what should I do? 
+
+So I can calculate, I can sample my Gaussian random matrix, I can do an eigendecomposition of this matrix, and I can throw away everything that I get here and set u to be my weights. The columns of u are the eigenvectors, so I know that they are normalized to 1, and they are also orthogonal to each other. So I choose u to be my initial weight instead of W. There are many other ways. This is the simple one. 

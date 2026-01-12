@@ -1,0 +1,165 @@
+Structured risk minimization Transcript (00:00)
+Let's come to the next concept called weight decay. We talked about how large models have large variance, small bias. Small models have large bias, small variance. You would like a systematic way of searching over the space of models going from small to large models, and then stopping at the right place where your bias weight instead of increases. OK? One way to think about this is a concept called structured risk minimization. 
+
+And it works as follows. So suppose we are fitting polynomials. In my first experiment, I will fit a polynomial of degree 2. I get so and so error. In my second experiment, I will fit a polynomial of degree 5. I get so and so error. 
+
+In the next experiment, I will fit a polynomial of degree 7. My error decreases. As I fit something with error degree 9, my error may increase. At each time, I record the test error of the model that I fitted, while ensuring that the model that I'm fitting now is a superset of the model that I fitted before. 
+
+If I keep doing this, I am progressively going rightwards on my x-axis in the bias variance trade-off. And by watching where the validation error or the test error starts increasing, I can say I will stop here and pick this model. Make sense? It is a very simple thing to think about. Again, a thought experiment, but very powerful. 
+
+So you start from a small set of models. And you sequentially increase the capacity of your model or the number of parameters of your model. And then, you stop at a given position. OK? At that place, we expect that we are at the bottom of the bias variance U curve. 
+
+This concept is called structured risk minimization because it involves two kinds of training. Right? One where you select the degree of the polynomial. And for this, for a polynomial of degree 3, you go and fit the model, let's say, using polynomial regression. 
+
+Next time, you fit a selected polynomial of degree 4. You go and fit them again. So you are doing this two kinds of search, one over the complexity of the models in terms of the degree. And the second one for one particular polynomial of degree 3 for every such degree. Make sense? 
+
+Let's say that this is our bias squared. This is our variance. And then this is the population risk. OK? Right? If I fit just one model, I get one point on the population risk. 
+
+If I fit that model badly, so if I take the same space of polynomials as a degree 15, but I do not do my minimization correctly, then my error will be a little bit worse. So I'll get a point over here. If I do my minimization correctly, I'll get a point over here. 
+
+Now, I don't know whether this point is here or here because I don't know anything else of the bias variance curve. I have to check different types of models in order to know which part of the U curve I am on. Right? This is why we do structured risk management. 
+
+Structured minimization is a systematic way of going from the left-hand side to the right-hand side. If you just train one model, you'll find one point. You don't know whether your error is going to decrease after you fit a larger model or increase after you fit a larger model. So whether you are on this side of the U or this side of the U. 
+
+If you're on this side of the U, of course, you should fit a slightly larger model. If you are on this side of the U, you should fit a smaller model. This is why we fit multiple types of models. OK? 
+
+Now, you don't have to go from the left-hand side to the right-hand side. You can also come from the right-hand side to the left-hand side. You can fit a very, very, very large model and take its error. And you will presumably lie on the far right-hand side of the bias variance curve. Then you can fit a smaller model and come back [INAUDIBLE] come back until it starts increasing again. OK? 
+
+So going from the left to the right or the right to the left are one and the same thing. It is traditionally people like to think of it as going from the left to the right. 
+
+ 
+Weight decay Transcript (04:43)
+The concept is as follows. So going from the right to the left is a little bit easier because you don't have to change the models. And that is where the concept of regularization comes in. I can take a neural network-- a neural network is a function for us which is f of x comma w where w is the space of all these parameters. So this is the space of all possible neural networks that I fit. 
+
+When I select a residual architecture or a fully connected network or a convolutional network, for a fixed value of p, these are all possible functions that I can fit on my data set. My training process selects one out of them. Right? There is a slightly different way of thinking about this. If I were to select neural networks that belong to some set, let's say for capital W, which is a strict subset of p dimensional Euclidean space, then I'm fitting a slightly smaller set of models. Make sense? 
+
+My parameters are now free to take any values. The parameters have to take values in some small set so that automatically restricts the kind of functions that I am allowed to fit. So by restricting the parameters like this, it's a very cheap way to do structure risk minimization from the right-hand side to the left hand side. 
+
+You couldn't do the same thing if you wanted to go from the left to the right because a neural network with let's say 10 dimensional weights or 10 weights-- a neural network with 12 weights is a totally different architecture. But a neural network with 12 weights whose weights are all supposed to be more than 0.5 is the same architecture. I just have to impose this particular notion of belonging to a particular set. OK? This is called regularization of the weights. It's a way of taking a large model and then automatically like restricting it to behave like a small model. 
+
+The way you do this in practice is you use something called a regularizer. So in this course, we will be very strict about what we mean by regularization. Regularization is any function of the weights that restricts their values. OK. The weights are not allowed to take arbitrary values to minimize the loss. So this is the loss of the sample. The regularizer is added as a second function to the surrogate loss and the idea being that this value, it requires the weights to take so and so values. 
+
+This function requires the weights to take so and so values to minimize the loss. This second function restricts the class of values it can take. OK? So together the error of a function that minimizes this sum is smaller or higher than the error of not using the regularizer. Strictly worse, right? We are restricting the weights. Now you know from before that we are restricting the weights in order to tackle the variance and so on and so forth. 
+
+But at least right now, we are saying that I'm going to minimize over a restricted class of weights and so I should expect ordinarily worse minimization. Right? The training error might be worse. Make sense? But this is what it means to regularize. Now as you can appreciate, I can take a very large neural network. And I can choose my regularizers in clever ways to make it seem like a small neural network, not small in terms of the number of parameters but small in terms of the number of functions. OK? 
+
+Here is one example. Omega of w is some constant alpha divided by 2 times the norm of w square. If I have an objective that is something like training loss plus 5 times w squared-- let us call it 500-- plus 500 times w squared, and I minimize this over w, the minimization will focus more on reducing the 500 times w squared term. So it won't pay attention to minimizing the training loss. It will find models that have a very small norm within that ball or within that approximate ball from the origin. It will find models that have good loss. If I did not have this term here, it will find simply models that have small loss. 
+
+OK. In that case, it is using the full capacity of all the parameters at its disposal. By having this regularizer, I am forcing the model to pay attention to not just the parameters but also how far away they are from the origin. This is called weight decay because it literally decays the weights towards the origin. Right. Let us rewrite it a little bit like this. We'll talk about a two-dimensional weight space. And this is our set where norm of w squared is less than 1. 
+
+OK. Suppose we wanted to find all solutions that lie within a radius 1 from the origin. Then within the solution, some of them will have a bad test loss, some of them will have a good test loss, et cetera. And your minimization procedure will find solutions like this instead of finding a solution here, which could have the best training error but it is far away from the origin, so striking a balance between the training loss and the distance from the origin. And this is how you are restricting the space of the class of models that you pick. OK. 
+
+Let us write this objective in a slightly different way. I will say minimize over w my loss of w x comma y such that the norm of w full square is less than 1. Now this is a very clear restriction. I can write down an augmented Lagrangian of this and say that minimize w over plus lambda times w squared. OK. Now in this case, I would be using-- when I minimize the augmented Lagrangian, I enforce a weaker form of the constraint that restricts my weights. In this case, we don't worry about stuff like this. We only write down expressions of this kind. 
+
+Understanding why weight decay restricts the magnitude of weights Transcript (12:09)
+There are many names for this. It is a very old concept. It is also called Tikhonov regularization. That's just a name. In the deep learning world, people call it weight decay for the following reason. So the gradient of the loss is the gradient of the total loss is now the gradient of our original loss plus alpha times w. Right. 
+
+When I write down gradient descent, I will get w t plus 1 equals 1 minus eta times alpha wt because I have the learning rate multiplying both of these quantities minus your original gradient. So when alpha was 0, then you would get standard gradient descent or standard stochastic gradient descent. If alpha is non-zero, you get this term, which enables the weights to become closer and closer to 0. 
+
+So you can think of it as one force that drags the weights towards the origin and another force that drags the weights to minimize the loss. And the gradient now is decaying the weights towards the origin while also fitting the loss. That is why the neural networks people call it weight decay. In mathematics, it is more commonly known as L2 regularization because you are forcing the weights to have some norm in the [? l2 ?] ball. 
+
+Yeah. You can also obviously do this for linear regression. For linear regression, we have y minus capital X times w [? whole ?] square, which is the loss that we saw in the very first lecture. I can add this as another term that restricts my weights to remain close to the origin. You can go home and then take the derivative with respect to the weights and then solve for w of this expression. 
+
+And you will get this particular formula. So remember that if alpha was not present, if alpha was exactly 0, then you had the pseudoinverse of x, which is X transpose X inverse X transpose Y times Y as your answer for w. In this case, you have this extra term alpha times identity that shows up inside the inverse. Can you now appreciate what it does? 
+
+Let's do it like this. So let's say that X transpose X, we write it down as u sigma u transpose, which I've done the svd of X transpose X. There'll be some directions in which you have your large eigenvalues and those corresponding eigenvectors. Then there is some directions in which you have your small eigenvalues. 
+
+The inverse is very large in the small eigenvalues. Right. And so that increases your weights a lot. If I add an alpha to that, the inverse becomes smaller. Yeah. So while my weights would take a very large magnitude if alpha was 0 because of small eigenvalues in XX transpose, if I add alpha to all its diagonals, then my weights are not taking values that are so large. OK. Is this easy to see? 
+
+And this is also obvious if you do just do the scalar version, forget the fact that these are all matrices. But this is a very clear example of how weight decay is restricting the magnitude of the weights. In this case, you also get an insight into which kind of weights it is restricting. It is restricting the weights that are aligned with the small eigenvectors corresponding to small eigenvalues of the data matrix XX transpose. Make sense? 
+
+Can you tell me intuitively why this is a good reason, why this is good? I'll paraphrase it. So the large eigenvectors of XX transpose are directions in which the data varies a lot. Those things are presumably related to the labels Y. And that is why we want the weights to be focusing on those things. The small eigenvalues correspond to the eigenvectors where the data does not vary a lot. 
+
+Now if data does not vary a lot, then even if it is related to the target Y, if it is not related to target Y and it does not vary a lot, then you really want to kill it because that is exactly what will cause your test error to be slightly different than your training error. Data is varying a tiny bit in one direction in your training data set. But in the test data set, there is no such variation. 
+
+So adding an alpha there kills this kind of variation when you calculate the weights because you get an inverse here. And this is how you are forcing your predictions on the test data set to be a little bit more-- to focus a little more only on the salient deviations of the data, the large eigenvectors, and not focus on the small eigenvectors. What I'm saying is like a long series of calculations but very boring ones so we will just say it in words. 
+
+Weight decay on biases Transcript (17:52)
+In the first lecture, we said that the bias of a linear regression is used for what? 
+
+If I have my data, my data is now two-dimensional. And if I have all my points over here and I want to do linear regression, I do linear regression with a bias. So what does the bias do? It moves my linear regression away from the origin. 
+
+If I normalize the data, or if I remove the mean of the data and bring it to the origin, do I need a bias? 
+
+No. 
+
+No. Do we need biases in a neural network? Yes, because the weights can have-- the weights can put the data in many, many different ways. And it's not as if you know a very nice way to bring all the images close to the origin. Images take whatever values they take. The dog looks like so and so color. It's not as if you know very nice ways of normalizing it. There are ways of normalizing it, you just don't know them. But they are not very trivial. 
+
+What does weight decay do when it acts on a bias? It will not let the regression go all the way here. It will force the regression to be a little bit closer to the origin if you put weight decay on the bias. We don't like such things because the purpose of a bias is to go to the data, and then fit the regressor around that data. 
+
+So if you do bias-- if you do weight decay on biases, then you're not really letting the bias show its utility. So when you do deep learning, it is always a good idea to not have weight decay on all the bias parameters of all your layers. Whether it is a fully connected layer or a convolutional layer or any other layer, you remove the bias parameters from weight decay. 
+
+We talked about weight decay as the L2 norm. It doesn't have to be the L2 norm. It can be any other norm. They are just as meritorious ways of restricting the number of parameters. Using the L1 norm is another popular way. You typically don't see it in deep learning, but you will see it in other problems. OK. 
+
+ 
+
+Bayesian versus frequentist inference Transcript (20:35)
+So let's say that tomorrow you invent a device that detects whether the sun has gone supernova. OK. Supernova is one particular stage in the lifetime of a star. And what it basically means is that it explodes when the reactions reach some high molecular weights. And let us say you have a device that says that the sun went supernova. It returns a Boolean one or a Boolean zero. And you build this device. You believe that it works correctly. Today morning it fired and so it went supernova. Do you believe that the sun went supernova? 
+
+Let us say that the device detects not our sun but Tatooine's sun, some other sun in some other system. How do we reason about events that are fundamentally rare according to us? So the sun going supernova is a fairly rare event, a star blowing up. 
+
+The reason you don't want to believe that the sun has blown up is because you strongly believe that the sun hasn't blown up, even if your device, which is your model or your observations, tell you that this happened. If you did not have any a priori belief then you would have to believe this device. The only reason you choose not to believe this device is because your a priori beliefs say so strongly that this device is not true. So this notion is fundamentally how people think of new evidence. 
+
+When you see a new observation, you always match it with what you believe to be the true state. And if they do not match, then you either update your true state, you either believe that the sun has really blown up because my device is correct, but that requires you to think about this inference process, or you will trust the device completely if you don't have any primary beliefs of yourself. 
+
+I am saying all this to kind of motivate what the difference is between Bayesian inference and frequentist inference. Bayesian inference is the notion of you having a certain set of hypotheses about the world, about the sun in this case. And you are looking at the evidence, the observations of your device, against these hypotheses. Frequentist inference is more about only the second one. You only look at the observations without having a priori beliefs about the world. 
+
+So we looked at maximum likelihood estimation in the second lecture where we said we have a probabilistic model. We want to maximize the likelihood of the data under our probabilistic model. And these are the parameters that we like. Those parameters were not based coming from any a priori hypothesis. Right. You found the parameters which maximize the likelihood of data. If I gave you a very bad data set, you would still find the parameters that maximize the likelihood of data. 
+
+Maximum a posteriori estimation is a notion that says I want to maximize the likelihood of data but also make sure that the parameters that I find are consistent with what I believe to be the true parameters. OK. And so that is what we will do in the next class. You have seen this in many, many different forms so none of this is new. Maybe the language that I'm using is a little bit surprising but this is just Bayes' law. OK. 
+
+So just like we did with maximum likelihood estimation before, now we'll do maximum a posteriori estimation. And that is another way of looking at regularization. OK. No one says that your weights have to be close to the origin. You believe very strongly that they have to be so you put them. For some models, they need not be. In fact, [INAUDIBLE], they don't have to be a posteriori. 
+
+Maximum aposteriori estimate Transcript (24:54)
+Let us talk about a different perspective on regularization. And this is relating to maximum likelihood estimation. In the first lecture, the second lecture, we said that if we have a probabilistic model that is parameterized by weights-- I think I should not write it like this-- that is parameterized by weights w, then maximum likelihood estimation says I have a fixed data set of my n samples. 
+
+I like weights that make this data likely under my model. So that is why this is the maximum likelihood estimate of the weights. The weights that you find out of MLE may not be close to the origin. If you believe that there is some noise in the data, or this particular data set that you got was unusual let's say, these were all digits written by kindergarten children. These will be a little bit unusual than the kind of digits that you and I write. 
+
+It doesn't make a lot of sense to do maximum likelihood estimation for this kind of a data set, because it is not a likely data set. In such cases, you can do what is called maximum a posteriori estimation, and say that I believe my weights are something. Data says my weights are something else. And I force my optimization procedure to strike a balance between what I believe the weight should be and what data tells it that the weight should be, OK? 
+
+And we all have seen Bayes' law before. Even lower. We all have seen Bayes' law before. And the concept of a prior in Bayes' law is precisely this, a prior over the weights is our belief of what we believe, what we want the weights to be and the likelihood, the probability of data, given the weights, which is exactly-- this is the log likelihood of the data. And this is the probability of the data, so not the log. 
+
+This is the likelihood of the data under our weights. So the Bayes' law says after looking at data or before looking at data, we think that the weights are so and so. After looking at the data, the weights are given by the posterior distribution of weights, weights given data equals the likelihood of you observing this data times the prior p of w divided by the likelihood of the data itself, OK? 
+
+So this is just some normalization constant. Let us not worry about it. The important point is to realize that in the numerator, you are taking a product of your prior and what the data is, believes is are good weights. So stuff, weights that have high likelihood for the data, but have low likelihood for the prior, will still have a small numerator. Weights that have high likelihood for the prior and high likelihood of generating the data are the ones that will have a very large value of the numerator. 
+
+And the denominator doesn't depend on w. So they will have a better scope. In pictures, if you want to draw this, let us do a one-dimensional example. And let us say that our prior is p of w. Yeah? 
+
+And this is our likelihood. The posterior pw given d, the final weights distribution and weights that you think the model is, after looking at data, is the product of these two terms after normalization. So as you can see, stuff that is here is high under the prior but it's low under the likelihood. 
+
+That will die. Stuff that is here that has low likelihood and low prior will also die. So you'll get a final posterior that looks a little bit like, I don't know, something like this. OK? 
+
+This is Bayes' law. We've seen it many times before. How does the Bayes' law relate to regularization? Well, regularization is our belief of what the weight should be. So the prior is kind of our regularization mechanism. 
+
+Let us now write the maximum a posteriori objective. Just like in maximum likelihood, we maximize the probability of the data. So we maximize the probability of this term only, in maximum a posteriori. A posteriori means after you look at the data. A priori means before you look at the data. That is why it is called a prior. 
+
+We maximize this left-hand side, OK? If I take the logarithm of the left-hand side, I get the logarithm of the likelihood, which was the same thing as the MLE part, plus the logarithm of the prior minus the logarithm of the probability of the data set. The probability of the data set does not depend on weights. 
+
+So if you want to find the weights we don't need to worry about it. It's kind of like a constant. So finding the maximum posterior weights, it looks like maximizing the sum of the log likelihood of you creating the data using those weights and the log prior. 
+
+Regularization from a Bayesian perspective Transcript (30:48)
+So this is, let's say, our probabilistic model. Now imagine that my log prior was exactly omega, OK? I said that my omega of w was a regularizer. That restricts my weight space. 
+
+But now I'm going to pick a prior, which is equal to e to the negative omega divided by z, or normalized by some z. We want p of w to be a legitimate distribution. So z is whatever, or if you want to write it down, z is the integral of e to the omega dw, so that the left-hand side is a legitimate probability distribution. 
+
+If I say that my prior is so and so, then you will notice that maximum likelihood estimation with a regularizer looks like this. Or when we minimize the sum of our loss and weight decay term, the weight decay term is exactly this. So for weight decay, can you guess what the prior is? 
+
+When they gave us this, what is the prior that we are implicitly thinking about when we say we use weight decay? What is p of w? 
+
+One over z. 
+
+OK, remember that this is a minimization problem that we have written down. We are minimizing this objective. If I were maximizing this objective, so if I take the negative of this, my negative omega is this. OK? So using a weight decay term to regularize your model, to restrict the weights to the origin, is kind of like saying that my prior is a Gaussian, a Gaussian with mean at the origin and variance equal to 1 over square root alpha. Makes sense? OK? 
+
+OK, so and just like we said that there are other objectives where omega of w would be some constant times the one norm, this is also some prior, right? Do people really know what this prior is? So the prior corresponding to this will be what? 
+
+E to the negative alpha times the one norm proportional to this. Does anyone know this distribution? This is called a Laplace distribution. So every prior corresponds to some regularizer and every regularizer corresponds to some prior. 
+
+Not all regularizers can be written down this nicely, as a prior. You will come across other ones very soon, in fact, in the next few minutes, where we will not be able to write them down using a prior or so. But at least for now, the easiest way to understand regularization is something that restricts the capacity, the number of functions we fit. You can think about it in an alternative fashion by saying that I'm doing maximum a posteriori estimation, using some prior, instead of maximum likelihood estimation. 
+
+It allows you to control which weights are fitted. Now the prior that you may pick, which one should you pick? Like should you, when you fit a neural network, should you use this one or should you use this one? You don't know, right? So priors are our understanding of the problem. 
+
+In some problems prior one is a nicer choice. In some other problems prior two will be a nicer choice. For instance, if you have had a fracture or so sometime, they make you sit in a CT scan machine and then they will click photographs of your leg or some such thing across the CT scan machine, right? Now in some cases if you are getting a CT of your lungs or some larger volume like this, they click multiple photographs from different angles. 
+
+And then they will create one three-dimensional image of your lung or of your brain or of your bones, et cetera. To construct this three-dimensional image, they use these kinds of priors, because it turns out that these priors are well-suited to those problems. If you are doing let's say regression, it is more classical to use these kinds of priors. It depends on the problem. 
+
+You need to know something about the problem before you choose the prior. And slowly as you get in the world of deep learning, it is not that easy to find the right prior. But as you work on other problems, some of you may work on signal processing. Some of you may work on biology. There are different kinds of priors that people use for those problems. 
