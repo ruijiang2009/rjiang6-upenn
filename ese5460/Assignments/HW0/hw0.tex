@@ -748,6 +748,12 @@ w^* &= (\tilde{X}^T\tilde{X})^{-1}\tilde{X}^T\tilde{Y} \\
 b^* &= \bar{y} - \bar{x}^T w^*
 \end{align*}
 
+Applying this formula to the Boston housing dataset (using 405 training samples):
+\begin{align*}
+w^* &= [-0.111, 0.042, 0.011, 1.933, -17.835, \ldots]^T \in \mathbb{R}^{13} \\
+b^* &= 39.53
+\end{align*}
+
 \textbf{Part (b): Implementation and Results}
 
 The Boston housing dataset contains 506 samples with 13 features predicting median home values. I implemented the analytical solution and performed 3 experiments with different 80/20 train/validation splits (405 training samples, 101 validation samples).
