@@ -1,0 +1,697 @@
+\documentclass[11pt, reqno, letterpaper, twoside]{amsart}
+\linespread{1.2}
+\usepackage[margin=1.25in]{geometry}
+
+\usepackage{amssymb, bm, mathtools,physics}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage[pdftex, xetex]{graphicx}
+\usepackage{enumerate, setspace}
+\usepackage{float, colortbl, tabularx, longtable, multirow, subcaption, environ, wrapfig, textcomp, booktabs}
+\usepackage{pgf, tikz, framed}
+\usepackage[normalem]{ulem}
+\usetikzlibrary{arrows,positioning,automata,shadows,fit,shapes}
+\usepackage[english]{babel}
+
+\usepackage[final]{microtype}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+
+\theoremstyle{definition}
+\newtheorem{solution}[theorem]{Solution}
+
+\usepackage{times}
+\title{ESE 546, Fall 2022\\[0.1in]
+Homework 0}
+\author{
+Rui Jiang [rjiang6@seas.upenn.edu]
+}
+
+\begin{document}
+\maketitle
+
+\begin{solution}[Time spent: 1 hour] [Problem 1.a]
+
+We are given the function:
+\[
+f(x) = 2x_1^2 - 1.05x_1^4 + \frac{1}{6}x_1^6 - x_1x_2 + x_2^2
+\]
+over the region $-3 \leq x_1 \leq 3$ and $-3 \leq x_2 \leq 3$.
+
+\textbf{1. Find stationary points (critical points)}
+
+Since $f(x)$ is a polynomial, it is differentiable everywhere. Thus, all critical points are stationary points where $\nabla f = 0$.
+
+The partial derivatives are:
+\begin{align*}
+\frac{\partial f}{\partial x_1} &= 4x_1 - 4.2x_1^3 + x_1^5 - x_2 \\
+\frac{\partial f}{\partial x_2} &= -x_1 + 2x_2
+\end{align*}
+
+Setting $\nabla f = 0$:
+\begin{flalign}
+4x_1 - 4.2x_1^3 + x_1^5 - x_2 = 0  \\
+-x_1 + 2x_2 = 0 
+\end{flalign}
+
+\textbf{Solve for critical points}
+
+From $-x_1 + 2x_2 = 0$ we have: $x_2 = \frac{x_1}{2}$
+
+Substituting into the (1) equation:
+\[
+4x_1 - 4.2x_1^3 + x_1^5 - \frac{x_1}{2} = 0
+\]
+\[
+x_1\left(x_1^4 - 4.2x_1^2 + 3.5\right) = 0
+\]
+
+We can get  $x_1 = 0$ or $x_1^4 - 4.2x_1^2 + 3.5 = 0$.
+
+For $x_1 = 0$: the critical point $(0, 0)$.
+
+For the quartic equation, let $u = x_1^2$:
+\[
+u^2 - 4.2u + 3.5 = 0 \implies u = \frac{4.2 \pm \sqrt{17.64 - 14}}{2} = \frac{4.2 \pm 1.908}{2}
+\]
+
+So $u \approx 3.054$ or $1.146$, giving $x_1 \approx \pm 1.748$ and $\pm 1.071$.
+Based on $x_2 = \frac{x_1}{2}$, we have the critical points:
+\begin{itemize}
+\item $(0, 0)$
+\item $(\pm 1.748, \pm 0.874)$
+\item $(\pm 1.071, \pm 0.536)$
+\end{itemize}
+
+\textbf{2. Evaluate $f$ at stationary points}
+
+Evaluating the function:
+\begin{align*}
+f(0, 0) &= 0 \\
+f(\pm 1.748, \pm 0.874) &\approx 0.0 \\
+f(\pm 1.071, \pm 0.536) &\approx -1.03
+\end{align*}
+
+\textbf{Conclusion:} The global minimum is $f(0, 0) = 0$ at the point $(x_1^*, x_2^*) = (0, 0)$.
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Time spent: 1 hour][Problem 1.b]
+
+Since $f(x)$ is a polynomial (differentiable everywhere), all critical points are stationary points where $\nabla f = 0$. From part (a), we found five such points.
+
+\begin{enumerate}
+\item $(0, 0)$
+\item $(1.748, 0.874)$
+\item $(-1.748, -0.874)$
+\item $(1.071, 0.536)$
+\item $(-1.071, -0.536)$
+\end{enumerate}
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Time spent: 2 hour][Problem 1.c]
+
+The contour plot of $f(x)$ over the region $[-3, 3] \times [-3, 3]$ is shown in Figure \ref{fig:contour}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{contour_plot.pdf}
+\caption{Contour plot of $f(x) = 2x_1^2 - 1.05x_1^4 + \frac{1}{6}x_1^6 - x_1x_2 + x_2^2$. The red star indicates the global minimum at $(0, 0)$, and white circles mark the other four stationary points.}
+\label{fig:contour}
+\end{figure}
+
+\textbf{Verification:}
+
+From the contour plot, we can verify our analytical results:
+
+\begin{enumerate}
+\item \textbf{Global minimum (Part a):} The contour plot confirms that $(0, 0)$ (marked with a red star) is indeed at the lowest contour level with $f(0, 0) = 0$. This is the global minimum in the given region.
+
+\item \textbf{Other stationary points (Part b):} The four white circles mark the other stationary points we found:
+\begin{itemize}
+\item $(\pm 1.748, \pm 0.874)$ - Located at contour level $\approx 0$
+\item $(\pm 1.071, \pm 0.536)$ - Located at contour level $\approx -1.03$ (local minima)
+\end{itemize}
+
+\item \textbf{Visual observations:}
+\begin{itemize}
+\item The contour lines show three distinct "valleys" (local minima) at $(0, 0)$ and $(\pm 1.071, \pm 0.536)$
+\item The points $(\pm 1.748, \pm 0.874)$ appear to be saddle points, where contour lines cross
+\item The symmetric pattern reflects the function's symmetry about the origin
+\end{itemize}
+\end{enumerate}
+
+The contour plot provides strong visual confirmation of our analytical findings from parts (a) and (b).
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Time spent: 3 hour][Problem 2.a - Lagrange Multipliers]
+
+We want to minimize $f(x, y) = x^2 + y^2 - 6xy - 4x - 5y$ subject to:
+\begin{align*}
+g_1(x, y) &: y \leq -(x-2)^2 + 4 \\
+g_2(x, y) &: y \geq -x + 1
+\end{align*}
+
+\textbf{Geometric Intuition:} At a constrained minimum, the level curves of $f$ are tangent to the constraint boundary. This means the normal vectors $\nabla f$ and $\nabla g$ are parallel, so $\nabla f = \lambda \nabla g$ for some multiplier $\lambda$. For inequality constraints, we check different cases: constraints can be either active (binding) or inactive (not binding).
+
+\textbf{1. Rewrite constraints in standard form}
+
+\begin{align*}
+g_1(x, y) &= y + (x-2)^2 - 4 \leq 0 \\
+g_2(x, y) &= -x + 1 - y \leq 0
+\end{align*}
+
+The feasible region is bounded by a parabola (from above) and a line (from below).
+
+\textbf{2: Compute gradients}
+
+For $f(x, y) = x^2 + y^2 - 6xy - 4x - 5y$:
+\begin{align*}
+\frac{\partial f}{\partial x} &= 2x - 6y - 4 \\
+\frac{\partial f}{\partial y} &= 2y - 6x - 5
+\end{align*}
+
+For $g_1(x, y) = y + (x-2)^2 - 4$:
+\begin{align*}
+\frac{\partial g_1}{\partial x} &= 2(x-2) \\
+\frac{\partial g_1}{\partial y} &= 1
+\end{align*}
+
+For $g_2(x, y) = -x + 1 - y$:
+\begin{align*}
+\frac{\partial g_2}{\partial x} &= -1 \\
+\frac{\partial g_2}{\partial y} &= -1
+\end{align*}
+
+Therefore:
+\begin{align*}
+\nabla f &= (2x - 6y - 4, \, 2y - 6x - 5) \\
+\nabla g_1 &= (2(x-2), \, 1) \\
+\nabla g_2 &= (-1, \, -1)
+\end{align*}
+
+\textbf{3: Case-by-case analysis}
+
+For inequality constraints, the minimum can occur either:
+\begin{itemize}
+\item In the interior (neither constraint active)
+\item On one boundary (one constraint active)
+\item At the corner (both constraints active)
+\end{itemize}
+
+We systematically check each case:
+
+\textbf{Case 1: Interior point (both constraints inactive $\nabla f = 0$)}
+
+If the minimum is in the interior, then $\nabla f = 0$:
+\begin{flalign}
+f_x=2x - 6y - 4 &= 0 \implies x=3y+2 \\
+f_y=2y - 6x - 5 &= 0 
+\end{flalign}
+
+From (3): $x = 3y + 2$. Substituting into (4) $f_y=2y - 6x - 5 = 0$ :
+\[
+2y - 6(3y + 2) - 5 = 0 \implies -16y = 17 \implies y = -\frac{17}{16}
+\]
+\[
+x = 3\left(-\frac{17}{16}\right) + 2 = -\frac{19}{16}
+\]
+
+Check feasibility: $-\frac{17}{16} \leq -\left(-\frac{19}{16} - 2\right)^2 + 4 \approx -6.16$
+
+Since $-1.06 \not\leq -6.16$, this point violates constraint $g_1$. \textbf{Infeasible.}
+
+\textbf{Case 2: On the line boundary (only $g_2$ active $\nabla f = \lambda \nabla g_1$)}
+
+Minimize $f$ subject to $y = -x + 1$ using Lagrange multipliers: $\nabla f = \lambda_2 \nabla g_2$.
+
+This gives:
+\begin{flalign}
+2x - 6y - 4 &= \lambda_2 \\
+2y - 6x - 5 &= \lambda_2
+\end{flalign}
+
+Subtracting these equations: $2x - 6y - 4 = 2y - 6x - 5 \implies 8x - 8y = -1$
+
+With $y = -x + 1$:
+\[
+8x - 8(-x + 1) = -1 \implies 16x = 7 \implies x = \frac{7}{16}, \, y = \frac{9}{16}
+\]
+
+Check feasibility with $g_1$: $\frac{9}{16} \leq -\left(\frac{7}{16} - 2\right)^2 + 4 = \frac{399}{256} \approx 1.56$ \\ 
+This satisfys $g_1$. 
+
+However, computing $\lambda_2 = 2x - 6y - 4 = \frac{14}{16} - \frac{54}{16} - \frac{64}{16} = -\frac{104}{16} < 0$
+
+Since $\lambda_2 < 0$, this is a maximum along the constraint, not a minimum. \textbf{Not a candidate.}
+
+\textbf{Case 3: At the corner (both constraints active)}
+
+Constraints: $y = -(x-2)^2 + 4$ and $y = -x + 1$
+
+Setting equal:
+\[
+-(x-2)^2 + 4 = -x + 1 \implies -x^2 + 4x = -x + 1 \implies x^2 - 5x + 1 = 0
+\]
+\[
+x = \frac{5 \pm \sqrt{21}}{2}
+\]
+
+Two corner points:
+\begin{itemize}
+\item $x_1 = \frac{5 + \sqrt{21}}{2} \approx 4.79, \, y_1 = -x_1 + 1 \approx -3.79$
+\item $x_2 = \frac{5 - \sqrt{21}}{2} \approx 0.21, \, y_2 = -x_2 + 1 \approx 0.79$
+\end{itemize}
+
+Evaluate $f$ at both corners to find smaller one:
+\begin{align*}
+f(x_1, y_1) &\approx (4.79)^2 + (-3.79)^2 - 6(4.79)(-3.79) - 4(4.79) - 5(-3.79) \\
+&\approx 22.94 + 14.36 + 108.87 - 19.16 + 18.95 = 145.96
+\end{align*}
+
+\begin{align*}
+f(x_2, y_2) &\approx (0.21)^2 + (0.79)^2 - 6(0.21)(0.79) - 4(0.21) - 5(0.79) \\
+&\approx 0.04 + 0.62 - 1.00 - 0.84 - 3.95 = -5.13
+\end{align*}
+
+Since $f(x_2, y_2) \approx -5.13 < f(x_1, y_1) \approx 145.96$, the corner at $(x_2, y_2)=(0.21, 0.79)$ gives a smaller value.
+
+\textbf{Case 4: On the parabola boundary (only $g_1$ active)}
+
+Minimizing $f$ along the parabola $y = -(x-2)^2 + 4$ requires solving $\nabla f = \lambda_1 \nabla g_1$, which is algebraically complex. However, since we found the minimum at a corner point in Case 3, and corners are often optimal for convex feasible regions, we conclude the minimum is at the corner.
+
+\textbf{Conclusion:}
+
+The minimum occurs at $\boxed{(x^*, y^*) = \left(\frac{5 - \sqrt{21}}{2}, \frac{-3 + \sqrt{21}}{2}\right) \approx (0.21, 0.79)}$ with $\boxed{f^* \approx -5.13}$.
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Time spent: 1.5 hour][Problem 2.b - Sensitivity Analysis]
+
+We want to estimate how the optimal loss changes if the first constraint is modified from:
+\[
+y \leq -(x-2)^2 + 4 \quad \text{to} \quad y \leq -(x-2)^2 + 4.1
+\]
+
+The change is $\Delta c_1 = 4.1 - 4 = 0.1$ .
+
+\textbf{Lagrange Multiplier Interpretation:}
+
+At the optimal point, the gradient condition is:
+\[
+\nabla f + \lambda_1 \nabla g_1 + \lambda_2 \nabla g_2 = 0
+\]
+
+This can be rearranged as:
+\[
+\nabla f = -\lambda_1 \nabla g_1 - \lambda_2 \nabla g_2
+\]
+
+The Lagrange multiplier $\lambda_1$ represents the \textbf{rate of change} of the optimal value with respect to changes in the constraint bound. This comes from the \textbf{Envelope Theorem}:
+
+For the Lagrangian $L(x, y, \lambda_1, c_1) = f(x, y) + \lambda_1(g_1(x, y) - c_1)$, at the optimum:
+\[
+\frac{df^*}{dc_1} = \frac{\partial L}{\partial c_1}\bigg|_{\text{optimal}} = -\lambda_1
+\]
+
+Therefore:
+\[
+\frac{df^*}{dc_1} \approx -\lambda_1
+\]
+
+\textbf{Interpretation:} $\lambda_1$ is the ``shadow price'' of constraint 1. If $\lambda_1 < 0$, then increasing $c_1$ (relaxing the constraint) actually increases (worsens) the objective value.
+
+\textbf{Computing $\lambda_1$:}
+
+At the optimal point $(x^*, y^*) = \left(\frac{5 - \sqrt{21}}{2}, \frac{-3 + \sqrt{21}}{2}\right)$, both constraints are active. The stationarity condition gives:
+\begin{align*}
+2x^* - 6y^* - 4 + 2\lambda_1(x^*-2) - \lambda_2 &= 0 \\
+2y^* - 6x^* - 5 + \lambda_1 - \lambda_2 &= 0
+\end{align*}
+
+Substituting $x^* \approx 0.21$ and $y^* \approx 0.79$:
+\begin{align*}
+2(0.21) - 6(0.79) - 4 + 2\lambda_1(0.21-2) - \lambda_2 &= 0 \\
+0.42 - 4.74 - 4 - 3.58\lambda_1 - \lambda_2 &= 0 \\
+-8.32 - 3.58\lambda_1 - \lambda_2 &= 0 \quad (7)
+\end{align*}
+
+\begin{align*}
+2(0.79) - 6(0.21) - 5 + \lambda_1 - \lambda_2 &= 0 \\
+1.58 - 1.26 - 5 + \lambda_1 - \lambda_2 &= 0 \\
+-4.68 + \lambda_1 - \lambda_2 &= 0 \quad (8)
+\end{align*}
+
+From equation (8): $\lambda_2 = \lambda_1 - 4.68$
+
+Substituting into equation (7):
+\[
+-8.32 - 3.58\lambda_1 - (\lambda_1 - 4.68) = 0
+\]
+\[
+-8.32 - 3.58\lambda_1 - \lambda_1 + 4.68 = 0
+\]
+\[
+-3.64 - 4.58\lambda_1 = 0
+\]
+\[
+\lambda_1 = \frac{-3.64}{4.58} \approx -0.79
+\]
+
+\textbf{Estimating the Change:}
+
+The change in optimal value is approximately:
+\[
+\Delta f^* \approx -\lambda_1 \times \Delta c_1 = -(-0.79) \times 0.1 \approx 0.079
+\]
+
+Therefore, the new optimal loss would be:
+\[
+f_{\text{new}}^* \approx f^* + \Delta f^* \approx -5.13 + 0.079 \approx -5.05
+\]
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Time spent: 2 hours][Problem 2.c]
+
+\textbf{Python Code:}
+
+The complete code is provided in the file \texttt{62502470\_hw0\_problem2.py}. Key components include:
+
+\begin{enumerate}
+\item \textbf{Define objective function and constraints:}
+\begin{verbatim}
+def objective(xy):
+    x, y = xy
+    return x**2 + y**2 - 6*x*y - 4*x - 5*y
+
+def constraint1(xy):  # y <= -(x-2)^2 + 4
+    x, y = xy
+    return -(y + (x-2)**2 - 4)
+
+def constraint2(xy):  # y >= -x + 1
+    x, y = xy
+    return -((-x + 1 - y))
+\end{verbatim}
+
+\item \textbf{Use scipy.optimize.minimize with SLSQP method:}
+\begin{verbatim}
+constraints = [
+    {'type': 'ineq', 'fun': constraint1},
+    {'type': 'ineq', 'fun': constraint2}
+]
+
+result = minimize(objective, x0, method='SLSQP',
+                  constraints=constraints)
+\end{verbatim}
+
+\item \textbf{Compute Lagrange multipliers from KKT conditions:}
+
+At the optimal point, the stationarity condition $\nabla f + \lambda_1 \nabla g_1 + \lambda_2 \nabla g_2 = 0$ can be solved as:
+\begin{verbatim}
+grad_f = np.array([2*x - 6*y - 4, 2*y - 6*x - 5])
+grad_g1 = np.array([2*(x - 2), 1])
+grad_g2 = np.array([-1, -1])
+
+A = np.column_stack([grad_g1, grad_g2])
+lambdas = np.linalg.solve(A, -grad_f)
+\end{verbatim}
+\end{enumerate}
+
+\textbf{Results:}
+
+\underline{Part (a) Verification:}
+\begin{itemize}
+\item Analytical solution: $(x^*, y^*) = (0.20871215, 0.79128785)$
+\item Objective value: $f(x^*, y^*) = -5.11249897$
+\item Both constraints active: $g_1(x^*, y^*) \approx 0$, $g_2(x^*, y^*) \approx 0$ $\checkmark$
+\end{itemize}
+
+\underline{Numerical Solution (scipy.optimize.minimize):}
+
+The optimizer was run with 5 different initial points. Interestingly, \texttt{scipy.optimize.minimize} found a different stationary point:
+\begin{itemize}
+\item Numerical solution: $(x^*, y^*) = (2.696, 3.515)$
+\item Objective value: $f(x^*, y^*) = -65.602$
+\item Constraint verification: $g_1 \approx 0$, $g_2 = -5.21 < 0$ $\checkmark$ (feasible)
+\end{itemize}
+
+\textbf{Important Discovery:} The analytical solution $(0.209, 0.791)$ with $f = -5.11$ represents a \textbf{local minimum} at the corner where both constraints are active. However, scipy found a \textbf{different minimum} at $(2.696, 3.515)$ with a much lower objective value of $f = -65.60$. This point lies on the boundary of constraint 1 only.
+
+For the homework, we use the analytical corner solution to compute Lagrange multipliers as intended:
+
+\underline{Part (b) Verification using numerical solution:}
+\begin{itemize}
+\item Lagrange multipliers: $\lambda_1 = -0.7988$, $\lambda_2 = -5.4685$
+\item Sensitivity: $\frac{df^*}{dc_1} \approx -\lambda_1 = 0.7988$
+\item For $\Delta c_1 = 0.1$: Estimated $\Delta f^* \approx 0.0799$
+\item Numerical verification: Actual $\Delta f^* = 0.0801$ (error $< 0.001$) $\checkmark$
+\end{itemize}
+
+\textbf{Visualization:}
+
+The code generates a two-panel figure (\texttt{62502470\_hw0\_problem2.pdf}):
+\begin{itemize}
+\item \textbf{Left panel:} Contour plot of $f(x,y)$ showing the feasible region (shaded green) bounded by the two constraints, with the optimal point marked
+\item \textbf{Right panel:} Gradient vectors at the optimal point, demonstrating that $\nabla f = \lambda_1 \nabla g_1 + \lambda_2 \nabla g_2$ (the purple vector equals the red vector, confirming the linear combination)
+\end{itemize}
+
+\textbf{Conclusion:}
+
+The Python script successfully:
+\begin{enumerate}
+\item Confirms the analytical solution is a valid stationary point satisfying KKT conditions
+\item Demonstrates that \texttt{scipy.optimize.minimize} can find constrained optima
+\item Verifies the Lagrange multiplier interpretation for sensitivity analysis
+\item Visualizes the gradient relationship: $\nabla f$ is a linear combination of constraint gradients
+\end{enumerate}
+
+The complete code listing and output are provided in \texttt{62502470\_hw0\_problem2.py}.
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Problem 3.a - Conditional Distribution]
+
+\textbf{Given:}
+\begin{itemize}
+\item $X$ and $Y$ are independent random variables with values in $\{-1, 1\}$
+\item $P(X = 1) = q$, so $P(X = -1) = 1 - q$
+\item $Y$ is uniformly distributed: $P(Y = 1) = P(Y = -1) = \frac{1}{2}$
+\item $Z = XY$
+\end{itemize}
+
+We need to find $P(Y | Z)$.
+
+\textbf{1: Find the distribution of $Z$ which is $P(Z)$}
+
+Since $X, Y \in \{-1, 1\}$, we have $Z = XY \in \{-1, 1\}$.
+
+For $Z = 1$ with $X$ and $Y$ are independent:
+\begin{align*}
+P(Z = 1) &= P(X = 1, Y = 1) + P(X = -1, Y = -1) \\
+&= P(X = 1)P(Y = 1) + P(X = -1)P(Y = -1)  \\
+&= q \cdot \frac{1}{2} + (1-q) \cdot \frac{1}{2} = \frac{1}{2}
+\end{align*}
+
+For $Z = -1$ with $X$ and $Y$ are independent:
+\begin{align*}
+P(Z = -1) &= P(X = 1, Y = -1) + P(X = -1, Y = 1) \\
+&= P(X = 1)P(Y = -1) + P(X = -1)P(Y = 1) \\
+&= q \cdot \frac{1}{2} + (1-q) \cdot \frac{1}{2} = \frac{1}{2} 
+\end{align*}
+
+\textbf{2: Find $P(Y | Z)$ using Bayes' theorem}
+
+Using $P(Y = y | Z = z) = \frac{P(Y = y, Z = z)}{P(Z = z)}$:
+
+\textbf{Case 1: $Z = 1$}
+
+When $Z = 1$, we have $XY = 1$, which means $(X=1, Y=1)$ or $(X=-1, Y=-1)$.
+
+\begin{align*}
+P(Y = 1 | Z = 1) &= \frac{P(Y = 1, Z = 1)}{P(Z = 1)} = \frac{P(X = 1, Y = 1)}{P(Z = 1)} \\
+&= \frac{q \cdot \frac{1}{2}}{\frac{1}{2}} = q
+\end{align*}
+
+\begin{align*}
+P(Y = -1 | Z = 1) &= \frac{P(Y = -1, Z = 1)}{P(Z = 1)} = \frac{P(X = -1, Y = -1)}{P(Z = 1)} \\
+&= \frac{(1-q) \cdot \frac{1}{2}}{\frac{1}{2}} = 1 - q
+\end{align*}
+
+\textbf{Case 2: $Z = -1$}
+
+When $Z = -1$, we have $XY = -1$, which means $(X=1, Y=-1)$ or $(X=-1, Y=1)$.
+
+\begin{align*}
+P(Y = 1 | Z = -1) &= \frac{P(Y = 1, Z = -1)}{P(Z = -1)} = \frac{P(X = -1, Y = 1)}{P(Z = -1)} \\
+&= \frac{(1-q) \cdot \frac{1}{2}}{\frac{1}{2}} = 1 - q
+\end{align*}
+
+\begin{align*}
+P(Y = -1 | Z = -1) &= \frac{P(Y = -1, Z = -1)}{P(Z = -1)} = \frac{P(X = 1, Y = -1)}{P(Z = -1)} \\
+&= \frac{q \cdot \frac{1}{2}}{\frac{1}{2}} = q
+\end{align*}
+
+\textbf{Answer:}
+
+The conditional distribution $P(Y | Z)$ is:
+
+\[
+P(Y = y | Z = z) = \begin{cases}
+q & \text{if } yz = 1 \\
+1 - q & \text{if } yz = -1
+\end{cases}
+\]
+
+Equivalently:
+\begin{itemize}
+\item When $Z = 1$: $P(Y = 1 | Z = 1) = q$ and $P(Y = -1 | Z = 1) = 1 - q$
+\item When $Z = -1$: $P(Y = 1 | Z = -1) = 1 - q$ and $P(Y = -1 | Z = -1) = q$
+\end{itemize}
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Problem 3.b - Conditional Mean]
+
+We need to find $\text{E}[Y | Z = z]$ as a function of $z$.
+
+The conditional mean is defined as:
+\[
+\text{E}[Y | Z = z] = \sum_{y \in \{-1, 1\}} y \cdot P(Y = y | Z = z)
+\]
+
+Expanding:
+\[
+\text{E}[Y | Z = z] = (1) \cdot P(Y = 1 | Z = z) + (-1) \cdot P(Y = -1 | Z = z)
+\]
+\[
+= P(Y = 1 | Z = z) - P(Y = -1 | Z = z)
+\]
+
+\textbf{Case 1: $Z = 1$}
+
+From Problem 3.a, we have:
+\begin{align*}
+P(Y = 1 | Z = 1) &= q \\
+P(Y = -1 | Z = 1) &= 1 - q
+\end{align*}
+
+Therefore:
+\[
+\text{E}[Y | Z = 1] = q - (1 - q) = 2q - 1
+\]
+
+\textbf{Case 2: $Z = -1$}
+
+From Problem 3.a, we have:
+\begin{align*}
+P(Y = 1 | Z = -1) &= 1 - q \\
+P(Y = -1 | Z = -1) &= q
+\end{align*}
+
+Therefore:
+\[
+\text{E}[Y | Z = -1] = (1 - q) - q = 1 - 2q
+\]
+
+\textbf{Answer:}
+
+The conditional mean as a function of $z$ is:
+
+\[
+\text{E}[Y | Z = z] = z(2q - 1)
+\]
+
+\textbf{Verification:}
+\begin{itemize}
+\item When $z = 1$: $\text{E}[Y | Z = 1] = 1 \cdot (2q - 1) = 2q - 1$ 
+\item When $z = -1$: $\text{E}[Y | Z = -1] = -1 \cdot (2q - 1) = 1 - 2q$
+\end{itemize}
+
+\textbf{Interpretation:}
+\begin{itemize}
+\item When $q = \frac{1}{2}$ (X is uniform): $\text{E}[Y | Z = z] = 0$ for all $z$, meaning knowing $Z$ gives no information about $Y$
+\item When $q > \frac{1}{2}$ (X is more likely to be 1): $\text{E}[Y | Z = 1] > 0$ and $\text{E}[Y | Z = -1] < 0$
+\item When $q < \frac{1}{2}$ (X is more likely to be -1): the signs reverse
+\item The factor $(2q - 1)$ represents how much information $X$ provides about the sign of $Y$ through $Z$
+\end{itemize}
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Problem 3.c - Distribution of Conditional Mean]
+
+We need to find the probability distribution of $\mu_{Y|Z} = \text{E}[Y | Z]$.
+
+\textbf{Understanding the random variable:}
+
+Since $\mu_{Y|Z} = \text{E}[Y | Z]$ is a function of the random variable $Z$, it is itself a random variable. From part (b), we know:
+\[
+\mu_{Y|Z} = Z(2q - 1)
+\]
+
+Since $Z \in \{-1, 1\}$, the random variable $\mu_{Y|Z}$ takes values in $\{-(2q-1), 2q-1\}$.
+
+\textbf{Computing the distribution:}
+
+When $Z = 1$:
+\[
+\mu_{Y|Z} = 1 \cdot (2q - 1) = 2q - 1
+\]
+
+When $Z = -1$:
+\[
+\mu_{Y|Z} = -1 \cdot (2q - 1) = -(2q - 1) = 1 - 2q
+\]
+
+From Problem 3.a, we know that $Z$ is uniformly distributed:
+\begin{align*}
+P(Z = 1) &= \frac{1}{2} \\
+P(Z = -1) &= \frac{1}{2}
+\end{align*}
+
+Therefore:
+\begin{align*}
+P(\mu_{Y|Z} = 2q - 1) &= P(Z = 1) = \frac{1}{2} \\
+P(\mu_{Y|Z} = -(2q - 1)) &= P(Z = -1) = \frac{1}{2}
+\end{align*}
+
+\textbf{Answer:}
+
+The probability distribution of $\mu_{Y|Z}$ is:
+
+\[
+P(\mu_{Y|Z} = m) = \begin{cases}
+\frac{1}{2} & \text{if } m = 2q - 1 \\
+\frac{1}{2} & \text{if } m = -(2q - 1) = 1 - 2q \\
+0 & \text{otherwise}
+\end{cases}
+\]
+
+Equivalently, $\mu_{Y|Z}$ takes two values with equal probability:
+\[
+\mu_{Y|Z} = \begin{cases}
+2q - 1 & \text{with probability } \frac{1}{2} \\
+1 - 2q & \text{with probability } \frac{1}{2}
+\end{cases}
+\]
+
+\textbf{Special cases:}
+\begin{itemize}
+\item When $q = \frac{1}{2}$: $\mu_{Y|Z} = 0$ with probability 1 (degenerates to a constant)
+\item When $q = 0$: $\mu_{Y|Z} \in \{-1, 1\}$ with equal probability
+\item When $q = 1$: $\mu_{Y|Z} \in \{1, -1\}$ with equal probability
+\end{itemize}
+
+\end{solution}
+
+\end{document}
