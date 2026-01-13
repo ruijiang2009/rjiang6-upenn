@@ -431,7 +431,7 @@ lambdas = np.linalg.solve(A, -grad_f)
 \begin{itemize}
 \item Analytical solution: $(x^*, y^*) = (0.20871215, 0.79128785)$
 \item Objective value: $f(x^*, y^*) = -5.11249897$
-\item Both constraints active: $g_1(x^*, y^*) \approx 0$, $g_2(x^*, y^*) \approx 0$ $\checkmark$
+\item Both constraints active: $g_1(x^*, y^*) \approx 0$, $g_2(x^*, y^*) \approx 0$
 \end{itemize}
 
 \underline{Numerical Solution (scipy.optimize.minimize):}
@@ -440,7 +440,7 @@ The optimizer was run with 5 different initial points. Interestingly, \texttt{sc
 \begin{itemize}
 \item Numerical solution: $(x^*, y^*) = (2.696, 3.515)$
 \item Objective value: $f(x^*, y^*) = -65.602$
-\item Constraint verification: $g_1 \approx 0$, $g_2 = -5.21 < 0$ $\checkmark$ (feasible)
+\item Constraint verification: $g_1 \approx 0$, $g_2 = -5.21 < 0$ (which means feasible)
 \end{itemize}
 
 \textbf{Important Discovery:} The analytical solution $(0.209, 0.791)$ with $f = -5.11$ represents a \textbf{local minimum} at the corner where both constraints are active. However, scipy found a \textbf{different minimum} at $(2.696, 3.515)$ with a much lower objective value of $f = -65.60$. This point lies on the boundary of constraint 1 only.
@@ -452,7 +452,7 @@ For the homework, we use the analytical corner solution to compute Lagrange mult
 \item Lagrange multipliers: $\lambda_1 = -0.7988$, $\lambda_2 = -5.4685$
 \item Sensitivity: $\frac{df^*}{dc_1} \approx -\lambda_1 = 0.7988$
 \item For $\Delta c_1 = 0.1$: Estimated $\Delta f^* \approx 0.0799$
-\item Numerical verification: Actual $\Delta f^* = 0.0801$ (error $< 0.001$) $\checkmark$
+\item Numerical verification: Actual $\Delta f^* = 0.0801$ (error $< 0.001$)
 \end{itemize}
 
 \textbf{Visualization:}
@@ -478,7 +478,7 @@ The complete code listing and output are provided in \texttt{62502470\_hw0\_prob
 \end{solution}
 
 \clearpage
-\begin{solution}[Problem 3.a - Conditional Distribution]
+\begin{solution}[Time spent: 1 hour][Problem 3.a - Conditional Distribution]
 
 \textbf{Given:}
 \begin{itemize}
@@ -560,7 +560,7 @@ Equivalently:
 \end{solution}
 
 \clearpage
-\begin{solution}[Problem 3.b - Conditional Mean]
+\begin{solution}[Time spent: 1 hour][Problem 3.b - Conditional Mean]
 
 We need to find $\text{E}[Y | Z = z]$ as a function of $z$.
 
@@ -628,7 +628,7 @@ The conditional mean as a function of $z$ is:
 \end{solution}
 
 \clearpage
-\begin{solution}[Problem 3.c - Distribution of Conditional Mean]
+\begin{solution}[Time spent: 1 hour][Problem 3.c]
 
 We need to find the probability distribution of $\mu_{Y|Z} = \text{E}[Y | Z]$.
 
@@ -691,6 +691,109 @@ Equivalently, $\mu_{Y|Z}$ takes two values with equal probability:
 \item When $q = 0$: $\mu_{Y|Z} \in \{-1, 1\}$ with equal probability
 \item When $q = 1$: $\mu_{Y|Z} \in \{1, -1\}$ with equal probability
 \end{itemize}
+
+\end{solution}
+
+\begin{solution}[Time spent: 2 hours] [Problem 4]
+
+\textbf{Problem 4: Linear Regression on Boston Housing Dataset}
+
+\textbf{Part (a): Derive analytical expression for optimal parameters}
+
+We want to minimize the residual loss:
+\[
+\ell(w, b) = \frac{1}{2n} \|Y - Xw - b\mathbf{1}\|_2^2
+\]
+
+where:
+\begin{itemize}
+\item $Y \in \mathbb{R}^n$ is the vector of target values
+\item $X \in \mathbb{R}^{n \times d}$ is the feature matrix
+\item $w \in \mathbb{R}^d$ is the weight vector
+\item $b \in \mathbb{R}$ is the bias term
+\item $\mathbf{1} \in \mathbb{R}^n$ is the vector of ones
+\end{itemize}
+
+To find the optimal parameters, we take the gradients with respect to $w$ and $b$ and set them to zero:
+
+\textbf{Gradient with respect to $b$:}
+\begin{align*}
+\frac{\partial \ell}{\partial b} &= \frac{1}{2n} \cdot 2(Y - Xw - b\mathbf{1})^T \cdot (-\mathbf{1}) \\
+&= -\frac{1}{n} \mathbf{1}^T(Y - Xw - b\mathbf{1}) = 0
+\end{align*}
+
+This gives:
+\begin{align*}
+\mathbf{1}^T Y - \mathbf{1}^T Xw - nb &= 0 \\
+\implies b^* &= \frac{1}{n}\mathbf{1}^T Y - \frac{1}{n}\mathbf{1}^T Xw = \bar{y} - \bar{x}^T w
+\end{align*}
+
+where $\bar{y} = \frac{1}{n}\sum_{i=1}^n y_i$ and $\bar{x} = \frac{1}{n}\sum_{i=1}^n x_i$.
+
+\textbf{Gradient with respect to $w$:}
+\begin{align*}
+\frac{\partial \ell}{\partial w} &= -\frac{1}{n} X^T(Y - Xw - b\mathbf{1}) = 0
+\end{align*}
+
+This gives:
+\[
+X^T Y - X^T Xw - X^T b\mathbf{1} = 0
+\]
+
+By centering the data (defining $\tilde{X} = X - \mathbf{1}\bar{x}^T$ and $\tilde{Y} = Y - \bar{y}\mathbf{1}$), we obtain:
+
+\textbf{Analytical Solution:}
+\begin{align*}
+w^* &= (\tilde{X}^T\tilde{X})^{-1}\tilde{X}^T\tilde{Y} \\
+b^* &= \bar{y} - \bar{x}^T w^*
+\end{align*}
+
+\textbf{Part (b): Implementation and Results}
+
+The Boston housing dataset contains 506 samples with 13 features predicting median home values. I implemented the analytical solution and performed 3 experiments with different 80/20 train/validation splits (405 training samples, 101 validation samples).
+
+Following the problem specification:
+\begin{itemize}
+\item \textbf{Training set}: 80\% of data (405 samples) used to compute $w^*$, $b^*$
+\item \textbf{Validation set}: 20\% of data (101 samples) held-out for evaluating model accuracy
+\item \textbf{Training error}: Average residual $\ell(w^*, b^*)$ on the 80\% data used to fit the weights
+\item \textbf{Validation error}: Average residual on the remaining 20\% held-out data
+\end{itemize}
+
+\textbf{Results Summary:}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lcc}
+\toprule
+\textbf{Metric} & \textbf{Mean} & \textbf{Std Dev} \\
+\midrule
+Training Error $\ell(w^*, b^*)$ & 11.31 & 0.34 \\
+Validation Error $\ell(w^*, b^*)$ & 9.96 & 1.24 \\
+Training RMSE & 4.75 & 0.07 \\
+Validation RMSE & 4.45 & 0.28 \\
+\bottomrule
+\end{tabular}
+\caption{Linear regression performance across 3 random train/validation splits. Errors reported as mean $\pm$ standard deviation across experiments.}
+\end{table}
+
+\textbf{Key Observations:}
+\begin{itemize}
+\item The validation error is comparable to the training error, indicating good generalization
+\item Low standard deviations ($\sim$0.3-1.2) show consistent performance across different random splits
+\item Average validation RMSE of 4.45 means predictions are typically within \$4,450 of actual home values
+\item The closed-form analytical solution provides optimal parameters that perform well on held-out data
+\end{itemize}
+
+\textbf{Visualization:}
+
+The complete implementation is provided in \texttt{62502470\_hw0\_problem4.py}, which generates the following plots:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{62502470_hw0_problem4.pdf}
+\caption{Linear regression results: (Top left) Training vs validation loss across experiments, (Top right) Training vs validation RMSE, (Bottom left) Predictions vs actual values for training set, (Bottom right) Predictions vs actual values for validation set. The scatter plots show that predictions closely follow the ideal line (red dashed), confirming the model's accuracy.}
+\end{figure}
 
 \end{solution}
 
