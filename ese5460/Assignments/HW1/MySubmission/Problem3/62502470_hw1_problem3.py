@@ -180,7 +180,7 @@ class linear_t:
             # true forward
             hm = np.random.randn(1, 784)
             # TODO: true dw - compute gradient analytically
-            h = self.forward(hm)
+            self.forward(hm)
             self.backward(dh)
             dw = self.dw.copy()
 
@@ -192,16 +192,13 @@ class linear_t:
                 e = np.zeros((10, 784));
                 i, j = np.random.randint(0, 10), np.random.randint(0, 784)
                 e[i, j] = np.random.randn()
-                # TODO: estimated dw using finite differences
-                # perturb w[i,j] by +epsilon
+                # TODO: estimated dw
+                # Finite difference approximation
                 self.w += e
                 h_plus = self.forward(hm)
-                # perturb w[i,j] by -epsilon
                 self.w -= 2 * e
                 h_minus = self.forward(hm)
-                # restore original w
                 self.w += e
-                # finite difference: df/dw[i,j] ≈ (f(w+e) - f(w-e)) / (2*epsilon)
                 dw_e = (h_plus[0, k] - h_minus[0, k]) / (2 * e[i, j])
                 assert (np.linalg.norm(dw_e - dw[i, j]) < 1e-6)
 
