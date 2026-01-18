@@ -87,8 +87,7 @@ def subsample(x, y, num=10000):
 
     """
     ### TODO
-    # samples_per_class = num // 10  # 1000 samples per digit
-    samples_per_class = 1000
+    samples_per_class = 1000  # 1000 samples per digit as per requirements
     x_small = []
     y_small = []
 
@@ -196,22 +195,23 @@ def grid_search_SVM(x_train, y_train, x_val, y_val, params):
     Return: best classifier found by grid search
     """
     ###TODO###
-    clf = GridSearchCV(svm.SVC(cache_size=8000), params, cv=5, n_jobs=-1, verbose=2)
+    clf = GridSearchCV(svm.SVC(), params, cv=5)
     clf.fit(x_train, y_train)
-    
+
     # Get best values
-    print(f"Best accuracy for training data: {clf.best_score_:.4f}")
-    print(f"Best estimators: {clf.best_params_}")
-    print(f"All cross-validation results: {clf.cv_results_['mean_test_score']}")
-    
+    best_score = clf.best_score_
+    best_params = clf.best_params_
+    cv_results = clf.cv_results_['mean_test_score']
+
     # Get predicted y_val using best classifier
     y_pred = clf.best_estimator_.predict(x_val)
-    
+
     # Print confusion matrix
     cm = confusion_matrix(y_val, y_pred)
-    print(f"Confusion Matrix:\n{cm}")
+    print("Confusion Matrix:")
+    print(cm)
 
-    return clf
+    return clf.best_estimator_
 
 def apply_gfilter(images, frequency_list, theta_list, bandwidth_list):
     """
