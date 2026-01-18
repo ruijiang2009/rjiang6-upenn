@@ -196,7 +196,7 @@ def grid_search_SVM(x_train, y_train, x_val, y_val, params):
     Return: best classifier found by grid search
     """
     ###TODO###
-    clf = GridSearchCV(svm.SVC(), params, cv=5, verbose=1)
+    clf = GridSearchCV(svm.SVC(cache_size=8000), params, cv=5, n_jobs=-1, verbose=2)
     clf.fit(x_train, y_train)
     
     # Get best values
@@ -266,8 +266,16 @@ def gabor_filter(x_train, y_train, x_val, y_val):
     # 1. Prepare a balanced 1,000 training and validation images
     #     of 100 images per class
     ### TODO ###
-    x_train_small, y_train_small = subsample(x_train, y_train, num=1000)
-    x_val_small, y_val_small = subsample(x_val, y_val, num=1000)
+    # Combine train and val, then subsample to get balanced 1000 total
+    x_combined = np.vstack([x_train, x_val])
+    y_combined = np.hstack([y_train, y_val])
+
+    x_gabor_data, y_gabor_data = subsample(x_combined, y_combined, num=1000)
+
+    # Split into train/val (500 each, 50 per class each)
+    x_train_small, x_val_small, y_train_small, y_val_small = train_test_split(
+        x_gabor_data, y_gabor_data, test_size=0.5, random_state=42, stratify=y_gabor_data
+    )
 
     # 2. Check gabor kernel and gabor outputs as example
     ### TODO ###
@@ -333,7 +341,7 @@ def gabor_filter(x_train, y_train, x_val, y_val):
     # 6. Find best svm.SVC classifier
     #    Hint: look into cache_size parameter of svm.SVC() to speed up training
     ### TODO ###
-    classifier = svm.SVC(kernel='rbf', C=1.0, gamma='scale', cache_size=1000)
+    classifier = svm.SVC(kernel='rbf', C=1.0, gamma='scale', cache_size=8000)
     classifier.fit(x_train_pca, y_train_small)
     
     val_acc = classifier.score(x_val_pca, y_val_small)
@@ -365,3 +373,5 @@ if __name__ == '__main__':
 
     ### TODO: gabor_filter() and apply_gfilter()
     gabor_classifier = gabor_filter(x_train, y_train, x_val, y_val)
+    with open('gabor_classifier.pkl', 'wb') as f:
+        pickle.dump(gabor_classifier, f)
