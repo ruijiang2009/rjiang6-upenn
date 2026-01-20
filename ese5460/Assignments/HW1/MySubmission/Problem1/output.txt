@@ -1,0 +1,66 @@
+$ python3 62502470_hw1_problem1.py 
+Validation Accuracy: 0.9635
+Validation Error: 0.0365
+Confusion Matrix:
+[[197   0   0   0   0   0   1   1   0   1]
+ [  0 198   1   0   0   0   0   0   1   0]
+ [  0   0 193   0   2   2   2   1   0   0]
+ [  1   0   3 189   1   2   0   2   1   1]
+ [  0   0   1   0 197   0   1   0   0   1]
+ [  2   0   0   1   0 191   2   2   1   1]
+ [  0   0   0   0   1   6 191   0   2   0]
+ [  0   1   0   1   1   0   0 189   0   8]
+ [  1   1   0   0   1   2   0   1 194   0]
+ [  0   0   0   5   4   0   0   2   1 188]]
+Support Vector Ratio: 37.20%
+Best CV Score: 0.9660
+Best Parameters: {'C': 10, 'gamma': 'scale', 'kernel': 'rbf'}
+All CV Results:
+  {'C': 0.1, 'gamma': 'scale', 'kernel': 'linear'}: 0.9010
+  {'C': 0.1, 'gamma': 'scale', 'kernel': 'rbf'}: 0.9264
+  {'C': 0.1, 'gamma': 'auto', 'kernel': 'linear'}: 0.9010
+  {'C': 0.1, 'gamma': 'auto', 'kernel': 'rbf'}: 0.2971
+  {'C': 1, 'gamma': 'scale', 'kernel': 'linear'}: 0.9015
+  {'C': 1, 'gamma': 'scale', 'kernel': 'rbf'}: 0.9576
+  {'C': 1, 'gamma': 'auto', 'kernel': 'linear'}: 0.9015
+  {'C': 1, 'gamma': 'auto', 'kernel': 'rbf'}: 0.2029
+  {'C': 10, 'gamma': 'scale', 'kernel': 'linear'}: 0.9015
+  {'C': 10, 'gamma': 'scale', 'kernel': 'rbf'}: 0.9660
+  {'C': 10, 'gamma': 'auto', 'kernel': 'linear'}: 0.9015
+  {'C': 10, 'gamma': 'auto', 'kernel': 'rbf'}: 0.2034
+Confusion Matrix:
+[[198   0   1   0   0   0   0   0   0   1]
+ [  0 198   1   0   0   0   0   0   1   0]
+ [  0   0 194   0   0   2   2   2   0   0]
+ [  1   0   2 192   1   1   0   1   1   1]
+ [  0   1   1   0 195   0   3   0   0   0]
+ [  1   0   0   0   0 192   3   1   1   2]
+ [  0   0   0   0   0   6 194   0   0   0]
+ [  0   1   0   1   1   0   0 192   0   5]
+ [  1   1   0   0   1   1   0   0 196   0]
+ [  0   0   0   5   5   0   0   2   0 188]]
+Applying Gabor filters to training data...
+100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [55:27<00:00,  6.65s/it]
+Applying Gabor filters to validation data...
+100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 500/500 [33:33<00:00,  4.03s/it]
+Explained variance ratio: 0.9963
+Best parameters: {'C': 10, 'gamma': 'scale', 'kernel': 'rbf'}
+Best CV score: 0.8360
+
+==================================================
+GABOR FILTER SVM RESULTS
+==================================================
+Filter parameters:
+  - Frequencies: [0.05, 0.25]
+  - Thetas: ['0.7854', '1.5708', '2.3562', '3.1416']
+  - Bandwidths: [0.1, 1]
+  - Total filters: 16
+
+PCA components: 50
+Explained variance ratio: 0.9963
+
+Best SVM parameters: {'C': 10, 'gamma': 'scale', 'kernel': 'rbf'}
+
+Validation Accuracy: 0.8380
+Validation Error: 0.1620
+==================================================

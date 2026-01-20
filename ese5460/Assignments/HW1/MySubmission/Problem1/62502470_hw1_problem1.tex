@@ -206,7 +206,7 @@ which meakes sense because the MINIST data is a complex data set with non-linear
 The following is the original image, filter image, Gabor kernel real and imaginary kernel after calling $gabor_kernel()$.
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\textwidth]{Problem1hGaborExample.png}
+    \includegraphics[width=0.7\textwidth]{pictures/Problem1hGaborExample.png}
     \caption{The example image with the real and imaginary coefficients and filtered image}
     \label{fig:myimage}
 \end{figure}
@@ -215,10 +215,33 @@ The following is the plot of 8 pairs of real and imaginary coefficients from the
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.9\textwidth]{gabor_kernels_8filters_4x4.png}
+    \includegraphics[width=0.9\textwidth]{pictures/gabor_kernels_8filters_4x4.png}
     \caption{8 pairs of real and imaginary coefficients from the 16 Gabor filters}
     \label{fig:gabor8pairs}
 \end{figure}
+
+\textbf{Gabor Filter SVM Pipeline:}
+\begin{enumerate}
+    \item \textbf{Data Preparation:} Subsampled 1,000 images (100 per class), split 50/50 into 500 train / 500 validation.
+    \item \textbf{Filter Bank:} 16 Gabor filters using frequencies [0.05, 0.25], thetas [$\pi/4$, $\pi/2$, $3\pi/4$, $\pi$], bandwidths [0.1, 1].
+    \item \textbf{Feature Extraction:} Applied all 16 filters to each 14$\times$14 image, extracting real coefficients $\rightarrow$ 3136 features per image (16 $\times$ 196).
+    \item \textbf{Preprocessing:} Applied StandardScaler to normalize features then used PCA to reduce dimensionality, retaining the most informative features while reducing computational cost.
+    \item \textbf{SVM Training:} GridSearchCV with RBF kernel, C $\in$ [0.1, 1, 10], gamma $\in$ [scale, auto], 5-fold CV.
+\end{enumerate}
+
+The best validation accuracy of the SVM from the search is:
+\begin{itemize}
+    \item PCA components: 50
+    \item Explained variance ratio: 0.9963
+    \item Best SVM parameters: {'C': 10, 'gamma': 'scale', 'kernel': 'rbf'}
+    \item Validation Accuracy: 0.8380
+    \item Validation Error: 0.1620
+\end{itemize}
+
+The SVM search running against the original training data and test data, the best SVM parameters are the same: {'C': 10, 'gamma': 'scale', 'kernel': 'rbf'}
+
+
+\textbf{Key point:} Gabor features allow good classification with fewer samples (500 vs 8000) because they extract texture/edge information that is more discriminative than raw pixels.
 
 \end{solution}
 

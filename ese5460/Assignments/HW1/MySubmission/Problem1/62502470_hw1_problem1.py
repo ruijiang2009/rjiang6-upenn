@@ -213,7 +213,8 @@ def grid_search_SVM(x_train, y_train, x_val, y_val, params):
     Return: best classifier found by grid search
     """
     ###TODO###
-    clf = GridSearchCV(svm.SVC(), params, cv=5)
+    print("Starting grid search (this may take a while)...")
+    clf = GridSearchCV(svm.SVC(cache_size=8000), params, cv=5, verbose=1)
     clf.fit(x_train, y_train)
 
     # Get best values
