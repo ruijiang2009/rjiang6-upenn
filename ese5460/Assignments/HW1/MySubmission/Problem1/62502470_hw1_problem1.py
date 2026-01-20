@@ -34,9 +34,10 @@ def get_data():
     """
     ###TODO: Download mnist 784 dataset, do not specify any parameters except for the dataset name
     #         to be written within the single quotes
-    ds = fetch_openml('mnist_784')
+    ds = fetch_openml('mnist_784', as_frame=False)
     ###TODO: Get the MNIST image data and target, convert to numpy and cast the data into either float or integer! 
-    x, y = ds.data.to_numpy().astype(float), ds.target.to_numpy().astype(int)
+    x = ds.data.astype(float)
+    y = ds.target.astype(int)
     ### TODO: Plot one of the images with plt.imshow
     plt.imshow(x[0].reshape(28, 28), cmap='gray')
     plt.show()
@@ -103,6 +104,23 @@ def subsample(x, y, num=10000):
 
     return x_small, y_small
 
+# added by me
+def subsample_per_class(x, y, samples_per_class=100):
+    x_small = []
+    y_small = []
+
+    for digit in range(10):
+        indices = np.where(y == digit)[0]
+        selected_indices = np.random.choice(
+            indices, samples_per_class, replace=False
+        )
+        x_small.append(x[selected_indices])
+        y_small.append(y[selected_indices])
+
+    x_small = np.vstack(x_small)
+    y_small = np.hstack(y_small)
+
+    return x_small, y_small
 
 def data_preprocessing(x,y):
     """
@@ -203,6 +221,13 @@ def grid_search_SVM(x_train, y_train, x_val, y_val, params):
     best_params = clf.best_params_
     cv_results = clf.cv_results_['mean_test_score']
 
+    # Print grid search results
+    print(f"Best CV Score: {best_score:.4f}")
+    print(f"Best Parameters: {best_params}")
+    print("All CV Results:")
+    for i, score in enumerate(cv_results):
+        print(f"  {clf.cv_results_['params'][i]}: {score:.4f}")
+
     # Get predicted y_val using best classifier
     y_pred = clf.best_estimator_.predict(x_val)
 
@@ -258,6 +283,171 @@ def apply_gfilter(images, frequency_list, theta_list, bandwidth_list):
 
     return gabor_real_coeffs
 
+
+def show_gabor_example(x_train):
+    """
+    Demonstrate gabor_kernel and gabor filter on example images.
+    Shows the kernel (real/imaginary), original image, and filtered image coefficients.
+    """
+    # Set parameters
+    freq, theta, bandwidth = 0.1, np.pi/4, 1
+
+    # Create gabor kernel
+    gk = gabor_kernel(frequency=freq, theta=theta, bandwidth=bandwidth)
+    plt.figure(1); plt.clf(); plt.imshow(gk.real)
+    plt.figure(2); plt.clf(); plt.imshow(gk.imag)
+    
+    # Get original image
+    image = x_train[0].reshape((14, 14))
+
+    # Convolve the input image with the kernel and get co-efficients
+    # We will use only the real part and throw away the imaginary part
+    coeff_real, _ = gabor(image, frequency=freq, theta=theta, bandwidth=bandwidth)
+    plt. figure(3); plt.clf (); plt.imshow(coeff_real)
+    plt. figure(4); plt.clf (); plt.imshow(image)
+    plt.show()
+
+
+def show_gabor_exampl_v1(x_train, y_train, idx=0):
+    """
+    Demonstrate gabor_kernel and gabor filter on example images.
+    Shows the kernel (real/imaginary), original image, and filtered image coefficients.
+    Each image is show in 4 windows
+    """
+    freq, theta, bandwidth = 0.1, np.pi/4, 1
+
+    # Create gabor kernel
+    gk = gabor_kernel(frequency=freq, theta=theta, bandwidth=bandwidth)
+
+    plt.figure(1); plt.clf()
+    plt.imshow(gk.real, cmap="gray")
+    plt.title("Gabor kernel (real)")
+    plt.axis("off")
+
+    plt.figure(2); plt.clf()
+    plt.imshow(gk.imag, cmap="gray")
+    plt.title("Gabor kernel (imag)")
+    plt.axis("off")
+
+    # Get original image
+    image = x_train[idx].reshape((14, 14))
+    label = y_train[idx]
+
+    # Apply Gabor filter
+    coeff_real, _ = gabor(image, frequency=freq, theta=theta, bandwidth=bandwidth)
+
+    plt.figure(3); plt.clf()
+    plt.imshow(coeff_real, cmap="gray")
+    plt.title(f"Filtered image (label = {label})")
+    plt.axis("off")
+
+    plt.figure(4); plt.clf()
+    plt.imshow(image, cmap="gray")
+    plt.title(f"Original image (label = {label})")
+    plt.axis("off")
+
+    plt.show()
+
+
+def show_gabor_example_v2(x_train, y_train, idx=0):
+    """
+    Docstring for show_gabor_example_v2
+    Show all 4 images in one plot.
+    """
+    freq, theta, bandwidth = 0.1, np.pi/4, 1
+
+    # Create gabor kernel
+    gk = gabor_kernel(frequency=freq, theta=theta, bandwidth=bandwidth)
+
+    # Get original image and label
+    image = x_train[idx].reshape((14, 14))
+    label = y_train[idx]
+
+    # Apply Gabor filter
+    coeff_real, _ = gabor(image, frequency=freq, theta=theta, bandwidth=bandwidth)
+
+    # Create a 2x2 grid of subplots
+    fig, axs = plt.subplots(2, 2, figsize=(8, 8))
+
+    axs[0, 0].imshow(image, cmap="gray")
+    axs[0, 0].set_title(f"Original image (label = {label})")
+    axs[0, 0].axis("off")
+
+    axs[0, 1].imshow(coeff_real, cmap="gray")
+    axs[0, 1].set_title(f"Filtered image (label = {label})")
+    axs[0, 1].axis("off")
+
+    axs[1, 0].imshow(gk.real, cmap="gray")
+    axs[1, 0].set_title("Gabor kernel (real)")
+    axs[1, 0].axis("off")
+
+    axs[1, 1].imshow(gk.imag, cmap="gray")
+    axs[1, 1].set_title("Gabor kernel (imaginary)")
+    axs[1, 1].axis("off")
+
+    plt.tight_layout()
+    plt.show()
+
+# !!! need to use resized 14x14 images
+def show_gabor_8_filter_images():
+    theta_list = [np.pi/4, np.pi/2, 3 * np.pi / 4, np.pi]
+    frequency_list = [0.05, 0.25]
+    bandwidth_list = [0.1, 1]
+    # Plot 8 pairs of gabor_kernel() real and imaginary coefficients
+    print("Plotting 8 pairs of Gabor kernel real and imaginary coefficients...")
+    plt.figure(figsize=(16, 4))
+    plt.suptitle('Gabor Kernels: Real and Imaginary Components (8 pairs)')
+    filter_params = [(f, t) for f in frequency_list for t in theta_list]  # 8 combinations
+    for i, (freq, theta) in enumerate(filter_params):
+        kernel = gabor_kernel(frequency=freq, theta=theta, bandwidth=1.0)
+        # Top row: Real components
+        plt.subplot(2, 8, i + 1)
+        plt.imshow(np.real(kernel), cmap='gray')
+        plt.title(f'f={freq}\nθ={theta:.2f}\nreal', fontsize=8)
+        plt.axis('off')
+        # Bottom row: Imaginary components
+        plt.subplot(2, 8, i + 9)
+        plt.imshow(np.imag(kernel), cmap='gray')
+        plt.title(f'f={freq}\nθ={theta:.2f}\nimaginary', fontsize=8)
+        plt.axis('off')
+    plt.tight_layout()
+    plt.savefig('gabor_kernels_8pairs.png', dpi=150)
+    plt.show()
+
+# !!! need to use resized 14x14 images
+# change the output to 4x4 to make the picture larger
+def show_gabor_8_filter_imagesv2():
+    theta_list = [np.pi/4, np.pi/2, 3*np.pi/4, np.pi]
+    frequency_list = [0.05, 0.25]
+
+    filter_params = [(f, t) for f in frequency_list for t in theta_list]  # 8 filters
+
+    plt.figure(figsize=(12, 12))
+    plt.suptitle('Gabor Kernels: Real and Imaginary Components (8 filters)', fontsize=16)
+
+    for i, (freq, theta) in enumerate(filter_params):
+        kernel = gabor_kernel(frequency=freq, theta=theta, bandwidth=1.0)
+
+        row = i // 2
+        col = (i % 2) * 2
+
+        # Real part
+        plt.subplot(4, 4, row * 4 + col + 1)
+        plt.imshow(kernel.real, cmap='gray')
+        plt.title(f'f={freq}, θ={theta:.2f}\nreal', fontsize=9)
+        plt.axis('off')
+
+        # Imaginary part
+        plt.subplot(4, 4, row * 4 + col + 2)
+        plt.imshow(kernel.imag, cmap='gray')
+        plt.title(f'f={freq}, θ={theta:.2f}\nimag', fontsize=9)
+        plt.axis('off')
+
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    plt.savefig('gabor_kernels_8filters_4x4.png', dpi=200)
+    plt.show()
+
+
 def gabor_filter(x_train, y_train, x_val, y_val):
     """
     Perform gabor filter experiment
@@ -270,7 +460,10 @@ def gabor_filter(x_train, y_train, x_val, y_val):
     x_combined = np.vstack([x_train, x_val])
     y_combined = np.hstack([y_train, y_val])
 
-    x_gabor_data, y_gabor_data = subsample(x_combined, y_combined, num=1000)
+    # the old way of doing it.
+    # x_gabor_data, y_gabor_data = subsample(x_combined, y_combined, num=1000)
+
+    x_gabor_data, y_gabor_data = subsample_per_class(x_combined, y_combined, samples_per_class=100)
 
     # Split into train/val (500 each, 50 per class each)
     x_train_small, x_val_small, y_train_small, y_val_small = train_test_split(
@@ -279,48 +472,24 @@ def gabor_filter(x_train, y_train, x_val, y_val):
 
     # 2. Check gabor kernel and gabor outputs as example
     ### TODO ###
-    kernel = gabor_kernel(frequency=0.1, theta=0, bandwidth=1.0)
+    show_gabor_example_v2(x_train, y_train)
+
+    # Sample image for later plots
     sample_img = x_train_small[0].reshape(14, 14)
-    real, imag = gabor(sample_img, frequency=0.1, theta=0, bandwidth=1.0)
-    
-    # Plot example
-    plt.figure(figsize=(12, 4))
-    plt.subplot(1, 3, 1)
-    plt.imshow(sample_img, cmap='gray')
-    plt.title('Original Image')
-    plt.subplot(1, 3, 2)
-    plt.imshow(real, cmap='gray')
-    plt.title('Gabor Real')
-    plt.subplot(1, 3, 3)
-    plt.imshow(imag, cmap='gray')
-    plt.title('Gabor Imaginary')
-    plt.show()
 
     # 3. Diversify the values for frequency, theta, and bandwidth parameters
     #    Plot 8 pairs of real and imaginary coefficients from gabor_kernel()
     #    to check diversity of this filter-bank
     ### TODO ###
-    frequency_list = [0.1, 0.2]
-    theta_list = [0, np.pi/4, np.pi/2, 3*np.pi/4]
-    bandwidth_list = [1.0, 2.0]
-    
-    plt.figure(figsize=(16, 8))
-    for i, (freq, theta) in enumerate([(f, t) for f in frequency_list for t in theta_list[:4]]):
-        kernel = gabor_kernel(frequency=freq, theta=theta, bandwidth=1.0)
-        plt.subplot(2, 8, 2*i + 1)
-        plt.imshow(np.real(kernel), cmap='gray')
-        plt.title(f'f={freq}, θ={theta:.2f}\nReal')
-        plt.axis('off')
-        plt.subplot(2, 8, 2*i + 2)
-        plt.imshow(np.imag(kernel), cmap='gray')
-        plt.title(f'Imaginary')
-        plt.axis('off')
-    plt.tight_layout()
-    plt.show()
+    theta_list = [np.pi/4, np.pi/2, 3 * np.pi / 4, np.pi]
+    frequency_list = [0.05, 0.25]
+    bandwidth_list = [0.1, 1]
+    show_gabor_8_filter_imagesv2()
 
     # 4. Obtain new training and validation datasets of real coefficients
     #    by calling apply_gfilter() function
     ### TODO ###
+    
     print("Applying Gabor filters to training data...")
     x_train_gabor = apply_gfilter(x_train_small, frequency_list, theta_list, bandwidth_list)
     print("Applying Gabor filters to validation data...")
@@ -341,11 +510,37 @@ def gabor_filter(x_train, y_train, x_val, y_val):
     # 6. Find best svm.SVC classifier
     #    Hint: look into cache_size parameter of svm.SVC() to speed up training
     ### TODO ###
-    classifier = svm.SVC(kernel='rbf', C=1.0, gamma='scale', cache_size=8000)
-    classifier.fit(x_train_pca, y_train_small)
-    
+    params = {
+        'C': [0.1, 1, 10],
+        'kernel': ['rbf'],
+        'gamma': ['scale', 'auto']
+    }
+    grid_clf = GridSearchCV(svm.SVC(cache_size=8000), params, cv=5)
+    grid_clf.fit(x_train_pca, y_train_small)
+
+    print(f"Best parameters: {grid_clf.best_params_}")
+    print(f"Best CV score: {grid_clf.best_score_:.4f}")
+
+    classifier = grid_clf.best_estimator_
+
     val_acc = classifier.score(x_val_pca, y_val_small)
-    print(f"Gabor Filter SVM Validation Accuracy: {val_acc:.4f}")
+    val_error = 1 - val_acc
+
+    # Print results
+    print("\n" + "="*50)
+    print("GABOR FILTER SVM RESULTS")
+    print("="*50)
+    print(f"Filter parameters:")
+    print(f"  - Frequencies: {frequency_list}")
+    print(f"  - Thetas: {[f'{t:.4f}' for t in theta_list]}")
+    print(f"  - Bandwidths: {bandwidth_list}")
+    print(f"  - Total filters: {len(frequency_list) * len(theta_list) * len(bandwidth_list)}")
+    print(f"\nPCA components: 50")
+    print(f"Explained variance ratio: {sum(pca.explained_variance_ratio_):.4f}")
+    print(f"\nBest SVM parameters: {grid_clf.best_params_}")
+    print(f"\nValidation Accuracy: {val_acc:.4f}")
+    print(f"Validation Error: {val_error:.4f}")
+    print("="*50)
 
     return classifier
 
@@ -360,16 +555,24 @@ if __name__ == '__main__':
 
     train_test_SVM(x_train, y_train, x_val, y_val)
 
+    # ### Show gabor filter example (for part 1h)
+    # # show_gabor_example(x_train)
+    # show_gabor_example_v2(x_train, y_train)
+    # show_gabor_8_filter_imagesv2()
+
     ### TODO: define SVM hyperparameters to perform grid search with
     params = {
         'C': [0.1, 1, 10],
         'kernel': ['linear', 'rbf'],
         'gamma': ['scale', 'auto']
     }
-    ### TODO: Save the best svm classifier returned by grid_search_SVM to pickle file
+    # ### TODO: Save the best svm classifier returned by grid_search_SVM to pickle file
     best_svm = grid_search_SVM(x_train, y_train, x_val, y_val, params)
     with open('grid_search_svm.pkl', 'wb') as f:
         pickle.dump(best_svm, f)
+
+    # show 8 gabor examples
+    # show_gabor_8_filter_images()
 
     ### TODO: gabor_filter() and apply_gfilter()
     gabor_classifier = gabor_filter(x_train, y_train, x_val, y_val)

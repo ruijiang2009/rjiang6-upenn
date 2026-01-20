@@ -30,30 +30,261 @@ Rui Jiang [rjiang6@seas.upenn.edu]
 \begin{document}
 \maketitle
 
-\begin{solution}[Time spent: 1 hour]
+\begin{solution}[Problem 1.a, Time spent: 1 hour]
 ~\\
-\textbf{Part (a):}
+\textbf{Report 1.a:}
 The slack variable formulation allows some data points to violate the margin constraint.
 To minimize these violations while still maximizing the margin, we add a penalty term to 
 the objective function. 
 
 One common formulation is:
 \begin{align*}
-\text{minimize} \quad & \frac{1}{2}\|\theta\|^2 + \frac{1}{n} \sum_{i=1}^{n} \xi_i \\
+\text{minimize} \quad & \frac{1}{2}\|\theta\|^2 + C \sum_{i=1}^{n} \xi_i \\
 \text{subject to} \quad & y_i(\theta^T x_i + \theta_0) \geq 1 - \xi_i, \quad \forall i = 1, \ldots, n \\
 & \xi_i \geq 0, \quad \forall i = 1, \ldots, n
 \end{align*}
-where $\frac{1}{n} \sum_{i=1}^{n} \xi_i$ is a normalized penalty by the number of samples.
+where $\sum_{i=1}^{n} \xi_i$ is the penalty and $C$ contraolls the trades off betweeen margin size and violation penalty.
+
+One example is $C=\frac{1}{n}$, then we are minimize $\frac{1}{2}\|\theta\|^2 + \frac{1}{n} \sum_{i=1}^{n} \xi_i $. 
+$\frac{1}{n} \sum_{i=1}^{n} \xi_i$ is a normalized penalty by the number of samples.
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Problem 1.b, Time spent: 0.5 hour]
+~\\
+\textbf{Part (1.b):}
+The support samples in this SVM are the training data points that lie closest to the decision bounday in an SVM.
+They are critical points which define the boundaries for SVM.
+My SVM model has roughtly 37\% of training data are support samples. 
+\end{solution}
+
+\clearpage
+\begin{solution}[Problem 1.c, Time spent: 1 hour]
+~\\
+\textbf{Part (1.c):}
+The \texttt{svm.SVC} in sklearn use One-vs-One (OvO) method in default. To build a $K$ class classifier, 
+it build $\frac{K(K-1)}{2}$ classifier. For MNIST (10 classes), it builds 45 classifiers. For example, 
+it's 0 vs 1, 0 vs 2, ... 8 vs 9. For each image, all 45 classifiers run on this image. The class with 
+the hightest total number of votes wins.
+
+~\\
+The following is the alternative method: \\
+One-vs-All method: 
+\begin{enumerate}
+\item  We train one classifier per class. Each classifier is trained to distinguish that specific class
+from all other classes combined. 
+\\
+Classifier 1: Is it a "0"? \\
+Classifier 2: Is it a "1"? \\
+...
+\item We will have 10 classifiers.
+\item Run 10 classifiers for each image.
+\item In stead of looking at Yes or No vote, we will look at the raw distance from the hyperplane.
+\item The classifier with most confident to its class is the winner.
+\end{enumerate}
+
+~\\
+
 \end{solution}
 
 \clearpage
 \begin{solution}[Time spent: 1 hour]
-Your solution goes here.
+~\\
+\textbf{Part (1.d):} 
+~\\
+
+1. What does the parameter named ``shrinking'' in svm.SVC do? \\
+The ``shrinking'' parameter is a boolean (default=\texttt{True}) that specify whether to use the 
+shrinking heuristic. Based on the document, if the number of iterations is large, then shrinking heuristic 
+can shorten the training time. However, if it loosely solve the optimization problem the code without using 
+shrinking may be much faster. . Because it will temporarily remove training points that are unlikely to become  
+support vectors. This can speed up the training. 
+
+~\\
+
+2. Explain what optimization algorithm is used to fit the SVM in scikit-learn.\\
+Scikit-learn’s svm.SVC is based on LIBSVM, which uses the Sequential Minimal Optimization (SMO) algorithm. 
+SMO solves the SVM dual optimization problem by breaking it into a series of very small subproblems involving 
+only two Lagrange multipliers at a time. Each subproblem has a closed-form solution, making the algorithm 
+efficient and numerically stable. SMO is well-suited for kernelized SVMs, where the optimization problem is 
+convex but high-dimensional.
+
+~\\
+
+3. Why does fitting SVMs require a decent amount of RAM? \\
+Fitting an SVM is memory-intensive because a grid between every data point and every other data point need to be created. 
+For $N$ samples, this matrix has dimensions $N \times N$. 
+If there are $1000$ samples, then the matrix has $1,000,000$ dimensions.
+
+~\\
+4. What do the parameters $C$ and $\gamma$ do? What are their default values? \\
+$C$ controls the trade-off between maximizing the margin and minimizing the classification error on the training data. 
+A lower $C$ encourages a wider margin (smoother decision boundary) but allows more misclassifications. A higher $C$ penalizes misclassifications heavily, leading to a complex boundary that tries to classify all training points correctly.
+
 \end{solution}
 
 \clearpage
 \begin{solution}[Time spent: 1 hour]
-Your solution goes here.
+~\\
+\textbf{Part (1.e):}
+The ratio of the number of suport samples to the total number of training samples is 37.66\%.
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Problem 1.f,Time spent: 1 hour]
+~\\
+\textbf{Part (1.f):}
+
+Validation Accuracy: 0.9545 \\
+
+Validation Error: 0.0455 \\
+
+The Confusion matrix is (row is real label, column is predicted label): \\
+\[
+\begin{array}{c|cccccccccc}
+ & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 \\
+\hline
+0 & 196 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 2 & 0 \\
+1 & 0 & 198 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 \\
+2 & 1 & 0 & 191 & 2 & 2 & 0 & 1 & 3 & 0 & 0 \\
+3 & 0 & 1 & 2 & 189 & 0 & 3 & 0 & 2 & 3 & 0 \\
+4 & 0 & 0 & 1 & 0 & 187 & 0 & 5 & 0 & 0 & 7 \\
+5 & 0 & 0 & 1 & 2 & 0 & 192 & 2 & 1 & 1 & 1 \\
+6 & 0 & 0 & 0 & 0 & 0 & 0 & 200 & 0 & 0 & 0 \\
+7 & 0 & 1 & 1 & 0 & 3 & 0 & 0 & 193 & 0 & 2 \\
+8 & 1 & 0 & 0 & 3 & 1 & 2 & 0 & 1 & 189 & 3 \\
+9 & 1 & 1 & 0 & 3 & 8 & 2 & 0 & 10 & 1 & 174
+\end{array}
+\]
+
+The observed pattern is: \\
+1. The diagonal are the right prediction, which is pretty significant.\\
+2. Number 6 is the most accurate. The shape of 6 is more different compare to others\\
+3. The wrong prediction is not symatic. For exaomple 9 could be misclassified as 7 for 10 times, 
+but 7 is misclassified as 9 for only 2 times. The reason could be the edge detection is not clear 
+for 7 and 9.
+
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Problem 1.g, Time spent: 1 hour]
+~\\
+\textbf{Part (1.g):}
+The parameter I used are:
+
+\begin{verbatim}
+params = {
+    'C': [0.1, 1, 10],
+    'kernel': ['linear', 'rbf'],
+    'gamma': ['scale', 'auto']
+}
+\end{verbatim}
+
+The best hyperparameters are:
+\begin{itemize}
+    \item C: 10
+    \item gamma: scale
+    \item kernel: rbf
+\end{itemize}
+
+$C=10$ means the model will give high penalty for misclassifications. 
+
+The gamma is $scale$ because it can help to prevent overfitting or underfitting.
+
+The kernel selected is $rbf$, which means the data cannot use a liniearly plane to classify, 
+which meakes sense because the MINIST data is a complex data set with non-linear pattern.
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Problem 1.h, Time spent: 1 hour]
+~\\
+\textbf{Part (1.h):}
+The following is the original image, filter image, Gabor kernel real and imaginary kernel after calling $gabor_kernel()$.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Problem1hGaborExample.png}
+    \caption{The example image with the real and imaginary coefficients and filtered image}
+    \label{fig:myimage}
+\end{figure}
+
+The following is the plot of 8 pairs of real and imaginary coefficients from the 16 filters.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{gabor_kernels_8filters_4x4.png}
+    \caption{8 pairs of real and imaginary coefficients from the 16 Gabor filters}
+    \label{fig:gabor8pairs}
+\end{figure}
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Part 2 Jensen's Inequality, Time spent: 2 hour]
+~\\
+
+Let $X$ be a random variable with $\mu=\mathbb{E}[X]$ and let $\varphi:\mathbb{R}\to\mathbb{R}$ be convex and finite.
+We prove that
+\[
+\mathbb{E}[\varphi(X)] \ge \varphi(\mu).
+\]
+
+\medskip
+\textbf{Finite-support proof (as allowed).}
+Assume $X$ takes values in a finite set $\{x_1,\dots,x_n\}$ with probabilities
+$p_i=\mathbb{P}(X=x_i)$, where $p_i\ge 0$ and $\sum_{i=1}^n p_i=1$.
+Then
+\[
+\mu=\mathbb{E}[X]=\sum_{i=1}^n p_i x_i,
+\qquad
+\mathbb{E}[\varphi(X)]=\sum_{i=1}^n p_i\,\varphi(x_i).
+\]
+A function $\varphi$ is convex iff for any weights $(p_i)_{i=1}^n$ summing to $1$,
+\[
+\varphi\!\left(\sum_{i=1}^n p_i x_i\right) \le \sum_{i=1}^n p_i\,\varphi(x_i).
+\]
+Applying this with the above $(p_i)$ gives
+\[
+\varphi(\mu)
+=\varphi\!\left(\sum_{i=1}^n p_i x_i\right)
+\le \sum_{i=1}^n p_i\,\varphi(x_i)
+=\mathbb{E}[\varphi(X)],
+\]
+which is exactly Jensen's inequality.
+
+
+\end{solution}
+
+
+\clearpage
+\begin{solution}[Time spent: 1 hour]
+~\\
+\textbf{Part (3a):}
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Time spent: 1 hour]
+~\\
+\textbf{Part (3b):}
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Time spent: 1 hour]
+~\\
+\textbf{Part (3c):}
+
+\end{solution}
+
+\clearpage
+\begin{solution}[Time spent: 1 hour]
+~\\
+\textbf{Part (3d):}
+
 \end{solution}
 
 \end{document}
