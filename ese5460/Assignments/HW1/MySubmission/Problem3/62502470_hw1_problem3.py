@@ -95,7 +95,7 @@ class MNISTDataset(Dataset):
         self.y_data = y_data
 
     def __len__(self):
-        return len(self.x_data)
+        return len(self.x_data) # this is n
 
     def __getitem__(self, idx):
         x = self.x_data[idx]
