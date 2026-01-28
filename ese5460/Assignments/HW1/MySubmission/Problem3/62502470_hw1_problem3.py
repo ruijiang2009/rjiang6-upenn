@@ -116,8 +116,8 @@ class linear_t:
         """
         # w: (10, 784) for MNIST (10 classes, 784 input features)
         # b: (10, 1) bias for each output class
-        self.w = np.random.randn(10, 784)
-        self.b = np.random.randn(10, 1)
+        self.w = np.random.rand(10, 784)
+        self.b = np.random.rand(10, 1)
         # Initialize gradients
         self.dw = np.zeros_like(self.w)
         self.db = np.zeros_like(self.b)
@@ -131,7 +131,7 @@ class linear_t:
         # h = w @ hm.T + b, then transpose back
         # hm shape: (batch_size, 784)
         h = (self.w @ hm.T + self.b).T  # (batch_size, 10)
-        self.hm = hm
+        self.hm = hm # cache input
         return h
 
     def backward(self, dh):
@@ -159,8 +159,6 @@ class linear_t:
     def backward_check_dw(self,n =10):
         """
         Complete for subproblem 3e
-
-
         """
         # dictionary to store calculated variables for autograder
         ag_dict = {
@@ -174,33 +172,41 @@ class linear_t:
         }
         ###TODO###
         for _ in range(n):
-            k = np.random.randint(0, 10)
-            dh = np.zeros((1, 10))
-            dh[:, k] = 1
+            k = np.random.randint(0, 10) # output index, matches to 10 output neurons
+            dh = np.zeros((1, 10)) # upstream gradient
+            dh[:, k] = 1 # e.g., [0, 0, 0, 1, 0, 0, 0, 0, 0, 0] if k=3
             # true forward
             hm = np.random.randn(1, 784)
             # TODO: true dw - compute gradient analytically
             self.forward(hm)
             self.backward(dh)
-            dw = self.dw.copy()
+            dw = self.dw.copy() # my gradient for dw
 
             ag_dict['k'].append(k)
             ag_dict['hm'].append(hm)
             ag_dict['dw'].append(dw)
 
+            # change only one wieght at position (i, j) to test if self.dw[i, j] 
+            # matches the nuemrical estimate for that specific weight
+            # The numerical gradient uses the finite difference method — 
+            # measuring how the output changes when you slightly perturb a weight.
+            # The fomula is: ∂h_k/∂W_ij ≈ (h_k(W + ε) - h_k(W - ε)) / (2ε)
             for _ in range(100):
-                e = np.zeros((10, 784));
+                e = np.zeros((10, 784)) # e is permutation matrix
+                # i is row index for output neuron, j is column index for input feature
                 i, j = np.random.randint(0, 10), np.random.randint(0, 784)
                 e[i, j] = np.random.randn()
                 # TODO: estimated dw
                 # Finite difference approximation
-                self.w += e
-                h_plus = self.forward(hm)
-                self.w -= 2 * e
-                h_minus = self.forward(hm)
-                self.w += e
-                dw_e = (h_plus[0, k] - h_minus[0, k]) / (2 * e[i, j])
-                assert (np.linalg.norm(dw_e - dw[i, j]) < 1e-6)
+                self.w += e # W → W + ε
+                h_plus = self.forward(hm) # Compute f(W + ε)
+                self.w -= 2 * e # W + ε → W - ε (subtract 2ε)
+                h_minus = self.forward(hm) # Compute f(W - ε)
+                self.w += e # restore to original W
+                dw_e = (h_plus[0, k] - h_minus[0, k]) / (2 * e[i, j]) # calculate the numerical derivative
+
+                # compare the numerical dw and my dw
+                assert (np.linalg.norm(dw_e - dw[i, j]) < 1e-6) 
 
                 ag_dict['i'].append(i)
                 ag_dict['j'].append(j)
@@ -218,15 +224,15 @@ class linear_t:
         }
 
         for _ in range(n):
-            k = np.random.randint(0, 10)
+            k = np.random.randint(0, 10) # random output neuron
             dh = np.zeros((1, 10))
-            dh[:, k] = 1
+            dh[:, k] = 1 # one-hot: only care about output k
             # true forward/backward
             hm = np.random.randn(1, 784)
             # TODO: true db
             self.forward(hm)
             self.backward(dh)
-            db = self.db.copy()
+            db = self.db.copy() # my gradient
 
             # TODO: estimated db
             db_e = np.zeros((10,1))
@@ -250,14 +256,14 @@ class linear_t:
             'i':[]
         }
         for _ in range(n):
-            k = np.random.randint(0, 10)
+            k = np.random.randint(0, 10) # random neuron
             dh = np.zeros((1, 10))
             dh[:, k] = 1
             # true forward/backward
             hm = np.random.randn(1, 784)
             # TODO: true dhm
             self.forward(hm)
-            dhm = self.backward(dh).copy()
+            dhm = self.backward(dh).copy() # my gradient w.r.t. input
 
             ag_dict['k'].append(k)
             ag_dict['hm'].append(hm)
@@ -294,6 +300,9 @@ class relu_t:
     Complete for subproblem 3c
     """
     def __init__(self):
+        # hm means hidden matrix 
+        # dh means ∂Loss/∂h — gradient received from next layer
+        # dhm ∂Loss/∂hm — gradient to pass to previous layer
         self.hm = None
 
     def forward(self,hm):
@@ -323,7 +332,7 @@ class softmax_cross_entropy_t:
         # y: (batch_size,) labels
         self.y = y
 
-        # Compute softmax probabilities (numerically stable)
+        # Compute softmax probabilities
         h_max = np.max(h, axis=1, keepdims=True)
         exp_h = np.exp(h - h_max)
         self.prob = exp_h / np.sum(exp_h, axis=1, keepdims=True)
@@ -333,13 +342,13 @@ class softmax_cross_entropy_t:
         log_prob = -np.log(self.prob[np.arange(batch_size), y] + 1e-10)
 
         # compute the average loss over mini-batch
-        ce = np.mean(log_prob)
+        cross_entropy = np.mean(log_prob)
 
         # Compute error (misclassification rate)
         predictions = np.argmax(self.prob, axis=1)
         err = np.mean(predictions != y)
 
-        return ce, err
+        return cross_entropy, err
 
     def backward(self):
         """
@@ -393,7 +402,6 @@ def train_self_nn(train_dataloader, val_dataloader, lr=0.1):
 
     # Create iterators for dataloaders
     train_iter = iter(train_dataloader)
-    val_iter = iter(val_dataloader)
 
     # train for at least 10,000 iterations
     for t in range(10000):
