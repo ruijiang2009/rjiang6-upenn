@@ -197,16 +197,15 @@ class linear_t:
                 i, j = np.random.randint(0, 10), np.random.randint(0, 784)
                 e[i, j] = np.random.randn()
                 # TODO: estimated dw
-                # Finite difference approximation
-                self.w += e # W → W + ε
-                h_plus = self.forward(hm) # Compute f(W + ε)
-                self.w -= 2 * e # W + ε → W - ε (subtract 2ε)
-                h_minus = self.forward(hm) # Compute f(W - ε)
-                self.w += e # restore to original W
-                dw_e = (h_plus[0, k] - h_minus[0, k]) / (2 * e[i, j]) # calculate the numerical derivative
+                # Finite difference using direct matrix multiplication (not self.forward)
+                h_plus = hm @ (self.w + e).T  # (1, 10)
+                h_minus = hm @ (self.w - e).T  # (1, 10)
+
+                # dw_e is a scalar (stored as 1D array) - the gradient at position (i,j)
+                dw_e = np.array([(h_plus[0, k] - h_minus[0, k]) / (2 * e[i, j])])
 
                 # compare the numerical dw and my dw
-                assert (np.linalg.norm(dw_e - dw[i, j]) < 1e-6) 
+                assert (np.linalg.norm(dw_e - dw[i, j]) < 1e-6)
 
                 ag_dict['i'].append(i)
                 ag_dict['j'].append(j)
@@ -272,14 +271,15 @@ class linear_t:
             # dhm is similar to dw
             for _ in range(100):
                 e = np.zeros((1, 784))
-                i =np.random.randint(0,784)
-                e[0,i]=np.random.randn()
+                i = np.random.randint(0, 784)
+                e[0, i] = np.random.randn()
                 # TODO: estimated dhm
-                # Finite difference approximation
-                h_plus = self.forward(hm + e)
-                h_minus = self.forward(hm - e)
-                dhm_e = (h_plus[0, k] - h_minus[0, k]) / (2 * e[0, i])
-                assert(np.linalg.norm(dhm_e-dhm[0,i]) < 1e-6)
+                # Finite difference using direct matrix multiplication
+                h_plus = (hm + e) @ self.w.T  # (1, 10)
+                h_minus = (hm - e) @ self.w.T  # (1, 10)
+                # dhm_e is a scalar (stored as 1D array)
+                dhm_e = np.array([(h_plus[0, k] - h_minus[0, k]) / (2 * e[0, i])])
+                assert(np.linalg.norm(dhm_e - dhm[0, i]) < 1e-6)
 
                 ag_dict['e'].append(e)
                 ag_dict['i'].append(i)
@@ -527,10 +527,8 @@ class Net(nn.Module):
     def forward(self, x):
         # Flatten input if needed
         x = x.view(x.size(0), -1)  # (batch_size, 784)
-        # Linear layer
-        x = self.fc1(x)
-        # ReLU activation
-        x = F.relu(x)
+        # Linear layer followed by ReLU (matching self-built NN structure)
+        x = F.relu(self.fc1(x))
         return x
 
 
