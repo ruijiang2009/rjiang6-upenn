@@ -403,8 +403,8 @@ def train_self_nn(train_dataloader, val_dataloader, lr=0.1):
     # Create iterators for dataloaders
     train_iter = iter(train_dataloader)
 
-    # train for at least 10,000 iterations
-    for t in range(10000):
+    # train for at least 10,000 iterations (using 15000 for better convergence)
+    for t in range(15000):
         # 1. sample a mini-batch of size bb = 32
         try:
             x, y = next(train_iter)
@@ -559,8 +559,8 @@ def train_pytorch_nn(train_dataloader, val_dataloader, lr=0.1):
     # Create iterator for dataloader
     train_iter = iter(train_dataloader)
 
-    # Train for at least 10,000 iterations
-    for t in range(10000):
+    # Train for at least 10,000 iterations (using 15000 for better convergence)
+    for t in range(15000):
         # Sample a mini-batch
         try:
             x, y = next(train_iter)

@@ -1,0 +1,64 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\begin{document}
+
+\section*{Problem 3e: Backward Check Explanation}
+
+\subsection*{Finite Difference Method for Gradient Verification}
+
+The \texttt{backward\_check\_dw} function verifies that the analytical gradient computed by \texttt{backward()} matches a numerical estimate using the finite difference method.
+
+\subsubsection*{The Finite Difference Formula}
+
+To estimate the derivative numerically:
+\[
+\frac{\partial h_k}{\partial W_{ij}} \approx \frac{h_k(W + \epsilon) - h_k(W - \epsilon)}{2\epsilon}
+\]
+
+where $\epsilon$ is a small perturbation matrix with a single non-zero entry at position $(i, j)$.
+
+\subsubsection*{The Three Steps in Code}
+
+\begin{enumerate}
+    \item \texttt{self.w += e} $\rightarrow$ $W \rightarrow W + \epsilon$
+    \item \texttt{self.w -= 2*e} $\rightarrow$ $W + \epsilon \rightarrow W - \epsilon$ (subtract $2\epsilon$)
+    \item \texttt{self.w += e} $\rightarrow$ $W - \epsilon \rightarrow W$ (restore original)
+\end{enumerate}
+
+\subsubsection*{Variable Definitions}
+
+\begin{itemize}
+    \item \textbf{k}: Output index (0-9), which of the 10 output neurons we're checking
+    \item \textbf{dh}: Upstream gradient, a one-hot vector with 1 at position $k$, e.g., $[0, 0, 0, 1, 0, 0, 0, 0, 0, 0]$ if $k=3$
+    \item \textbf{hm}: Input matrix of shape (1, 784), a random input image (batch\_size=1)
+    \item \textbf{e}: Perturbation matrix of shape (10, 784), all zeros except one small random value at position $(i, j)$
+    \item \textbf{i}: Row index (0-9), which output neuron
+    \item \textbf{j}: Column index (0-783), which input feature
+\end{itemize}
+
+\subsubsection*{Why This Sequence Works}
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{After operation} & \textbf{Value of self.w} \\
+\hline
+Start & $W$ \\
+\texttt{+= e} & $W + \epsilon$ \\
+\texttt{-= 2*e} & $W - \epsilon$ \\
+\texttt{+= e} & $W$ (restored) \\
+\hline
+\end{tabular}
+\end{center}
+
+This efficiently computes both $f(W + \epsilon)$ and $f(W - \epsilon)$ while restoring $W$ to its original value at the end.
+
+\subsubsection*{Verification}
+
+The assertion \texttt{assert(np.linalg.norm(dw\_e - dw[i, j]) < 1e-6)} checks that the numerical estimate \texttt{dw\_e} matches the analytical gradient \texttt{dw[i, j]} within a small tolerance ($10^{-6}$).
+
+If all assertions pass, the \texttt{backward()} implementation is correct.
+
+\end{document}
